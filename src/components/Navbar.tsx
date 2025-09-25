@@ -24,22 +24,16 @@ const Navbar = () => {
           {/* Desktop Navigation */}
           <div className="hidden lg:flex items-center space-x-6 xl:space-x-8">
             <button 
-              onClick={() => scrollToSection('features')} 
+              onClick={() => scrollToSection('how-it-works')} 
               className="text-gray-700 hover:text-[#0b5fff] transition-colors text-sm xl:text-base"
             >
               Product
             </button>
             <button 
-              onClick={() => scrollToSection('how-it-works')} 
+              onClick={() => scrollToSection('features')} 
               className="text-gray-700 hover:text-[#0b5fff] transition-colors text-sm xl:text-base"
             >
               How it Works
-            </button>
-            <button 
-              onClick={() => scrollToSection('pricing')} 
-              className="text-gray-700 hover:text-[#0b5fff] transition-colors text-sm xl:text-base"
-            >
-              Pricing
             </button>
             <button 
               onClick={() => scrollToSection('faq')} 
@@ -68,22 +62,16 @@ const Navbar = () => {
           <div className="lg:hidden">
             <div className="px-2 pt-2 pb-3 space-y-1 bg-white border-t shadow-lg">
               <button 
-                onClick={() => scrollToSection('features')} 
+                onClick={() => scrollToSection('how-it-works')} 
                 className="block w-full text-left px-3 py-2.5 text-gray-700 hover:text-[#0b5fff] hover:bg-gray-50 rounded-md transition-colors touch-manipulation"
               >
                 Product
               </button>
               <button 
-                onClick={() => scrollToSection('how-it-works')} 
+                onClick={() => scrollToSection('features')} 
                 className="block w-full text-left px-3 py-2.5 text-gray-700 hover:text-[#0b5fff] hover:bg-gray-50 rounded-md transition-colors touch-manipulation"
               >
                 How it Works
-              </button>
-              <button 
-                onClick={() => scrollToSection('pricing')} 
-                className="block w-full text-left px-3 py-2.5 text-gray-700 hover:text-[#0b5fff] hover:bg-gray-50 rounded-md transition-colors touch-manipulation"
-              >
-                Pricing
               </button>
               <button 
                 onClick={() => scrollToSection('faq')} 

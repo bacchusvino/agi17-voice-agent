@@ -23,7 +23,7 @@ const ExplainerVideo = () => {
           <div className="space-y-4 sm:space-y-6 order-1 lg:order-2 text-center lg:text-left">
             <div>
               <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">
-                See How It Works
+                Watch QualiFy in Action
               </h2>
               <p className="text-lg sm:text-xl text-gray-600">
                 Watch our complete outbound automation workflow in action
