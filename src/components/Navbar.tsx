@@ -27,22 +27,22 @@ const Navbar = () => {
               onClick={() => scrollToSection('how-it-works')} 
               className="text-gray-700 hover:text-[#0b5fff] transition-colors text-sm xl:text-base"
             >
-              Product
-            </button>
-            <button 
-              onClick={() => scrollToSection('features')} 
-              className="text-gray-700 hover:text-[#0b5fff] transition-colors text-sm xl:text-base"
-            >
-              How it Works
+              How It Works
             </button>
             <button 
               onClick={() => scrollToSection('faq')} 
               className="text-gray-700 hover:text-[#0b5fff] transition-colors text-sm xl:text-base"
             >
-              Resources
+              FAQ
+            </button>
+            <button 
+              onClick={() => scrollToSection('testimonials')} 
+              className="text-gray-700 hover:text-[#0b5fff] transition-colors text-sm xl:text-base"
+            >
+              Success Stories
             </button>
             <button className="bg-[#ff6b6b] text-white px-4 xl:px-6 py-2 rounded-lg font-semibold hover:bg-[#ff5252] transform hover:scale-105 transition-all duration-200 shadow-lg text-sm xl:text-base touch-manipulation">
-              Book Demo
+              Free Trial
             </button>
           </div>
 
@@ -65,23 +65,23 @@ const Navbar = () => {
                 onClick={() => scrollToSection('how-it-works')} 
                 className="block w-full text-left px-3 py-2.5 text-gray-700 hover:text-[#0b5fff] hover:bg-gray-50 rounded-md transition-colors touch-manipulation"
               >
-                Product
-              </button>
-              <button 
-                onClick={() => scrollToSection('features')} 
-                className="block w-full text-left px-3 py-2.5 text-gray-700 hover:text-[#0b5fff] hover:bg-gray-50 rounded-md transition-colors touch-manipulation"
-              >
-                How it Works
+                How It Works
               </button>
               <button 
                 onClick={() => scrollToSection('faq')} 
                 className="block w-full text-left px-3 py-2.5 text-gray-700 hover:text-[#0b5fff] hover:bg-gray-50 rounded-md transition-colors touch-manipulation"
               >
-                Resources
+                FAQ
+              </button>
+              <button 
+                onClick={() => scrollToSection('testimonials')} 
+                className="block w-full text-left px-3 py-2.5 text-gray-700 hover:text-[#0b5fff] hover:bg-gray-50 rounded-md transition-colors touch-manipulation"
+              >
+                Success Stories
               </button>
               <div className="pt-2">
                 <button className="w-full bg-[#ff6b6b] text-white px-6 py-2.5 rounded-lg font-semibold hover:bg-[#ff5252] transition-colors touch-manipulation">
-                  Book Demo
+                  Free Trial
                 </button>
               </div>
             </div>

@@ -1,48 +1,52 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, Star } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Star, MapPin } from 'lucide-react';
 
 const Testimonials = () => {
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
 
   const testimonials = [
     {
-      quote: "QualiFy replaced 2 SDRs and doubled our booked calls. The AI qualification is incredibly accurate and saves our team hours every day.",
-      author: "Sarah Chen",
-      role: "VP of Sales",
-      company: "TechFlow",
+      quote: "QualiFy helped me land 3 listings in my first month. The AI qualification is spot-on, and the video follow-ups make me look so professional. I'm done paying Zillow's ridiculous fees.",
+      author: "Maria Rodriguez",
+      role: "Real Estate Agent",
+      company: "Compass San Diego",
+      location: "Mission Valley",
       avatar: "https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&dpr=2",
-      logo: "TechFlow"
+      result: "3 listings in 30 days"
     },
     {
-      quote: "We went from 5 meetings per month to 23 meetings in our first month with QualiFy. The ROI was immediate and substantial.",
-      author: "Marcus Rodriguez",
-      role: "Founder",
-      company: "DataSync",
+      quote: "I was skeptical about AI, but QualiFy's voice calls sound completely natural. It qualified a $2.1M Del Mar listing while I was showing another property. Game changer.",
+      author: "David Chen",
+      role: "Broker Associate",
+      company: "Coldwell Banker",
+      location: "Del Mar",
       avatar: "https://images.pexels.com/photos/1043471/pexels-photo-1043471.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&dpr=2",
-      logo: "DataSync"
+      result: "$2.1M listing secured"
     },
     {
-      quote: "The personalized video feature is a game-changer. Our response rates increased by 300% compared to traditional email outreach.",
-      author: "Emily Foster",
-      role: "Head of Growth",
-      company: "CloudVault",
+      quote: "The FSBO monitoring is incredible. QualiFy caught a Scripps Ranch listing 3 minutes after it was posted. I had the appointment booked before other agents even saw it.",
+      author: "Jennifer Park",
+      role: "Senior Agent",
+      company: "RE/MAX",
+      location: "Scripps Ranch",
       avatar: "https://images.pexels.com/photos/762020/pexels-photo-762020.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&dpr=2",
-      logo: "CloudVault"
+      result: "First to respond, won listing"
     },
     {
-      quote: "As a startup, we needed to scale sales without hiring expensive SDRs. QualiFy gave us enterprise-level capabilities at a fraction of the cost.",
-      author: "David Park",
-      role: "CEO",
-      company: "AutoScale",
+      quote: "My clients love the personalized videos. One seller said it was the most professional follow-up they'd ever received. QualiFy makes me stand out in this competitive market.",
+      author: "Michael Torres",
+      role: "Real Estate Agent",
+      company: "Keller Williams",
+      location: "Point Loma",
       avatar: "https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&dpr=2",
-      logo: "AutoScale"
+      result: "Higher close rate"
     }
   ];
 
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentTestimonial((prev) => (prev + 1) % testimonials.length);
-    }, 5000);
+    }, 6000);
 
     return () => clearInterval(timer);
   }, []);
@@ -60,10 +64,10 @@ const Testimonials = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-8 sm:mb-12 lg:mb-16">
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">
-            What Our Customers Say
+            What San Diego Agents Are Saying
           </h2>
           <p className="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto px-4">
-            See why sales teams are switching to QualiFy for their outbound automation
+            Real results from real estate professionals across San Diego County
           </p>
         </div>
 
@@ -93,11 +97,18 @@ const Testimonials = () => {
                 <p className="opacity-90 text-sm sm:text-base">
                   {testimonials[currentTestimonial].role}
                 </p>
+                <div className="flex items-center text-sm opacity-80 mt-1">
+                  <MapPin size={12} className="mr-1" />
+                  {testimonials[currentTestimonial].location}
+                </div>
               </div>
-              <div className="bg-white/20 backdrop-blur-sm rounded-lg px-3 sm:px-4 py-1.5 sm:py-2 ml-2 sm:ml-0">
-                <span className="font-bold text-xs sm:text-sm">
-                  {testimonials[currentTestimonial].logo}
-                </span>
+              <div className="bg-white/20 backdrop-blur-sm rounded-lg px-3 sm:px-4 py-1.5 sm:py-2 ml-2 sm:ml-0 text-center">
+                <div className="font-bold text-xs sm:text-sm">
+                  {testimonials[currentTestimonial].company.split(' ')[0]}
+                </div>
+                <div className="text-xs opacity-90">
+                  {testimonials[currentTestimonial].result}
+                </div>
               </div>
             </div>
           </div>
@@ -133,19 +144,19 @@ const Testimonials = () => {
           </div>
         </div>
 
-        {/* Stats */}
+        {/* Results Stats */}
         <div className="grid sm:grid-cols-3 gap-6 sm:gap-8 mt-8 sm:mt-12 lg:mt-16 text-center">
           <div className="p-4 sm:p-6">
-            <div className="text-2xl sm:text-3xl font-bold text-[#0b5fff] mb-2">300%</div>
-            <p className="text-gray-600 text-sm sm:text-base">Average response rate increase</p>
+            <div className="text-2xl sm:text-3xl font-bold text-[#0b5fff] mb-2">$15K+</div>
+            <p className="text-gray-600 text-sm sm:text-base">Average commission saved per deal</p>
           </div>
           <div className="p-4 sm:p-6">
-            <div className="text-2xl sm:text-3xl font-bold text-[#0b5fff] mb-2">2-5x</div>
-            <p className="text-gray-600 text-sm sm:text-base">More meetings booked per month</p>
+            <div className="text-2xl sm:text-3xl font-bold text-[#0b5fff] mb-2">5 min</div>
+            <p className="text-gray-600 text-sm sm:text-base">Average response time to new leads</p>
           </div>
           <div className="p-4 sm:p-6">
-            <div className="text-2xl sm:text-3xl font-bold text-[#0b5fff] mb-2">&lt;7</div>
-            <p className="text-gray-600 text-sm sm:text-base">Days to first qualified meeting</p>
+            <div className="text-2xl sm:text-3xl font-bold text-[#0b5fff] mb-2">3x</div>
+            <p className="text-gray-600 text-sm sm:text-base">More listings per month on average</p>
           </div>
         </div>
       </div>

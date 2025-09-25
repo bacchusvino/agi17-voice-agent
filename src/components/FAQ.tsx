@@ -6,36 +6,36 @@ const FAQ = () => {
 
   const faqs = [
     {
-      question: "How does AI qualification work?",
-      answer: "Our AI uses natural language processing to conduct phone conversations with prospects, asking qualifying questions, understanding responses, and scoring leads based on fit, need, budget, and timeline. It can handle objections and book meetings for qualified prospects automatically."
+      question: "How does the AI qualification work?",
+      answer: "Our AI makes natural-sounding phone calls to leads within 5 minutes of capture. It asks qualifying questions about timeline, motivation, budget, and property details. The conversation feels completely natural - most people don't realize they're talking to AI. Qualified leads are immediately flagged for your follow-up."
     },
     {
-      question: "What channels does QualiFy support?",
-      answer: "QualiFy supports multi-channel outreach including email, LinkedIn messaging, cold calls, SMS, and video messages. You can create coordinated sequences across all channels or focus on specific channels based on your strategy."
+      question: "What lead sources does QualiFy monitor?",
+      answer: "We monitor San Diego FSBO websites, Craigslist, Facebook Marketplace, Instagram, expired MLS listings, and other local sources. You can also add custom sources. Our system checks for new listings every few minutes and captures leads before your competition even sees them."
     },
     {
-      question: "How is our data secured?",
-      answer: "We use enterprise-grade security with SOC 2 Type II compliance, end-to-end encryption, and secure data centers. Your prospect data and conversations are never shared with third parties and can be deleted at any time."
+      question: "How much does it cost compared to Zillow leads?",
+      answer: "QualiFy costs $297/month for unlimited leads and qualification calls. Compare that to Zillow's 35-40% commission fee on a typical $850K San Diego home ($10,000-$13,000 per deal). You save money after just one closed transaction."
     },
     {
-      question: "Does it integrate with HubSpot/Pipedrive/Salesforce?",
-      answer: "Yes, QualiFy integrates with all major CRM systems including HubSpot, Salesforce, Pipedrive, and more. We sync contacts, activities, and meeting bookings automatically, keeping your CRM up-to-date in real-time."
+      question: "How realistic are the personalized videos?",
+      answer: "The HeyGen videos use your actual face and voice, trained from a short video you provide. They mention specific property details and look completely authentic. Leads often comment on how professional and personal they feel compared to generic email follow-ups."
     },
     {
-      question: "How fast can we get started?",
-      answer: "Most teams are up and running within 24-48 hours. Setup involves connecting your CRM, uploading prospect lists, and configuring your outreach sequences. Our team provides white-glove onboarding to ensure success."
+      question: "Can I customize what the AI says during calls?",
+      answer: "Absolutely. You can customize the AI's script, qualifying questions, and responses to match your style and local market knowledge. We provide proven scripts for San Diego, but you can adjust everything to fit your approach."
     },
     {
-      question: "What makes QualiFy different from other outbound tools?",
-      answer: "Unlike other tools that just send emails, QualiFy combines AI-powered conversations, multi-channel outreach, automatic qualification, and personalized video creation in one platform. It's like having an AI SDR team that works 24/7."
+      question: "How quickly can I get started?",
+      answer: "Setup takes about 5 minutes. You'll connect your phone number, record a short video for personalization, and choose your lead sources. Most agents see their first qualified leads within 24 hours of setup."
     },
     {
-      question: "Can I customize the AI's conversation style?",
-      answer: "Absolutely. You can train the AI on your specific talk tracks, objection handling, qualifying criteria, and company messaging. The AI learns your sales methodology and maintains consistency across all prospect interactions."
+      question: "Does this work for both buyers and sellers?",
+      answer: "Yes, but it's especially powerful for seller leads. FSBO sellers are actively looking to avoid agent fees, so when you provide immediate, professional service, you stand out. The system also works great for buyer leads from social media and other sources."
     },
     {
-      question: "What's the pricing model?",
-      answer: "We offer flexible pricing based on the number of prospects you want to reach per month. Most teams start with our Growth plan at $500/month for up to 1,000 prospects. Enterprise plans are available for larger volumes."
+      question: "What if leads don't answer the AI call?",
+      answer: "The system tries multiple times at different hours and can send text messages. If no phone contact is made, it automatically sends a personalized video via email or text. You get notified of all activity so you can follow up personally if needed."
     }
   ];
 
@@ -55,7 +55,7 @@ const FAQ = () => {
             Frequently Asked Questions
           </h2>
           <p className="text-lg sm:text-xl text-gray-600 px-4">
-            Get answers to common questions about QualiFy
+            Everything you need to know about QualiFy for real estate
           </p>
         </div>
 
@@ -89,10 +89,10 @@ const FAQ = () => {
 
         <div className="text-center mt-8 sm:mt-12">
           <p className="text-gray-600 mb-3 sm:mb-4 text-sm sm:text-base">
-            Still have questions?
+            Still have questions about QualiFy?
           </p>
           <button className="bg-[#0b5fff] text-white px-5 sm:px-6 py-2.5 sm:py-3 rounded-lg font-semibold hover:bg-[#0951e6] transition-colors text-sm sm:text-base touch-manipulation">
-            Contact Support
+            Schedule a Demo Call
           </button>
         </div>
       </div>

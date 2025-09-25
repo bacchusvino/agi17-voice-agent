@@ -1,40 +1,40 @@
 import React from 'react';
-import { Upload, Zap, Calendar, ArrowRight } from 'lucide-react';
+import { Search, Phone, Video, ArrowRight } from 'lucide-react';
 
 const HowItWorks = () => {
   const steps = [
     {
-      icon: Upload,
-      title: "Upload or connect lead lists",
-      description: "Import from CRM, LinkedIn, CSV files, or connect directly to your existing data sources.",
-      details: ["CRM integration", "LinkedIn Sales Navigator", "CSV upload", "API connections"],
+      icon: Search,
+      title: "Capture Local Leads",
+      description: "QualiFy monitors San Diego FSBO sites, Craigslist, Facebook Marketplace, and Instagram for new listings and seller inquiries.",
+      details: ["FSBO websites", "Social media monitoring", "Expired listings", "Craigslist alerts"],
       color: "bg-blue-500"
     },
     {
-      icon: Zap,
-      title: "AI outbound automation",
-      description: "Our AI handles personalized outreach across multiple channels and conducts qualification calls.",
-      details: ["Multi-channel outreach", "AI qualification calls", "Response handling", "Lead scoring"],
-      color: "bg-purple-500"
+      icon: Phone,
+      title: "AI Qualifies Instantly",
+      description: "Within 5 minutes, our AI makes a natural voice call to qualify the lead's timeline, motivation, and budget.",
+      details: ["Natural conversation AI", "Qualification questions", "Lead scoring", "Appointment setting"],
+      color: "bg-green-500"
     },
     {
-      icon: Calendar,
-      title: "Meeting booked",
-      description: "AI creates personalized video follow-ups and books qualified prospects directly into your calendar.",
-      details: ["Personalized videos", "Calendar integration", "Automated scheduling", "Meeting preparation"],
-      color: "bg-green-500"
+      icon: Video,
+      title: "Personal Video Follow-up",
+      description: "AI creates a personalized HeyGen video with your face, mentioning their specific property and next steps.",
+      details: ["Your face & voice", "Property-specific details", "Professional presentation", "Clear call-to-action"],
+      color: "bg-purple-500"
     }
   ];
 
   return (
-    <section id="features" className="py-12 sm:py-16 lg:py-24 bg-white">
+    <section id="how-it-works" className="py-12 sm:py-16 lg:py-24 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-8 sm:mb-12 lg:mb-16">
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">
-            How It Works
+            How QualiFy Works
           </h2>
           <p className="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto px-4">
-            Get started in minutes and see results in days with our simple 3-step process
+            From lead capture to qualified appointment in under 30 minutes
           </p>
         </div>
 
@@ -49,6 +49,9 @@ const HowItWorks = () => {
                       <step.icon className="text-white" size={32} />
                     </div>
                     <div className="bg-white rounded-xl shadow-lg p-4 lg:p-6 hover:shadow-xl transition-shadow duration-300">
+                      <div className="bg-gray-100 text-gray-600 text-xs font-semibold px-2 py-1 rounded-full w-fit mb-2 mx-auto">
+                        Step {index + 1}
+                      </div>
                       <h3 className="font-semibold text-gray-900 mb-2 lg:mb-3 text-base lg:text-lg">
                         {step.title}
                       </h3>
@@ -109,13 +112,34 @@ const HowItWorks = () => {
           </div>
         </div>
 
+        {/* Example Scenario */}
+        <div className="mt-12 lg:mt-16 bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-6 sm:p-8">
+          <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 text-center">
+            Real Example: La Jolla FSBO
+          </h3>
+          <div className="grid sm:grid-cols-3 gap-4 sm:gap-6 text-sm">
+            <div className="bg-white rounded-lg p-4 shadow-sm">
+              <div className="font-semibold text-blue-600 mb-2">9:15 AM</div>
+              <p className="text-gray-700">FSBO listing posted on Craigslist: "Selling my La Jolla condo, $1.2M"</p>
+            </div>
+            <div className="bg-white rounded-lg p-4 shadow-sm">
+              <div className="font-semibold text-green-600 mb-2">9:20 AM</div>
+              <p className="text-gray-700">AI calls seller, qualifies timeline (3 months), motivation (relocating), budget confirmed</p>
+            </div>
+            <div className="bg-white rounded-lg p-4 shadow-sm">
+              <div className="font-semibold text-purple-600 mb-2">9:35 AM</div>
+              <p className="text-gray-700">Personal video sent: "Hi Sarah, I saw your La Jolla condo listing. I'm a local agent who can help you get top dollar..."</p>
+            </div>
+          </div>
+        </div>
+
         {/* CTA */}
         <div className="text-center mt-8 sm:mt-12">
           <button className="bg-[#ff6b6b] text-white px-6 sm:px-8 py-3 sm:py-4 rounded-lg font-semibold text-base sm:text-lg hover:bg-[#ff5252] transform hover:scale-105 transition-all duration-200 shadow-lg touch-manipulation">
             Start Your Free Trial
           </button>
           <p className="text-xs sm:text-sm text-gray-500 mt-2 px-4">
-            No credit card required • Setup in under 10 minutes
+            No credit card required • Setup in 5 minutes
           </p>
         </div>
       </div>
