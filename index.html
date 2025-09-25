@@ -1,13 +1,648 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>QualiFy - Stop Giving 40% Commission to Zillow | San Diego Real Estate</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QualiFy - San Diego Real Estate Lead Automation</title>
+  <meta name="description" content="Stop giving 40% to Zillow. QualiFy captures, qualifies, and books local buyers/sellers for San Diego real estate agents.">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      line-height: 1.6;
+      color: #333;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    /* Navigation */
+    nav {
+      position: sticky;
+      top: 0;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid #e5e5e5;
+      z-index: 100;
+    }
+
+    .nav-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .logo {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #0066cc;
+      text-decoration: none;
+    }
+
+    .nav-links {
+      display: flex;
+      list-style: none;
+      gap: 2rem;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      color: #333;
+      font-weight: 500;
+      transition: color 0.3s;
+    }
+
+    .nav-links a:hover {
+      color: #0066cc;
+    }
+
+    /* Mobile nav */
+    .mobile-menu {
+      display: none;
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+
+    @media (max-width: 768px) {
+      .nav-links {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: white;
+        flex-direction: column;
+        padding: 1rem;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      }
+
+      .nav-links.active {
+        display: flex;
+      }
+
+      .mobile-menu {
+        display: block;
+      }
+    }
+
+    /* Sections */
+    section {
+      padding: 4rem 0;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      font-weight: bold;
+      margin-bottom: 1rem;
+      line-height: 1.2;
+    }
+
+    h2 {
+      font-size: 2rem;
+      font-weight: bold;
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+
+    h3 {
+      font-size: 1.25rem;
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+    }
+
+    p {
+      font-size: 1.1rem;
+      margin-bottom: 1rem;
+      color: #666;
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-block;
+      padding: 0.75rem 1.5rem;
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.3s;
+      cursor: pointer;
+      border: none;
+      font-size: 1rem;
+    }
+
+    .btn-primary {
+      background: #ff4444;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #e63939;
+      transform: translateY(-2px);
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: #0066cc;
+      border: 2px solid #0066cc;
+    }
+
+    .btn-secondary:hover {
+      background: #0066cc;
+      color: white;
+    }
+
+    /* Hero */
+    #hero {
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      text-align: center;
+      padding: 6rem 0;
+    }
+
+    .hero-content {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .hero-buttons {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      margin-top: 2rem;
+      flex-wrap: wrap;
+    }
+
+    .hero-image {
+      max-width: 100%;
+      height: auto;
+      margin: 2rem 0;
+      border-radius: 10px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+
+    /* Benefits */
+    #benefits {
+      background: white;
+    }
+
+    .benefits-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+      margin-top: 3rem;
+    }
+
+    .benefit-card {
+      background: #f8f9fa;
+      padding: 2rem;
+      border-radius: 10px;
+      text-align: center;
+      transition: transform 0.3s;
+    }
+
+    .benefit-card:hover {
+      transform: translateY(-5px);
+    }
+
+    .benefit-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+
+    /* How It Works */
+    #how {
+      background: #f8f9fa;
+    }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 2rem;
+      margin-top: 3rem;
+    }
+
+    .step {
+      background: white;
+      padding: 2rem;
+      border-radius: 10px;
+      text-align: center;
+      position: relative;
+    }
+
+    .step-number {
+      background: #0066cc;
+      color: white;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      margin: 0 auto 1rem;
+    }
+
+    /* Social Proof */
+    #proof {
+      background: white;
+      text-align: center;
+    }
+
+    .testimonial {
+      background: #0066cc;
+      color: white;
+      padding: 3rem;
+      border-radius: 10px;
+      margin: 2rem 0;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .testimonial blockquote {
+      font-size: 1.25rem;
+      font-style: italic;
+      margin-bottom: 1rem;
+    }
+
+    .metrics {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      margin-top: 2rem;
+      flex-wrap: wrap;
+    }
+
+    .metric {
+      text-align: center;
+    }
+
+    .metric-value {
+      font-size: 2rem;
+      font-weight: bold;
+      color: #0066cc;
+    }
+
+    /* FAQ */
+    #faq {
+      background: #f8f9fa;
+    }
+
+    .faq-list {
+      max-width: 800px;
+      margin: 3rem auto 0;
+    }
+
+    .faq-item {
+      background: white;
+      margin-bottom: 1rem;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .faq-question {
+      background: none;
+      border: none;
+      width: 100%;
+      padding: 1.5rem;
+      text-align: left;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .faq-answer {
+      padding: 0 1.5rem 1.5rem;
+      color: #666;
+      display: none;
+    }
+
+    .faq-answer.active {
+      display: block;
+    }
+
+    /* CTA */
+    #cta {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      text-align: center;
+    }
+
+    .cta-form {
+      max-width: 400px;
+      margin: 2rem auto 0;
+    }
+
+    .form-group {
+      margin-bottom: 1rem;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 0.75rem;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+    }
+
+    .form-group input:focus {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(255,255,255,0.3);
+    }
+
+    /* Success message */
+    .success-message {
+      background: #28a745;
+      color: white;
+      padding: 1rem;
+      border-radius: 6px;
+      margin-top: 1rem;
+      display: none;
+    }
+
+    .success-message.show {
+      display: block;
+    }
+
+    /* Footer */
+    footer {
+      background: #333;
+      color: white;
+      text-align: center;
+      padding: 2rem 0;
+      font-size: 0.9rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 2rem;
+      }
+
+      h2 {
+        font-size: 1.5rem;
+      }
+
+      .hero-buttons {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .metrics {
+        flex-direction: column;
+        gap: 1rem;
+      }
+    }
+
+    /* Smooth scrolling */
+    html {
+      scroll-behavior: smooth;
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation -->
+  <nav>
+    <div class="nav-container">
+      <a href="#hero" class="logo">QualiFy</a>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="#benefits">Benefits</a></li>
+        <li><a href="#how">How It Works</a></li>
+        <li><a href="#proof">Social Proof</a></li>
+        <li><a href="#faq">FAQ</a></li>
+        <li><a href="#cta">Get Started</a></li>
+      </ul>
+      <button class="mobile-menu" id="mobileMenu">☰</button>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section id="hero">
+    <div class="container">
+      <div class="hero-content">
+        <h1>San Diego Agents: Stop giving 40% to Zillow.</h1>
+        <p>QualiFy captures, qualifies, and books local buyers/sellers for you.</p>
+        <img src="https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&cs=tinysrgb&w=600&h=400&dpr=2" 
+             alt="Real estate agent using laptop with automated lead qualification dashboard showing San Diego properties" 
+             class="hero-image" 
+             loading="lazy">
+        <div class="hero-buttons">
+          <a href="#cta" class="btn btn-primary">Start Free Trial</a>
+          <a href="#proof" class="btn btn-secondary">Watch 60-sec Demo</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Benefits Section -->
+  <section id="benefits">
+    <div class="container">
+      <h2>Benefits</h2>
+      <div class="benefits-grid">
+        <div class="benefit-card">
+          <div class="benefit-icon">⚡</div>
+          <h3>Instant response</h3>
+          <p>Never lose a hot lead to slow follow-up.</p>
+        </div>
+        <div class="benefit-card">
+          <div class="benefit-icon">🏠</div>
+          <h3>Own your pipeline</h3>
+          <p>Stop paying 40% to lead marketplaces.</p>
+        </div>
+        <div class="benefit-card">
+          <div class="benefit-icon">🎥</div>
+          <h3>Stand out</h3>
+          <p>Personalized video follow-ups build trust fast.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works Section -->
+  <section id="how">
+    <div class="container">
+      <h2>How It Works</h2>
+      <div class="steps">
+        <div class="step">
+          <div class="step-number">1</div>
+          <h3>Capture</h3>
+          <p>FSBO/Instagram/Facebook lead forms flow into your Google Sheet.</p>
+        </div>
+        <div class="step">
+          <div class="step-number">2</div>
+          <h3>Qualify</h3>
+          <p>Our AI calls immediately and scores intent, budget, and timeline.</p>
+        </div>
+        <div class="step">
+          <div class="step-number">3</div>
+          <h3>Book</h3>
+          <p>We send a personalized video and place qualified meetings on your calendar.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Social Proof Section -->
+  <section id="proof">
+    <div class="container">
+      <h2>Social Proof</h2>
+      <div class="testimonial">
+        <blockquote>"Booked 3 qualified seller calls in week one."</blockquote>
+        <cite>— SD Agent</cite>
+      </div>
+      <div class="metrics">
+        <div class="metric">
+          <div class="metric-value">+300%</div>
+          <div>reply lift</div>
+        </div>
+        <div class="metric">
+          <div class="metric-value">&lt;7 days</div>
+          <div>to first meeting</div>
+        </div>
+        <div class="metric">
+          <div class="metric-value">0%</div>
+          <div>commission taken</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ Section -->
+  <section id="faq">
+    <div class="container">
+      <h2>FAQ</h2>
+      <div class="faq-list">
+        <div class="faq-item">
+          <button class="faq-question" onclick="toggleFaq(0)">
+            Do I need a new CRM?
+            <span>+</span>
+          </button>
+          <div class="faq-answer" id="faq-0">
+            No—start with Google Sheets; sync later.
+          </div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question" onclick="toggleFaq(1)">
+            Is calling compliant?
+            <span>+</span>
+          </button>
+          <div class="faq-answer" id="faq-1">
+            We call consented leads and honor DNC/opt-out.
+          </div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question" onclick="toggleFaq(2)">
+            Can I customize the script?
+            <span>+</span>
+          </button>
+          <div class="faq-answer" id="faq-2">
+            Yes—voice, script, and criteria are editable.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section id="cta">
+    <div class="container">
+      <h2>Ready to keep your commission?</h2>
+      <p>Get qualified appointments in under 7 days.</p>
+      <form class="cta-form" id="ctaForm">
+        <div class="form-group">
+          <input type="text" id="name" name="name" placeholder="Your Name" required>
+        </div>
+        <div class="form-group">
+          <input type="email" id="email" name="email" placeholder="Your Email" required>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%;">Join the Pilot</button>
+        <div class="success-message" id="successMessage">
+          Thanks! We'll reach out shortly.
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <p>© 2025 QualiFy. San Diego pilot.</p>
+    </div>
+  </footer>
+
+  <script>
+    // Mobile menu toggle
+    document.getElementById('mobileMenu').addEventListener('click', function() {
+      const navLinks = document.getElementById('navLinks');
+      navLinks.classList.toggle('active');
+    });
+
+    // FAQ toggle
+    function toggleFaq(index) {
+      const answer = document.getElementById(`faq-${index}`);
+      const question = answer.previousElementSibling;
+      const icon = question.querySelector('span');
+      
+      answer.classList.toggle('active');
+      icon.textContent = answer.classList.contains('active') ? '−' : '+';
+    }
+
+    // Form submission
+    document.getElementById('ctaForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const name = document.getElementById('name').value;
+      const email = document.getElementById('email').value;
+      
+      // Basic email validation
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        alert('Please enter a valid email address.');
+        return;
+      }
+      
+      // Log to console (replace with actual webhook)
+      console.log({ name, email });
+      
+      // TODO: Send to webhook (Google Apps Script/Zapier)
+      // fetch('YOUR_WEBHOOK_URL', {
+      //   method: 'POST',
+      //   headers: { 'Content-Type': 'application/json' },
+      //   body: JSON.stringify({ name, email })
+      // });
+      
+      // Show success message
+      document.getElementById('successMessage').classList.add('show');
+      
+      // Reset form
+      this.reset();
+      
+      // Hide success message after 5 seconds
+      setTimeout(() => {
+        document.getElementById('successMessage').classList.remove('show');
+      }, 5000);
+    });
+
+    // Close mobile menu when clicking on links
+    document.querySelectorAll('.nav-links a').forEach(link => {
+      link.addEventListener('click', () => {
+        document.getElementById('navLinks').classList.remove('active');
+      });
+    });
+  </script>
+</body>
 </html>
