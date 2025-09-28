@@ -1,0 +1,33 @@
+name: Supabase CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Supabase CLI
+        run: |
+          curl -fsSL https://get.supabase.com/cli/install | sh
+          echo "$HOME/.supabase/bin" >> $GITHUB_PATH
+
+      - name: Login to Supabase
+        run: supabase login --token "${{ secrets.SUPABASE_ACCESS_TOKEN }}"
+
+      - name: Link project
+        run: supabase link --project-ref "${{ secrets.SUPABASE_PROJECT_REF }}"
+
+      - name: Push migrations (skip if none)
+        run: |
+          if [ -d supabase/migrations ] && [ "$(ls -A supabase/migrations)" ]; then
+            supabase db push
+          else
+            echo "No migrations to push."
+          fi
