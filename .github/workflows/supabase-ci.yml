@@ -10,13 +10,12 @@ jobs:
   migrate:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Install Supabase CLI
-        run: |
-          curl -fsSL https://get.supabase.com/cli/install | sh
-          echo "$HOME/.supabase/bin" >> $GITHUB_PATH
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
 
       - name: Login to Supabase
         run: supabase login --token "${{ secrets.SUPABASE_ACCESS_TOKEN }}"
@@ -26,7 +25,7 @@ jobs:
 
       - name: Push migrations (skip if none)
         run: |
-          if [ -d supabase/migrations ] && [ "$(ls -A supabase/migrations)" ]; then
+          if [ -d supabase/migrations ] && [ "$(ls -A supabase/migrations || true)" ]; then
             supabase db push
           else
             echo "No migrations to push."
