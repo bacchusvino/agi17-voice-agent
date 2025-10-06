@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QualiFy Dashboard - Lead Management</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f5f7fa;
+      color: #333;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    header {
+      background: white;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    h1 {
+      font-size: 1.75rem;
+      color: #0066cc;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+
+    .stat-value {
+      font-size: 2rem;
+      font-weight: bold;
+      color: #0066cc;
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+      color: #666;
+      font-size: 0.9rem;
+    }
+
+    .filters {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      margin-bottom: 2rem;
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .filter-group label {
+      font-size: 0.85rem;
+      color: #666;
+      font-weight: 500;
+    }
+
+    select, input[type="text"] {
+      padding: 0.5rem;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 0.9rem;
+    }
+
+    .btn {
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.3s;
+    }
+
+    .btn-primary {
+      background: #0066cc;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #0052a3;
+    }
+
+    .btn-success {
+      background: #28a745;
+      color: white;
+    }
+
+    .btn-warning {
+      background: #ffc107;
+      color: #333;
+    }
+
+    .btn-danger {
+      background: #dc3545;
+      color: white;
+    }
+
+    .btn-secondary {
+      background: #6c757d;
+      color: white;
+    }
+
+    .leads-table {
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      overflow: hidden;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    thead {
+      background: #f8f9fa;
+    }
+
+    th {
+      text-align: left;
+      padding: 1rem;
+      font-weight: 600;
+      color: #333;
+      border-bottom: 2px solid #e5e5e5;
+    }
+
+    td {
+      padding: 1rem;
+      border-bottom: 1px solid #e5e5e5;
+    }
+
+    tr:hover {
+      background: #f8f9fa;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 500;
+    }
+
+    .status-new {
+      background: #e3f2fd;
+      color: #0066cc;
+    }
+
+    .status-contacted {
+      background: #fff3cd;
+      color: #856404;
+    }
+
+    .status-qualified {
+      background: #d4edda;
+      color: #155724;
+    }
+
+    .status-not_interested {
+      background: #f8d7da;
+      color: #721c24;
+    }
+
+    .actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 3rem;
+      color: #666;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 3rem;
+      color: #666;
+    }
+
+    .empty-state-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+
+    .error {
+      background: #f8d7da;
+      color: #721c24;
+      padding: 1rem;
+      border-radius: 6px;
+      margin-bottom: 1rem;
+    }
+
+    @media (max-width: 768px) {
+      .stats {
+        grid-template-columns: 1fr;
+      }
+
+      table {
+        font-size: 0.85rem;
+      }
+
+      th, td {
+        padding: 0.5rem;
+      }
+
+      .actions {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🏠 QualiFy Dashboard</h1>
+      <button class="btn btn-primary" onclick="refreshData()">↻ Refresh</button>
+    </header>
+
+    <div id="error" class="error" style="display: none;"></div>
+
+    <div class="stats">
+      <div class="stat-card">
+        <div class="stat-value" id="totalLeads">-</div>
+        <div class="stat-label">Total Leads</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="newLeads">-</div>
+        <div class="stat-label">New Today</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="qualifiedLeads">-</div>
+        <div class="stat-label">Qualified</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="contactedLeads">-</div>
+        <div class="stat-label">Contacted</div>
+      </div>
+    </div>
+
+    <div class="filters">
+      <div class="filter-group">
+        <label for="statusFilter">Status</label>
+        <select id="statusFilter" onchange="filterLeads()">
+          <option value="">All Statuses</option>
+          <option value="new">New</option>
+          <option value="contacted">Contacted</option>
+          <option value="qualified">Qualified</option>
+          <option value="not_interested">Not Interested</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label for="sourceFilter">Source</label>
+        <select id="sourceFilter" onchange="filterLeads()">
+          <option value="">All Sources</option>
+          <option value="landing_page">Landing Page</option>
+          <option value="craigslist">Craigslist</option>
+          <option value="facebook">Facebook</option>
+          <option value="instagram">Instagram</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label for="searchInput">Search</label>
+        <input type="text" id="searchInput" placeholder="Name, email, address..." onkeyup="filterLeads()">
+      </div>
+
+      <div class="filter-group" style="padding-top: 1.25rem;">
+        <button class="btn btn-secondary" onclick="clearFilters()">Clear Filters</button>
+      </div>
+    </div>
+
+    <div class="leads-table">
+      <div id="loading" class="loading">
+        Loading leads...
+      </div>
+
+      <div id="emptyState" class="empty-state" style="display: none;">
+        <div class="empty-state-icon">📭</div>
+        <h3>No leads yet</h3>
+        <p>New leads will appear here when they come in.</p>
+      </div>
+
+      <table id="leadsTable" style="display: none;">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Contact</th>
+            <th>Property</th>
+            <th>Source</th>
+            <th>Status</th>
+            <th>Created</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="leadsTableBody">
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    // Supabase credentials
+    const SUPABASE_URL = 'https://tyrwkeqavitwkffjcznj.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR5cndrZXFhdml0d2tmZmpjem5qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg5OTA5MzcsImV4cCI6MjA3NDU2NjkzN30.XlP3j-5SQjje7nfv2jvtccQMJtlbSI22vqQtfEj7Nc4';
+
+    // Initialize Supabase client
+    const { createClient } = supabase;
+    const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    let allLeads = [];
+
+    // Fetch leads from Supabase
+    async function fetchLeads() {
+      try {
+        document.getElementById('loading').style.display = 'block';
+        document.getElementById('emptyState').style.display = 'none';
+        document.getElementById('leadsTable').style.display = 'none';
+        document.getElementById('error').style.display = 'none';
+
+        const { data, error } = await supabaseClient
+          .from('leads')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (error) throw error;
+
+        allLeads = data || [];
+        updateStats();
+        renderLeads(allLeads);
+
+        document.getElementById('loading').style.display = 'none';
+
+        if (allLeads.length === 0) {
+          document.getElementById('emptyState').style.display = 'block';
+        } else {
+          document.getElementById('leadsTable').style.display = 'table';
+        }
+      } catch (error) {
+        console.error('Error fetching leads:', error);
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('error').textContent = 'Error loading leads: ' + error.message;
+        document.getElementById('error').style.display = 'block';
+      }
+    }
+
+    // Update statistics
+    function updateStats() {
+      const today = new Date().toISOString().split('T')[0];
+      
+      document.getElementById('totalLeads').textContent = allLeads.length;
+      document.getElementById('newLeads').textContent = allLeads.filter(lead => 
+        lead.created_at.split('T')[0] === today
+      ).length;
+      document.getElementById('qualifiedLeads').textContent = allLeads.filter(lead => 
+        lead.status === 'qualified'
+      ).length;
+      document.getElementById('contactedLeads').textContent = allLeads.filter(lead => 
+        lead.status === 'contacted'
+      ).length;
+    }
+
+    // Render leads table
+    function renderLeads(leads) {
+      const tbody = document.getElementById('leadsTableBody');
+      tbody.innerHTML = '';
+
+      leads.forEach(lead => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td><strong>${lead.name || 'N/A'}</strong></td>
+          <td>
+            ${lead.email || '-'}<br>
+            <small>${lead.phone || '-'}</small>
+          </td>
+          <td>
+            ${lead.address || 'N/A'}<br>
+            <small>${lead.price ? '$' + Number(lead.price).toLocaleString() : '-'}</small>
+          </td>
+          <td>${lead.source || 'Unknown'}</td>
+          <td><span class="status-badge status-${lead.status}">${formatStatus(lead.status)}</span></td>
+          <td><small>${formatDate(lead.created_at)}</small></td>
+          <td>
+            <div class="actions">
+              <button class="btn btn-success" onclick="updateStatus('${lead.id}', 'qualified')" title="Mark Qualified">✓</button>
+              <button class="btn btn-warning" onclick="updateStatus('${lead.id}', 'contacted')" title="Mark Contacted">📞</button>
+              <button class="btn btn-danger" onclick="updateStatus('${lead.id}', 'not_interested')" title="Not Interested">✕</button>
+            </div>
+          </td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+
+    // Update lead status
+    async function updateStatus(leadId, newStatus) {
+      try {
+        const { error } = await supabaseClient
+          .from('leads')
+          .update({ status: newStatus })
+          .eq('id', leadId);
+
+        if (error) throw error;
+
+        await fetchLeads();
+        alert('Lead status updated!');
+      } catch (error) {
+        alert('Error updating status: ' + error.message);
+      }
+    }
+
+    // Filter leads
+    function filterLeads() {
+      const statusFilter = document.getElementById('statusFilter').value;
+      const sourceFilter = document.getElementById('sourceFilter').value;
+      const searchQuery = document.getElementById('searchInput').value.toLowerCase();
+
+      let filtered = allLeads;
+
+      if (statusFilter) {
+        filtered = filtered.filter(lead => lead.status === statusFilter);
+      }
+
+      if (sourceFilter) {
+        filtered = filtered.filter(lead => lead.source === sourceFilter);
+      }
+
+      if (searchQuery) {
+        filtered = filtered.filter(lead => 
+          (lead.name && lead.name.toLowerCase().includes(searchQuery)) ||
+          (lead.email && lead.email.toLowerCase().includes(searchQuery)) ||
+          (lead.phone && lead.phone.includes(searchQuery)) ||
+          (lead.address && lead.address.toLowerCase().includes(searchQuery))
+        );
+      }
+
+      renderLeads(filtered);
+    }
+
+    // Clear all filters
+    function clearFilters() {
+      document.getElementById('statusFilter').value = '';
+      document.getElementById('sourceFilter').value = '';
+      document.getElementById('searchInput').value = '';
+      filterLeads();
+    }
+
+    // Refresh data
+    function refreshData() {
+      fetchLeads();
+    }
+
+    // Format status for display
+    function formatStatus(status) {
+      if (!status) return 'Unknown';
+      return status.split('_').map(word => 
+        word.charAt(0).toUpperCase() + word.slice(1)
+      ).join(' ');
+    }
+
+    // Format date for display
+    function formatDate(dateString) {
+      const date = new Date(dateString);
+      const now = new Date();
+      const diffTime = Math.abs(now - date);
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+      if (diffDays === 0) return 'Today';
+      if (diffDays === 1) return 'Yesterday';
+      if (diffDays < 7) return `${diffDays} days ago`;
+      
+      return date.toLocaleDateString();
+    }
+
+    // Load leads on page load
+    window.addEventListener('DOMContentLoaded', fetchLeads);
+
+    // Auto-refresh every 30 seconds
+    setInterval(fetchLeads, 30000);
+  </script>
+</body>
+</html>
