@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>QualiFy - San Diego Real Estate Lead Automation</title>
   <meta name="description" content="Stop giving 40% to Zillow. QualiFy captures, qualifies, and books local buyers/sellers for San Diego real estate agents.">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     * {
       margin: 0;
@@ -585,6 +586,13 @@
   </footer>
 
   <script>
+    // Supabase configuration
+    const SUPABASE_URL = 'https://tyrwkeqavitwkffjcznj.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR5cndrZXFhdml0d2tmZmpjem5qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg5OTA5MzcsImV4cCI6MjA3NDU2NjkzN30.XlP3j-5SQjje7nfv2jvtccQMJtlbSI22vqQtfEj7Nc4';
+    
+    const { createClient } = supabase;
+    const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    
     // Mobile menu toggle
     document.getElementById('mobileMenu').addEventListener('click', function() {
       const navLinks = document.getElementById('navLinks');
@@ -601,40 +609,32 @@
       icon.textContent = answer.classList.contains('active') ? '−' : '+';
     }
 
-    // Form submission
-    document.getElementById('ctaForm').addEventListener('submit', function(e) {
+    // Form submission with Supabase
+    document.getElementById('ctaForm').addEventListener('submit', async function(e) {
       e.preventDefault();
       
       const name = document.getElementById('name').value;
       const email = document.getElementById('email').value;
       
-      // Basic email validation
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(email)) {
-        alert('Please enter a valid email address.');
-        return;
+      try {
+        const { data, error } = await supabaseClient
+          .from('leads')
+          .insert([{ name: name, email: email, source: 'landing_page', status: 'new' }])
+          .select();
+    
+        if (error) throw error;
+    
+        document.getElementById('successMessage').classList.add('show');
+        this.reset();
+        
+        setTimeout(() => {
+          document.getElementById('successMessage').classList.remove('show');
+        }, 5000);
+        
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Error saving lead. Check console.');
       }
-      
-      // Log to console (replace with actual webhook)
-      console.log({ name, email });
-      
-      // TODO: Send to webhook (Google Apps Script/Zapier)
-      // fetch('YOUR_WEBHOOK_URL', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({ name, email })
-      // });
-      
-      // Show success message
-      document.getElementById('successMessage').classList.add('show');
-      
-      // Reset form
-      this.reset();
-      
-      // Hide success message after 5 seconds
-      setTimeout(() => {
-        document.getElementById('successMessage').classList.remove('show');
-      }, 5000);
     });
 
     // Close mobile menu when clicking on links
