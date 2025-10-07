@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add Sample FSBO Leads</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+      background: #f5f7fa;
+    }
+    .container {
+      background: white;
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    h1 {
+      color: #0066cc;
+      margin-bottom: 1rem;
+    }
+    button {
+      background: #0066cc;
+      color: white;
+      padding: 1rem 2rem;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      cursor: pointer;
+      font-weight: 600;
+      margin-right: 1rem;
+    }
+    button:hover {
+      background: #0052a3;
+    }
+    button.danger {
+      background: #dc3545;
+    }
+    button.danger:hover {
+      background: #c82333;
+    }
+    .status {
+      margin-top: 1rem;
+      padding: 1rem;
+      border-radius: 6px;
+      display: none;
+    }
+    .status.show {
+      display: block;
+    }
+    .status.success {
+      background: #d4edda;
+      color: #155724;
+    }
+    .status.error {
+      background: #f8d7da;
+      color: #721c24;
+    }
+    .log {
+      margin-top: 1rem;
+      padding: 1rem;
+      background: #f8f9fa;
+      border-radius: 6px;
+      max-height: 400px;
+      overflow-y: auto;
+      font-family: monospace;
+      font-size: 0.9rem;
+    }
+    .warning {
+      background: #fff3cd;
+      color: #856404;
+      padding: 1rem;
+      border-radius: 6px;
+      margin-bottom: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🏠 Add Sample FSBO Leads</h1>
+    
+    <div class="warning">
+      <strong>⚠️ Warning:</strong> This will add 20 realistic sample leads to your database. Use this for demo purposes only.
+    </div>
+
+    <button onclick="addSampleLeads()">Add 20 Sample Leads</button>
+    <button class="danger" onclick="clearAllLeads()">Clear All Leads (Danger!)</button>
+
+    <div class="status" id="status"></div>
+    <div class="log" id="log"></div>
+  </div>
+
+  <script>
+    // Supabase configuration
+    const SUPABASE_URL = 'https://tyrwkeqavitwkffjcznj.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR5cndrZXFhdml0d2tmZmpjem5qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg5OTA5MzcsImV4cCI6MjA3NDU2NjkzN30.XlP3j-5SQjje7nfv2jvtccQMJtlbSI22vqQtfEj7Nc4';
+    
+    const { createClient } = supabase;
+    const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // Sample data
+    const sampleLeads = [
+      {
+        name: "Michael Rodriguez",
+        email: "mrodriguez@email.com",
+        phone: "619-555-0101",
+        address: "1234 Ocean View Dr",
+        city: "San Diego",
+        state: "CA",
+        price: 875000,
+        property_type: "residential",
+        source: "craigslist",
+        status: "new",
+        timeline: "1-3 months",
+        motivation: "Relocating for job"
+      },
+      {
+        name: "Jennifer Chen",
+        email: "jchen.realtor@gmail.com",
+        phone: "858-555-0202",
+        address: "5678 Sunset Blvd",
+        city: "San Diego",
+        state: "CA",
+        price: 1250000,
+        property_type: "residential",
+        source: "facebook",
+        status: "contacted",
+        timeline: "immediate",
+        motivation: "Downsizing after kids moved out"
+      },
+      {
+        name: "David Thompson",
+        email: "dthompson99@yahoo.com",
+        phone: "760-555-0303",
+        address: "9012 Palm Ave",
+        city: "San Diego",
+        state: "CA",
+        price: 625000,
+        property_type: "residential",
+        source: "craigslist",
+        status: "qualified",
+        timeline: "immediate",
+        motivation: "Financial need - divorce settlement",
+        qualification_score: 92
+      },
+      {
+        name: "Maria Garcia",
+        email: "maria.garcia@email.com",
+        phone: "619-555-0404",
+        address: "3456 Harbor View Ct",
+        city: "San Diego",
+        state: "CA",
+        price: 950000,
+        property_type: "residential",
+        source: "landing_page",
+        status: "new",
+        timeline: "3-6 months",
+        motivation: "Upgrading to larger home"
+      },
+      {
+        name: "Robert Williams",
+        email: "rwilliams.sd@gmail.com",
+        phone: "858-555-0505",
+        address: "7890 Coastal Ln",
+        city: "San Diego",
+        state: "CA",
+        price: 1450000,
+        property_type: "residential",
+        source: "instagram",
+        status: "contacted",
+        timeline: "1-3 months",
+        motivation: "Moving closer to family"
+      },
+      {
+        name: "Lisa Anderson",
+        email: "landerson@email.com",
+        phone: "619-555-0606",
+        address: "2345 Bayfront St",
+        city: "San Diego",
+        state: "CA",
+        price: 775000,
+        property_type: "residential",
+        source: "facebook",
+        status: "not_interested",
+        timeline: "6+ months",
+        motivation: "Just testing the market"
+      },
+      {
+        name: "James Martinez",
+        email: "jmartinez.homes@gmail.com",
+        phone: "760-555-0707",
+        address: "6789 Mission Valley Rd",
+        city: "San Diego",
+        state: "CA",
+        price: 1100000,
+        property_type: "residential",
+        source: "craigslist",
+        status: "qualified",
+        timeline: "immediate",
+        motivation: "Job relocation to Austin",
+        qualification_score: 88
+      },
+      {
+        name: "Patricia Taylor",
+        email: "ptaylor@email.com",
+        phone: "858-555-0808",
+        address: "4567 Canyon View Dr",
+        city: "San Diego",
+        state: "CA",
+        price: 825000,
+        property_type: "residential",
+        source: "landing_page",
+        status: "new",
+        timeline: "1-3 months",
+        motivation: "Retirement - moving to Arizona"
+      },
+      {
+        name: "John Davis",
+        email: "jdavis.sd@yahoo.com",
+        phone: "619-555-0909",
+        address: "8901 Beach Blvd",
+        city: "San Diego",
+        state: "CA",
+        price: 1650000,
+        property_type: "residential",
+        source: "craigslist",
+        status: "contacted",
+        timeline: "immediate",
+        motivation: "Estate sale"
+      },
+      {
+        name: "Sarah Johnson",
+        email: "sjohnson@email.com",
+        phone: "858-555-1010",
+        address: "1357 La Jolla Pkwy",
+        city: "San Diego",
+        state: "CA",
+        price: 2100000,
+        property_type: "residential",
+        source: "facebook",
+        status: "qualified",
+        timeline: "1-3 months",
+        motivation: "Upgrading",
+        qualification_score: 85
+      },
+      {
+        name: "William Brown",
+        email: "wbrown.homes@gmail.com",
+        phone: "760-555-1111",
+        address: "2468 Pacific Coast Hwy",
+        city: "San Diego",
+        state: "CA",
+        price: 895000,
+        property_type: "residential",
+        source: "instagram",
+        status: "new",
+        timeline: "3-6 months",
+        motivation: "Investment property - want to sell"
+      },
+      {
+        name: "Barbara Wilson",
+        email: "bwilson@email.com",
+        phone: "619-555-1212",
+        address: "3690 Coronado Ave",
+        city: "San Diego",
+        state: "CA",
+        price: 1350000,
+        property_type: "residential",
+        source: "craigslist",
+        status: "contacted",
+        timeline: "immediate",
+        motivation: "Health reasons - need single story"
+      },
+      {
+        name: "Richard Moore",
+        email: "rmoore99@yahoo.com",
+        phone: "858-555-1313",
+        address: "7412 Del Mar Heights Rd",
+        city: "San Diego",
+        state: "CA",
+        price: 1750000,
+        property_type: "residential",
+        source: "landing_page",
+        status: "qualified",
+        timeline: "immediate",
+        motivation: "Job transfer to Seattle",
+        qualification_score: 95
+      },
+      {
+        name: "Susan Miller",
+        email: "smiller.sd@gmail.com",
+        phone: "619-555-1414",
+        address: "8523 North Park Way",
+        city: "San Diego",
+        state: "CA",
+        price: 725000,
+        property_type: "residential",
+        source: "facebook",
+        status: "new",
+        timeline: "1-3 months",
+        motivation: "Empty nester - downsizing"
+      },
+      {
+        name: "Thomas Lee",
+        email: "tlee@email.com",
+        phone: "760-555-1515",
+        address: "9634 Encinitas Blvd",
+        city: "San Diego",
+        state: "CA",
+        price: 1525000,
+        property_type: "residential",
+        source: "craigslist",
+        status: "contacted",
+        timeline: "3-6 months",
+        motivation: "Wants something more modern"
+      },
+      {
+        name: "Nancy White",
+        email: "nwhite.homes@gmail.com",
+        phone: "858-555-1616",
+        address: "1597 Gaslamp Quarter",
+        city: "San Diego",
+        state: "CA",
+        price: 985000,
+        property_type: "residential",
+        source: "instagram",
+        status: "not_interested",
+        timeline: "6+ months",
+        motivation: "Curious about market value"
+      },
+      {
+        name: "Charles Harris",
+        email: "charris@email.com",
+        phone: "619-555-1717",
+        address: "2751 Point Loma Ave",
+        city: "San Diego",
+        state: "CA",
+        price: 1425000,
+        property_type: "residential",
+        source: "landing_page",
+        status: "qualified",
+        timeline: "1-3 months",
+        motivation: "Upgrading to waterfront",
+        qualification_score: 78
+      },
+      {
+        name: "Karen Clark",
+        email: "kclark.sd@yahoo.com",
+        phone: "858-555-1818",
+        address: "3862 Carmel Valley Rd",
+        city: "San Diego",
+        state: "CA",
+        price: 1150000,
+        property_type: "residential",
+        source: "craigslist",
+        status: "new",
+        timeline: "immediate",
+        motivation: "Company relocation"
+      },
+      {
+        name: "Daniel Lopez",
+        email: "dlopez@email.com",
+        phone: "760-555-1919",
+        address: "4973 Hillcrest Dr",
+        city: "San Diego",
+        state: "CA",
+        price: 875000,
+        property_type: "residential",
+        source: "facebook",
+        status: "contacted",
+        timeline: "1-3 months",
+        motivation: "Kids moving out - too much space"
+      },
+      {
+        name: "Betty Martinez",
+        email: "bmartinez.homes@gmail.com",
+        phone: "619-555-2020",
+        address: "5184 Old Town San Diego Ave",
+        city: "San Diego",
+        state: "CA",
+        price: 795000,
+        property_type: "residential",
+        source: "landing_page",
+        status: "new",
+        timeline: "3-6 months",
+        motivation: "Tired of HOA fees and rules"
+      }
+    ];
+
+    function log(message) {
+      const logDiv = document.getElementById('log');
+      const timestamp = new Date().toLocaleTimeString();
+      logDiv.innerHTML += `[${timestamp}] ${message}\n`;
+      logDiv.scrollTop = logDiv.scrollHeight;
+    }
+
+    function showStatus(message, type) {
+      const statusDiv = document.getElementById('status');
+      statusDiv.textContent = message;
+      statusDiv.className = `status show ${type}`;
+    }
+
+    async function addSampleLeads() {
+      const logDiv = document.getElementById('log');
+      logDiv.innerHTML = '';
+      
+      log('Starting to add sample leads...');
+      
+      try {
+        // Add timestamps to make leads appear over time
+        const now = new Date();
+        const leadsWithTimestamps = sampleLeads.map((lead, index) => {
+          const daysAgo = Math.floor(index / 4); // Spread over 5 days
+          const createdAt = new Date(now);
+          createdAt.setDate(createdAt.getDate() - daysAgo);
+          
+          return {
+            ...lead,
+            created_at: createdAt.toISOString()
+          };
+        });
+
+        // Insert all leads at once
+        const { data, error } = await supabaseClient
+          .from('leads')
+          .insert(leadsWithTimestamps)
+          .select();
+
+        if (error) throw error;
+
+        log(`✅ Successfully added ${data.length} leads!`);
+        showStatus(`✅ Successfully added ${data.length} sample leads!`, 'success');
+        
+        log('Breakdown:');
+        log(`- New: ${sampleLeads.filter(l => l.status === 'new').length}`);
+        log(`- Contacted: ${sampleLeads.filter(l => l.status === 'contacted').length}`);
+        log(`- Qualified: ${sampleLeads.filter(l => l.status === 'qualified').length}`);
+        log(`- Not Interested: ${sampleLeads.filter(l => l.status === 'not_interested').length}`);
+        log('');
+        log('Sources:');
+        log(`- Craigslist: ${sampleLeads.filter(l => l.source === 'craigslist').length}`);
+        log(`- Facebook: ${sampleLeads.filter(l => l.source === 'facebook').length}`);
+        log(`- Instagram: ${sampleLeads.filter(l => l.source === 'instagram').length}`);
+        log(`- Landing Page: ${sampleLeads.filter(l => l.source === 'landing_page').length}`);
+        log('');
+        log('🎉 Your dashboard should now look impressive!');
+        log('Refresh your dashboard to see the new leads.');
+
+      } catch (error) {
+        log(`❌ Error: ${error.message}`);
+        showStatus(`❌ Error: ${error.message}`, 'error');
+      }
+    }
+
+    async function clearAllLeads() {
+      if (!confirm('⚠️ Are you sure? This will delete ALL leads from the database!')) {
+        return;
+      }
+
+      const logDiv = document.getElementById('log');
+      logDiv.innerHTML = '';
+      log('Clearing all leads...');
+
+      try {
+        // Delete all leads
+        const { error } = await supabaseClient
+          .from('leads')
+          .delete()
+          .neq('id', '00000000-0000-0000-0000-000000000000'); // Delete where id is not impossible value (deletes all)
+
+        if (error) throw error;
+
+        log('✅ All leads cleared!');
+        showStatus('✅ All leads have been deleted', 'success');
+
+      } catch (error) {
+        log(`❌ Error: ${error.message}`);
+        showStatus(`❌ Error: ${error.message}`, 'error');
+      }
+    }
+  </script>
+</body>
+</html>
