@@ -1,0 +1,37 @@
+{
+  "name": "agi17-voice-agent",
+  "version": "1.0.0",
+  "description": "QualiFy - San Diego Real Estate Lead Automation with Voice Agent",
+  "main": "index.html",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "serve": "python -m http.server 8000",
+    "test": "node tests/basic.test.js",
+    "test:watch": "nodemon --watch tests --watch js --exec 'npm test'",
+    "supabase:start": "supabase start",
+    "supabase:stop": "supabase stop",
+    "supabase:reset": "supabase db reset",
+    "supabase:status": "supabase status"
+  },
+  "keywords": [
+    "real-estate",
+    "lead-automation",
+    "voice-agent",
+    "supabase",
+    "san-diego"
+  ],
+  "author": "Josh Pirtle",
+  "license": "MIT",
+  "devDependencies": {
+    "vite": "^5.0.0",
+    "nodemon": "^3.0.0"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.38.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
