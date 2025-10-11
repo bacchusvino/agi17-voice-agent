@@ -360,9 +360,31 @@
       font-size: 1rem;
     }
 
-    .form-group input:focus {
+    .form-group input:focus,
+    .form-group textarea:focus {
       outline: none;
       box-shadow: 0 0 0 3px rgba(255,255,255,0.3);
+    }
+
+    .form-group textarea {
+      width: 100%;
+      padding: 0.75rem;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    #voiceButton.recording {
+      background: #ff4444;
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
     }
 
     /* Success message */
@@ -377,6 +399,10 @@
 
     .success-message.show {
       display: block;
+    }
+
+    .success-message.error {
+      background: #dc3545;
     }
 
     /* Footer */
@@ -571,7 +597,15 @@
           <input type="email" id="email" name="email" placeholder="Your Email" required>
         </div>
         <div class="form-group">
-          <input type="tel" id="phone" name="phone" placeholder="Your Phone Number" required>
+          <input type="tel" id="phone" name="phone" placeholder="Your Phone (optional)">
+        </div>
+        <div class="form-group">
+          <textarea id="notes" name="notes" placeholder="Additional notes (optional)" rows="3"></textarea>
+        </div>
+        <div class="form-group">
+          <button type="button" id="voiceButton" class="btn btn-secondary" style="width: 100%; margin-bottom: 1rem;">
+            🎤 Start Voice Capture
+          </button>
         </div>
         <button type="submit" class="btn btn-primary" style="width: 100%;">Join the Pilot</button>
         <div class="success-message" id="successMessage">
@@ -588,14 +622,9 @@
     </div>
   </footer>
 
-  <script>
-    // Supabase configuration
-    const SUPABASE_URL = 'https://tyrwkeqavitwkffjcznj.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR5cndrZXFhdml0d2tmZmpjem5qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg5OTA5MzcsImV4cCI6MjA3NDU2NjkzN30.XlP3j-5SQjje7nfv2jvtccQMJtlbSI22vqQtfEj7Nc4';
-    
-    const { createClient } = supabase;
-    const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    
+  <script type="module">
+    // Import Supabase utilities
+    import { leadService, voiceAgent, formHandler } from './js/supabase.js';
     // Mobile menu toggle
     document.getElementById('mobileMenu').addEventListener('click', function() {
       const navLinks = document.getElementById('navLinks');
@@ -612,32 +641,95 @@
       icon.textContent = answer.classList.contains('active') ? '−' : '+';
     }
 
-    // Form submission with Supabase
+    // Voice capture functionality
+    let isRecording = false;
+    const voiceButton = document.getElementById('voiceButton');
+    
+    if (voiceButton) {
+      voiceButton.addEventListener('click', async function() {
+        if (isRecording) {
+          this.textContent = '🎤 Start Voice Capture';
+          this.classList.remove('recording');
+          isRecording = false;
+          return;
+        }
+
+        try {
+          this.textContent = '🔴 Recording...';
+          this.classList.add('recording');
+          isRecording = true;
+
+          const transcript = await voiceAgent.startVoiceCapture();
+          const leadData = await voiceAgent.processVoiceInput(transcript);
+          
+          // Populate form fields if data was extracted
+          if (leadData.email) {
+            document.getElementById('email').value = leadData.email;
+          }
+          if (leadData.phone) {
+            document.getElementById('phone').value = leadData.phone;
+          }
+          if (leadData.notes) {
+            document.getElementById('notes').value = leadData.notes;
+          }
+
+          this.textContent = '🎤 Start Voice Capture';
+          this.classList.remove('recording');
+          isRecording = false;
+
+          formHandler.showMessage('Voice capture completed! Please review and submit the form.');
+        } catch (error) {
+          console.error('Voice capture failed:', error);
+          formHandler.showMessage('Voice capture failed. Please try again.', 'error');
+          this.textContent = '🎤 Start Voice Capture';
+          this.classList.remove('recording');
+          isRecording = false;
+        }
+      });
+    }
+
+    // Form submission with Supabase integration
     document.getElementById('ctaForm').addEventListener('submit', async function(e) {
       e.preventDefault();
       
-      const name = document.getElementById('name').value;
-      const email = document.getElementById('email').value;
-      const phone = document.getElementById('phone').value;
+      const formData = {
+        name: document.getElementById('name').value,
+        email: document.getElementById('email').value,
+        phone: document.getElementById('phone')?.value || null,
+        notes: document.getElementById('notes')?.value || null
+      };
+      
+      // Validate form data
+      const validation = formHandler.validateForm(formData);
+      if (!validation.isValid) {
+        formHandler.showMessage(validation.errors.join(', '), 'error');
+        return;
+      }
       
       try {
-        const { data, error } = await supabaseClient
-          .from('leads')
-          .insert([{ name: name, email: email, phone: phone, source: 'landing_page', status: 'new' }])
-          .select();
-    
-        if (error) throw error;
-    
-        document.getElementById('successMessage').classList.add('show');
-        this.reset();
+        // Show loading state
+        const submitButton = this.querySelector('button[type="submit"]');
+        const originalText = submitButton.textContent;
+        submitButton.textContent = 'Submitting...';
+        submitButton.disabled = true;
         
-        setTimeout(() => {
-          document.getElementById('successMessage').classList.remove('show');
-        }, 5000);
+        // Submit to Supabase
+        const result = await leadService.createLead(formData);
         
+        if (result.success) {
+          formHandler.showMessage('Thanks! We\'ll reach out shortly.');
+          this.reset();
+        } else {
+          throw new Error(result.error);
+        }
       } catch (error) {
-        console.error('Error:', error);
-        alert('Error saving lead. Check console.');
+        console.error('Form submission failed:', error);
+        formHandler.showMessage('Submission failed. Please try again.', 'error');
+      } finally {
+        // Reset button state
+        const submitButton = this.querySelector('button[type="submit"]');
+        submitButton.textContent = originalText;
+        submitButton.disabled = false;
       }
     });
 
@@ -646,6 +738,17 @@
       link.addEventListener('click', () => {
         document.getElementById('navLinks').classList.remove('active');
       });
+    });
+
+    // Initialize voice agent on page load
+    document.addEventListener('DOMContentLoaded', function() {
+      // Check if voice recognition is supported
+      if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+        const voiceButton = document.getElementById('voiceButton');
+        if (voiceButton) {
+          voiceButton.style.display = 'none';
+        }
+      }
     });
   </script>
 </body>
