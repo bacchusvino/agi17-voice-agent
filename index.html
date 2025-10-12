@@ -702,8 +702,8 @@
         email: email.toLowerCase().substring(0, 100),
         phone: phone.substring(0, 20),
         notes: notes.substring(0, 500),
-        source: 'landing_page',
-        status: 'new'
+        source: 'landing_page'
+        // status will be set by database default
       };
       
       try {
@@ -754,12 +754,15 @@
         recognition.continuous = true;
 
         recognition.onresult = (e) => {
-          let trans = '';
-          for (let i = e.resultIndex; i < e.results.length; i++) {
-            trans += e.results[i][0].transcript;
+          let final = '';
+          for (let i = 0; i < e.results.length; i++) {
+            if (e.results[i].isFinal) {
+              final += e.results[i][0].transcript + ' ';
+            }
           }
-          // append safely to textarea
-          notes.value = (notes.value ? notes.value + ' ' : '') + trans.trim();
+          if (final.trim()) {
+            notes.value = (notes.value ? notes.value + ' ' : '') + final.trim();
+          }
         };
         recognition.onerror = () => stop();
         recognition.onend = () => { if (listening) recognition.start(); }; // auto-restart while "on"

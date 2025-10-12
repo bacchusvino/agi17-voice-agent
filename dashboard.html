@@ -420,9 +420,9 @@
           <td><small>${formatDate(lead.created_at)}</small></td>
           <td>
             <div class="actions">
-              <button class="btn btn-success" onclick="updateStatus('${lead.id}', 'qualified')" title="Mark Qualified">✓</button>
-              <button class="btn btn-warning" onclick="updateStatus('${lead.id}', 'contacted')" title="Mark Contacted">📞</button>
-              <button class="btn btn-danger" onclick="updateStatus('${lead.id}', 'not_interested')" title="Not Interested">✕</button>
+              <button class="btn btn-success" data-lead-id="${lead.id}" data-status="qualified" title="Mark Qualified">✓</button>
+              <button class="btn btn-warning" data-lead-id="${lead.id}" data-status="contacted" title="Mark Contacted">📞</button>
+              <button class="btn btn-danger" data-lead-id="${lead.id}" data-status="not_interested" title="Not Interested">✕</button>
             </div>
           </td>
         `);
@@ -509,6 +509,18 @@
       
       return date.toLocaleDateString();
     }
+
+    // Event delegation for status update buttons
+    document.addEventListener('click', async (e) => {
+      if (e.target.matches('.actions button[data-lead-id]')) {
+        const leadId = e.target.dataset.leadId;
+        const newStatus = e.target.dataset.status;
+        
+        if (leadId && newStatus) {
+          await updateStatus(leadId, newStatus);
+        }
+      }
+    });
 
     // Load leads on page load
     window.addEventListener('DOMContentLoaded', fetchLeads);
