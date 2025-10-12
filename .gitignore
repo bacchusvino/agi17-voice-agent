@@ -15,3 +15,14 @@ env/
 
 # File for secret API keys (if you use one) 
 .env
+env-template
+google-credentials.json
+
+# Node.js dependencies
+node_modules/
+npm-debug.log
+*.log
+
+# Package manager lock files (keep package-lock.json but ignore node_modules)
+# Uncomment below if you want to ignore lock files:
+# package-lock.json
