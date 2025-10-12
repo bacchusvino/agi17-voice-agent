@@ -644,13 +644,16 @@
     </div>
   </footer>
 
-  <script>
-    // Supabase configuration
-    const SUPABASE_URL = 'https://tyrwkeqavitwkffjcznj.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR5cndrZXFhdml0d2tmZmpjem5qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg5OTA5MzcsImV4cCI6MjA3NDU2NjkzN30.XlP3j-5SQjje7nfv2jvtccQMJtlbSI22vqQtfEj7Nc4';
+  <script type="module">
+    // Import configuration
+    import CONFIG from './config.js';
     
+    // Supabase configuration from centralized config
     const { createClient } = supabase;
-    const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const supabaseClient = createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
+    
+    // Make supabaseClient available globally for other scripts
+    window.supabaseClient = supabaseClient;
     
     // Mobile menu toggle
     document.getElementById('mobileMenu').addEventListener('click', function() {
@@ -672,15 +675,41 @@
     document.getElementById('ctaForm').addEventListener('submit', async function(e) {
       e.preventDefault();
       
-      const name = document.getElementById('name').value;
-      const email = document.getElementById('email').value;
-      const phone = document.getElementById('phone').value;
-      const notes = document.getElementById('notes').value;
+      const name = document.getElementById('name').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const phone = document.getElementById('phone').value.trim();
+      const notes = document.getElementById('notes').value.trim();
+      
+      // Validate inputs
+      if (!name || name.length < 2) {
+        alert('Please enter a valid name (at least 2 characters)');
+        return;
+      }
+      
+      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        alert('Please enter a valid email address');
+        return;
+      }
+      
+      if (!phone || phone.replace(/\D/g, '').length < 10) {
+        alert('Please enter a valid phone number (at least 10 digits)');
+        return;
+      }
+      
+      // Sanitize inputs (limit length to prevent abuse)
+      const sanitizedData = {
+        name: name.substring(0, 100),
+        email: email.toLowerCase().substring(0, 100),
+        phone: phone.substring(0, 20),
+        notes: notes.substring(0, 500),
+        source: 'landing_page',
+        status: 'new'
+      };
       
       try {
         const { data, error } = await supabaseClient
           .from('leads')
-          .insert([{ name: name, email: email, phone: phone, notes: notes, source: 'landing_page', status: 'new' }])
+          .insert([sanitizedData])
           .select();
     
         if (error) throw error;
@@ -693,8 +722,8 @@
         }, 5000);
         
       } catch (error) {
-        console.error('Error:', error);
-        alert('Error saving lead. Check console.');
+        console.error('Error details (not shown to user):', error);
+        alert('Unable to save lead. Please try again or contact support.');
       }
     });
 
