@@ -750,16 +750,22 @@
         const Ctor = window.SpeechRecognition || window.webkitSpeechRecognition;
         recognition = new Ctor();
         recognition.lang = 'en-US';
-        recognition.interimResults = true;
+        recognition.interimResults = false; // Only use final results to prevent duplication
         recognition.continuous = true;
 
         recognition.onresult = (e) => {
-          let trans = '';
+          // Only process final results (isFinal = true)
           for (let i = e.resultIndex; i < e.results.length; i++) {
-            trans += e.results[i][0].transcript;
+            if (e.results[i].isFinal) {
+              const transcript = e.results[i][0].transcript.trim();
+              if (transcript) {
+                // Append to textarea with proper spacing
+                notes.value = notes.value 
+                  ? notes.value + ' ' + transcript
+                  : transcript;
+              }
+            }
           }
-          // append safely to textarea
-          notes.value = (notes.value ? notes.value + ' ' : '') + trans.trim();
         };
         recognition.onerror = () => stop();
         recognition.onend = () => { if (listening) recognition.start(); }; // auto-restart while "on"

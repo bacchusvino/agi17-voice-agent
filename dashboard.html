@@ -336,7 +336,6 @@
     </div>
   </div>
 
-  <script>
   <script type="module">
     // Import configuration
     import CONFIG from './config.js';
@@ -515,6 +514,13 @@
 
     // Auto-refresh every 30 seconds
     setInterval(fetchLeads, 30000);
+
+    // Expose functions globally for onclick handlers
+    window.refreshData = refreshData;
+    window.updateStatus = updateStatus;
+    window.filterLeads = filterLeads;
+    window.clearFilters = clearFilters;
+    window.toggleFaq = toggleFaq;
   </script>
 </body>
 </html>
