@@ -336,13 +336,13 @@
   </div>
 
   <script>
-    // Supabase credentials
-    const SUPABASE_URL = 'https://tyrwkeqavitwkffjcznj.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR5cndrZXFhdml0d2tmZmpjem5qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg5OTA5MzcsImV4cCI6MjA3NDU2NjkzN30.XlP3j-5SQjje7nfv2jvtccQMJtlbSI22vqQtfEj7Nc4';
-
-    // Initialize Supabase client
+  <script type="module">
+    // Import configuration
+    import CONFIG from './config.js';
+    
+    // Initialize Supabase client with centralized config
     const { createClient } = supabase;
-    const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const supabaseClient = createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
 
     let allLeads = [];
 

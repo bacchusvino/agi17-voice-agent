@@ -17,6 +17,7 @@ env/
 .env
 env-template
 google-credentials.json
+config.js
 
 # Node.js dependencies
 node_modules/
