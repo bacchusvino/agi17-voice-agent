@@ -622,6 +622,9 @@
           <input type="tel" id="phone" name="phone" placeholder="Your Phone Number" required>
         </div>
         <div class="form-group">
+          <input type="text" id="address" name="address" placeholder="Property Address (optional)">
+        </div>
+        <div class="form-group">
           <textarea id="notes" name="notes" placeholder="Additional notes (optional)" rows="3"></textarea>
         </div>
         <div class="form-group">
@@ -678,6 +681,7 @@
       const name = document.getElementById('name').value.trim();
       const email = document.getElementById('email').value.trim();
       const phone = document.getElementById('phone').value.trim();
+      const address = document.getElementById('address').value.trim();
       const notes = document.getElementById('notes').value.trim();
       
       // Validate inputs
@@ -701,6 +705,7 @@
         name: name.substring(0, 100),
         email: email.toLowerCase().substring(0, 100),
         phone: phone.substring(0, 20),
+        address: address ? address.substring(0, 200) : null,
         notes: notes.substring(0, 500),
         source: 'landing_page',
         status: 'new'
