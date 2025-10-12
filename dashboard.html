@@ -403,57 +403,28 @@
 
       leads.forEach(lead => {
         const row = document.createElement('tr');
-        
-        // Name column
-        const nameCell = document.createElement('td');
-        nameCell.innerHTML = `<strong>${DOMPurify.sanitize(lead.name || 'N/A')}</strong>`;
-        row.appendChild(nameCell);
-        
-        // Contact column
-        const contactCell = document.createElement('td');
-        contactCell.innerHTML = `
-          ${DOMPurify.sanitize(lead.email || '-')}<br>
-          <small>${DOMPurify.sanitize(lead.phone || '-')}</small>
-        `;
-        row.appendChild(contactCell);
-        
-        // Property column
-        const propertyCell = document.createElement('td');
-        propertyCell.innerHTML = `
-          ${DOMPurify.sanitize(lead.address || 'N/A')}<br>
-          <small>${lead.price ? '$' + Number(lead.price).toLocaleString() : '-'}</small>
-        `;
-        row.appendChild(propertyCell);
-        
-        // Source column
-        const sourceCell = document.createElement('td');
-        sourceCell.textContent = lead.source || 'Unknown';
-        row.appendChild(sourceCell);
-        
-        // Status column
-        const statusCell = document.createElement('td');
-        const statusBadge = document.createElement('span');
-        statusBadge.className = `status-badge status-${lead.status}`;
-        statusBadge.textContent = formatStatus(lead.status);
-        statusCell.appendChild(statusBadge);
-        row.appendChild(statusCell);
-        
-        // Created column
-        const createdCell = document.createElement('td');
-        createdCell.innerHTML = `<small>${formatDate(lead.created_at)}</small>`;
-        row.appendChild(createdCell);
-        
-        // Actions column
-        const actionsCell = document.createElement('td');
-        actionsCell.innerHTML = `
-          <div class="actions">
-            <button class="btn btn-success" onclick="updateStatus('${lead.id}', 'qualified')" title="Mark Qualified">✓</button>
-            <button class="btn btn-warning" onclick="updateStatus('${lead.id}', 'contacted')" title="Mark Contacted">📞</button>
-            <button class="btn btn-danger" onclick="updateStatus('${lead.id}', 'not_interested')" title="Not Interested">✕</button>
-          </div>
-        `;
-        row.appendChild(actionsCell);
-        
+        // Sanitize all user-generated content to prevent XSS attacks
+        row.innerHTML = DOMPurify.sanitize(`
+          <td><strong>${lead.name || 'N/A'}</strong></td>
+          <td>
+            ${lead.email || '-'}<br>
+            <small>${lead.phone || '-'}</small>
+          </td>
+          <td>
+            ${lead.address || 'N/A'}<br>
+            <small>${lead.price ? '$' + Number(lead.price).toLocaleString() : '-'}</small>
+          </td>
+          <td>${lead.source || 'Unknown'}</td>
+          <td><span class="status-badge status-${lead.status}">${formatStatus(lead.status)}</span></td>
+          <td><small>${formatDate(lead.created_at)}</small></td>
+          <td>
+            <div class="actions">
+              <button class="btn btn-success" data-lead-id="${lead.id}" data-status="qualified" title="Mark Qualified">✓</button>
+              <button class="btn btn-warning" data-lead-id="${lead.id}" data-status="contacted" title="Mark Contacted">📞</button>
+              <button class="btn btn-danger" data-lead-id="${lead.id}" data-status="not_interested" title="Not Interested">✕</button>
+            </div>
+          </td>
+        `);
         tbody.appendChild(row);
       });
     }
@@ -538,6 +509,18 @@
       return date.toLocaleDateString();
     }
 
+    // Event delegation for status update buttons
+    document.addEventListener('click', async (e) => {
+      if (e.target.matches('.actions button[data-lead-id]')) {
+        const leadId = e.target.dataset.leadId;
+        const newStatus = e.target.dataset.status;
+        
+        if (leadId && newStatus) {
+          await updateStatus(leadId, newStatus);
+        }
+      }
+    });
+
     // Load leads on page load
     window.addEventListener('DOMContentLoaded', fetchLeads);
 
@@ -549,7 +532,6 @@
     window.updateStatus = updateStatus;
     window.filterLeads = filterLeads;
     window.clearFilters = clearFilters;
-    window.toggleFaq = toggleFaq;
   </script>
 </body>
 </html>
