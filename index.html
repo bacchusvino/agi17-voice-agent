@@ -770,7 +770,6 @@
         recognition.continuous = true;
 
         recognition.onresult = (e) => {
-<<<<<<< HEAD
           // Only process final results (isFinal = true)
           for (let i = e.resultIndex; i < e.results.length; i++) {
             if (e.results[i].isFinal) {
@@ -782,16 +781,6 @@
                   : transcript;
               }
             }
-=======
-          let final = '';
-          for (let i = 0; i < e.results.length; i++) {
-            if (e.results[i].isFinal) {
-              final += e.results[i][0].transcript + ' ';
-            }
-          }
-          if (final.trim()) {
-            notes.value = (notes.value ? notes.value + ' ' : '') + final.trim();
->>>>>>> 8817db5cb2813b04d49bc8807ccd5bf57f4373cb
           }
         };
         recognition.onerror = () => stop();
