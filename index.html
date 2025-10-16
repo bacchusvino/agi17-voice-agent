@@ -657,13 +657,14 @@
     </div>
   </footer>
 
-  <script type="module">
-    // Import configuration
-    import CONFIG from './config.js';
+  <script>
+    // Supabase configuration - USE ENVIRONMENT VARIABLES IN PRODUCTION
+    const SUPABASE_URL = 'https://YOUR_PROJECT_REF.supabase.co';
+    const SUPABASE_ANON_KEY = 'YOUR_ANON_KEY_HERE';
     
-    // Supabase configuration from centralized config
+    // Supabase client
     const { createClient } = supabase;
-    const supabaseClient = createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
+    const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     
     // Make supabaseClient available globally for other scripts
     window.supabaseClient = supabaseClient;

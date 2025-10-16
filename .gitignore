@@ -19,6 +19,14 @@ env-template
 google-credentials.json
 config.js
 
+# Security-sensitive files
+*.key
+*.pem
+credentials.json
+secrets.json
+.env.local
+.env.production
+
 # Node.js dependencies
 node_modules/
 npm-debug.log
