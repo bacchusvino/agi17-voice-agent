@@ -222,6 +222,24 @@
       box-shadow: 0 10px 30px rgba(0,0,0,0.1);
     }
 
+    /* YouTube Video Embed */
+    .video-container {
+      position: relative;
+      width: 100%;
+      max-width: 100%;
+      margin: 2rem 0;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+
+    .video-container iframe {
+      width: 100%;
+      height: auto;
+      aspect-ratio: 16 / 9;
+      border: none;
+    }
+
     /* Benefits */
     #benefits {
       background: white;
@@ -495,10 +513,16 @@
       <div class="hero-content">
         <h1>San Diego Agents: Stop giving 40% to Zillow.</h1>
         <p>QualiFy captures, qualifies, and books local buyers/sellers for you.</p>
-        <img src="https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&cs=tinysrgb&w=600&h=400&dpr=2" 
-             alt="Real estate agent using laptop with automated lead qualification dashboard showing San Diego properties" 
-             class="hero-image" 
-             loading="lazy">
+        
+        <!-- YouTube Video Embed -->
+        <div class="video-container">
+          <iframe src="https://www.youtube.com/embed/D67bCjHTGG0" 
+                  title="QualiFy - AI-Powered Lead Qualification for San Diego Real Estate Agents"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                  allowfullscreen>
+          </iframe>
+        </div>
+
         <div class="hero-buttons">
           <a href="#cta" class="btn btn-primary">Start Free Trial</a>
           <a href="#proof" class="btn btn-secondary">Watch 60-sec Demo</a>
