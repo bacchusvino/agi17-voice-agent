@@ -214,12 +214,29 @@
       flex-wrap: wrap;
     }
 
-    .hero-image {
-      max-width: 100%;
-      height: auto;
-      margin: 2rem 0;
+    .video-container {
+      position: relative;
+      width: 100%;
+      max-width: 800px;
+      margin: 2rem auto;
       border-radius: 10px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+
+    .video-container::before {
+      content: '';
+      display: block;
+      padding-top: 56.25%; /* 16:9 aspect ratio */
+    }
+
+    .video-container iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
     }
 
     /* Benefits */
@@ -483,7 +500,8 @@
         <li><a href="#how">How It Works</a></li>
         <li><a href="#proof">Social Proof</a></li>
         <li><a href="#faq">FAQ</a></li>
-        <li><a href="#cta">Get Started</a></li>
+        <li><a href="agent-signup.html">Sign Up</a></li>
+        <li><a href="agent-dashboard.html">Agent Login</a></li>
       </ul>
       <button class="mobile-menu" id="mobileMenu">☰</button>
     </div>
@@ -495,12 +513,17 @@
       <div class="hero-content">
         <h1>San Diego Agents: Stop giving 40% to Zillow.</h1>
         <p>QualiFy captures, qualifies, and books local buyers/sellers for you.</p>
-        <img src="https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&cs=tinysrgb&w=600&h=400&dpr=2" 
-             alt="Real estate agent using laptop with automated lead qualification dashboard showing San Diego properties" 
-             class="hero-image" 
-             loading="lazy">
+        <div class="video-container">
+          <iframe 
+            src="https://www.youtube.com/embed/D67bCjHTGG0" 
+            title="QualiFy Demo Video" 
+            frameborder="0" 
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+            allowfullscreen>
+          </iframe>
+        </div>
         <div class="hero-buttons">
-          <a href="#cta" class="btn btn-primary">Start Free Trial</a>
+          <a href="agent-signup.html" class="btn btn-primary">Start Free Trial</a>
           <a href="#proof" class="btn btn-secondary">Watch 60-sec Demo</a>
         </div>
       </div>
