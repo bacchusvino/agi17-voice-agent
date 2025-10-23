@@ -299,7 +299,7 @@
 
       <div class="filter-group">
         <label for="searchInput">Search</label>
-        <input type="text" id="searchInput" placeholder="Name, email, address..." onkeyup="filterLeads()">
+        <input type="text" id="searchInput" placeholder="Name, email, address..." onkeyup="debouncedFilterLeads()">
       </div>
 
       <div class="filter-group" style="padding-top: 1.25rem;">
@@ -338,8 +338,8 @@
 
   <script type="module">
     // Supabase configuration - USE ENVIRONMENT VARIABLES IN PRODUCTION
-    const SUPABASE_URL = 'https://YOUR_PROJECT_REF.supabase.co';
-    const SUPABASE_ANON_KEY = 'YOUR_ANON_KEY_HERE';
+    const SUPABASE_URL = 'https://tyrwkeqavitwkffjcznj.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR5cndrZXFhdml0d2tmZmpjem5qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg5OTA5MzcsImV4cCI6MjA3NDU2NjkzN30.XlP3j-5SQjje7nfv2jvtccQMJtlbSI22vqQtfEj7Nc4';
     
     // Initialize Supabase client
     const { createClient } = supabase;
@@ -404,28 +404,69 @@
 
       leads.forEach(lead => {
         const row = document.createElement('tr');
-        // Sanitize all user-generated content to prevent XSS attacks
-        row.innerHTML = DOMPurify.sanitize(`
-          <td><strong>${lead.name || 'N/A'}</strong></td>
-          <td>
-            ${lead.email || '-'}<br>
-            <small>${lead.phone || '-'}</small>
-          </td>
-          <td>
-            ${lead.address || 'N/A'}<br>
-            <small>${lead.price ? '$' + Number(lead.price).toLocaleString() : '-'}</small>
-          </td>
-          <td>${lead.source || 'Unknown'}</td>
-          <td><span class="status-badge status-${lead.status}">${formatStatus(lead.status)}</span></td>
-          <td><small>${formatDate(lead.created_at)}</small></td>
-          <td>
-            <div class="actions">
-              <button class="btn btn-success" data-lead-id="${lead.id}" data-status="qualified" title="Mark Qualified">✓</button>
-              <button class="btn btn-warning" data-lead-id="${lead.id}" data-status="contacted" title="Mark Contacted">📞</button>
-              <button class="btn btn-danger" data-lead-id="${lead.id}" data-status="not_interested" title="Not Interested">✕</button>
-            </div>
-          </td>
-        `);
+        
+        // Create cells safely using DOM methods instead of innerHTML
+        const nameCell = document.createElement('td');
+        nameCell.innerHTML = `<strong>${DOMPurify.sanitize(lead.name || 'N/A')}</strong>`;
+        
+        const contactCell = document.createElement('td');
+        contactCell.innerHTML = `${DOMPurify.sanitize(lead.email || '-')}<br><small>${DOMPurify.sanitize(lead.phone || '-')}</small>`;
+        
+        const propertyCell = document.createElement('td');
+        propertyCell.innerHTML = `${DOMPurify.sanitize(lead.address || 'N/A')}<br><small>${lead.price ? '$' + Number(lead.price).toLocaleString() : '-'}</small>`;
+        
+        const sourceCell = document.createElement('td');
+        sourceCell.textContent = lead.source || 'Unknown';
+        
+        const statusCell = document.createElement('td');
+        const badge = document.createElement('span');
+        badge.className = `status-badge status-${lead.status}`;
+        badge.textContent = formatStatus(lead.status);
+        statusCell.appendChild(badge);
+        
+        const dateCell = document.createElement('td');
+        const small = document.createElement('small');
+        small.textContent = formatDate(lead.created_at);
+        dateCell.appendChild(small);
+        
+        const actionsCell = document.createElement('td');
+        const div = document.createElement('div');
+        div.className = 'actions';
+        
+        const qualifyBtn = document.createElement('button');
+        qualifyBtn.className = 'btn btn-success';
+        qualifyBtn.dataset.leadId = lead.id;
+        qualifyBtn.dataset.status = 'qualified';
+        qualifyBtn.title = 'Mark Qualified';
+        qualifyBtn.textContent = '✓';
+        
+        const contactBtn = document.createElement('button');
+        contactBtn.className = 'btn btn-warning';
+        contactBtn.dataset.leadId = lead.id;
+        contactBtn.dataset.status = 'contacted';
+        contactBtn.title = 'Mark Contacted';
+        contactBtn.textContent = '📞';
+        
+        const rejectBtn = document.createElement('button');
+        rejectBtn.className = 'btn btn-danger';
+        rejectBtn.dataset.leadId = lead.id;
+        rejectBtn.dataset.status = 'not_interested';
+        rejectBtn.title = 'Not Interested';
+        rejectBtn.textContent = '✕';
+        
+        div.appendChild(qualifyBtn);
+        div.appendChild(contactBtn);
+        div.appendChild(rejectBtn);
+        actionsCell.appendChild(div);
+        
+        row.appendChild(nameCell);
+        row.appendChild(contactCell);
+        row.appendChild(propertyCell);
+        row.appendChild(sourceCell);
+        row.appendChild(statusCell);
+        row.appendChild(dateCell);
+        row.appendChild(actionsCell);
+        
         tbody.appendChild(row);
       });
     }
@@ -474,6 +515,17 @@
 
       renderLeads(filtered);
     }
+
+    // Debounce helper
+    function debounce(fn, delay) {
+      let timeout;
+      return function(...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => fn.apply(this, args), delay);
+      };
+    }
+
+    const debouncedFilterLeads = debounce(filterLeads, 300);
 
     // Clear all filters
     function clearFilters() {
@@ -525,13 +577,15 @@
     // Load leads on page load
     window.addEventListener('DOMContentLoaded', fetchLeads);
 
-    // Auto-refresh every 30 seconds
-    setInterval(fetchLeads, 30000);
+    // Auto-refresh every 30 seconds - DISABLED for demo to preserve battery
+    // Uncomment if you need real-time updates:
+    // setInterval(fetchLeads, 30000);
 
     // Expose functions globally for onclick handlers
     window.refreshData = refreshData;
     window.updateStatus = updateStatus;
     window.filterLeads = filterLeads;
+    window.debouncedFilterLeads = debouncedFilterLeads;
     window.clearFilters = clearFilters;
   </script>
 </body>

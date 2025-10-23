@@ -823,7 +823,10 @@
             }
           }
         };
-        recognition.onerror = () => stop();
+        recognition.onerror = () => {
+          console.error('Voice recognition error');
+          stop();
+        };
         recognition.onend = () => { if (listening) recognition.start(); }; // auto-restart while "on"
       }
 
