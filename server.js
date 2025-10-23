@@ -5,6 +5,12 @@ import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import "dotenv/config";
 import { appendLeadRow } from "./utils/sheets.js";
+import {
+  sendWelcomeEmail,
+  sendRequestMoreInfoEmail,
+  sendAdminNotification,
+  verifyEmailConfig
+} from "./utils/email.js";
 
 const app = express();
 
@@ -34,6 +40,9 @@ const corsOptions = {
     'http://localhost:3000',
     'http://localhost:5173',
     'http://localhost:8000',
+    'http://127.0.0.1:8000',
+    'https://your-domain.com', // Replace with your actual domain
+    'https://qualify.com', // Replace with actual production domain
     // Add production domain via environment variable
     ...(process.env.PRODUCTION_URL ? [process.env.PRODUCTION_URL] : [])
   ],
@@ -143,6 +152,89 @@ app.post("/api/leads", validateLeadData, async (req, res) => {
     res.status(500).json({ 
       ok: false, 
       error: 'Unable to process request' 
+    });
+  }
+});
+
+// Email endpoints
+
+// Verify email configuration
+app.get("/api/email/verify", async (_req, res) => {
+  try {
+    const isValid = await verifyEmailConfig();
+    res.json({
+      ok: isValid,
+      configured: isValid,
+      message: isValid ? 'Email service is configured correctly' : 'Email service not configured or invalid credentials'
+    });
+  } catch (error) {
+    res.status(500).json({
+      ok: false,
+      configured: false,
+      error: 'Failed to verify email configuration'
+    });
+  }
+});
+
+// Send welcome email to new agent
+app.post("/api/email/welcome", async (req, res) => {
+  try {
+    const { name, email, agency, apiKey } = req.body;
+
+    // Validate required fields
+    if (!name || !email || !agency || !apiKey) {
+      return res.status(400).json({
+        ok: false,
+        error: 'Missing required fields: name, email, agency, apiKey'
+      });
+    }
+
+    // Send welcome email
+    await sendWelcomeEmail({ name, email, agency, apiKey });
+
+    // Send admin notification (non-blocking)
+    sendAdminNotification({ name, email, agency, phone: req.body.phone || 'N/A' })
+      .catch(err => console.error('Admin notification failed:', err));
+
+    res.json({
+      ok: true,
+      message: 'Welcome email sent successfully'
+    });
+
+  } catch (error) {
+    console.error('Welcome email failed:', error);
+    res.status(500).json({
+      ok: false,
+      error: 'Failed to send welcome email'
+    });
+  }
+});
+
+// Request more information from agent
+app.post("/api/email/request-info", async (req, res) => {
+  try {
+    const { name, email, missingInfo } = req.body;
+
+    // Validate required fields
+    if (!name || !email || !missingInfo) {
+      return res.status(400).json({
+        ok: false,
+        error: 'Missing required fields: name, email, missingInfo'
+      });
+    }
+
+    await sendRequestMoreInfoEmail({ name, email, missingInfo });
+
+    res.json({
+      ok: true,
+      message: 'Information request email sent successfully'
+    });
+
+  } catch (error) {
+    console.error('Request info email failed:', error);
+    res.status(500).json({
+      ok: false,
+      error: 'Failed to send information request email'
     });
   }
 });
