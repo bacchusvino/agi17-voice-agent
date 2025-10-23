@@ -19,4 +19,4 @@ CREATE POLICY "Agents can read own profile" ON public.agents
 DROP POLICY IF EXISTS "Agents can update own profile" ON public.agents;
 CREATE POLICY "Agents can update own profile" ON public.agents
   FOR UPDATE TO authenticated
-  USING (id = auth.uid() AND id = auth.uid());
+  USING (id = auth.uid());

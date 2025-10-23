@@ -61,13 +61,15 @@ export const leadService = {
   // Update lead status
   async updateLeadStatus(leadId, status, notes = null) {
     try {
+      const updateData = { status: status };
+      if (notes !== null) {
+        updateData.notes = notes;
+      }
+      // Note: updated_at is automatically set by database trigger
+
       const { data, error } = await supabase
         .from('leads')
-        .update({ 
-          status: status,
-          notes: notes,
-          updated_at: new Date().toISOString()
-        })
+        .update(updateData)
         .eq('id', leadId)
         .select()
 

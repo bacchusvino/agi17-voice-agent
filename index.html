@@ -519,7 +519,7 @@
         <li><a href="#proof">Social Proof</a></li>
         <li><a href="#faq">FAQ</a></li>
         <li><a href="agent-signup.html">Sign Up</a></li>
-        <li><a href="agent-dashboard.html">Agent Login</a></li>
+        <li><a href="dashboard.html">Agent Login</a></li>
       </ul>
       <button class="mobile-menu" id="mobileMenu">☰</button>
     </div>
@@ -745,9 +745,10 @@
         alert('Please enter a valid email address');
         return;
       }
-      
-      if (!phone || phone.replace(/\D/g, '').length < 10) {
-        alert('Please enter a valid phone number (at least 10 digits)');
+
+      const phoneDigits = phone.replace(/\D/g, '');
+      if (!phone || phoneDigits.length < 10 || phoneDigits.length > 15) {
+        alert('Please enter a valid phone number (10-15 digits)');
         return;
       }
       
@@ -816,15 +817,30 @@
               const transcript = e.results[i][0].transcript.trim();
               if (transcript) {
                 // Append to textarea with proper spacing
-                notes.value = notes.value 
+                notes.value = notes.value
                   ? notes.value + ' ' + transcript
                   : transcript;
+
+                // Extract email and phone from transcript
+                const emailRegex = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/;
+                const phoneRegex = /(\+?1[-.\s]?)?\(?([0-9]{3})\)?[-.\s]?([0-9]{3})[-.\s]?([0-9]{4})/;
+
+                const emailMatch = transcript.match(emailRegex);
+                const phoneMatch = transcript.match(phoneRegex);
+
+                if (emailMatch && !document.getElementById('email').value) {
+                  document.getElementById('email').value = emailMatch[0];
+                }
+
+                if (phoneMatch && !document.getElementById('phone').value) {
+                  document.getElementById('phone').value = phoneMatch[0];
+                }
               }
             }
           }
         };
-        recognition.onerror = () => {
-          console.error('Voice recognition error');
+        recognition.onerror = (e) => {
+          console.error('Voice recognition error:', e.error);
           stop();
         };
         recognition.onend = () => { if (listening) recognition.start(); }; // auto-restart while "on"

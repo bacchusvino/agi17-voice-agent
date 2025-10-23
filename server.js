@@ -14,13 +14,18 @@ import {
 
 const app = express();
 
+// Configuration constants
+const RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000; // 15 minutes
+const RATE_LIMIT_MAX = 100; // Max requests per window per IP
+const MAX_BODY_SIZE = '10kb'; // Maximum request body size
+
 // Security middleware
 app.use(helmet());
 
 // Rate limiting
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs (increased from 10 for demo traffic)
+  windowMs: RATE_LIMIT_WINDOW_MS,
+  max: RATE_LIMIT_MAX,
   message: {
     ok: false,
     error: 'Too many requests from this IP, please try again later.'
@@ -29,7 +34,7 @@ const limiter = rateLimit({
   legacyHeaders: false,
 });
 
-// CORS with specific origins (update with your actual domains)
+// CORS with specific origins
 const corsOptions = {
   origin: [
     'http://localhost:3000',
@@ -38,6 +43,8 @@ const corsOptions = {
     'http://127.0.0.1:8000',
     'https://your-domain.com', // Replace with your actual domain
     'https://qualify.com', // Replace with actual production domain
+    // Add production domain via environment variable
+    ...(process.env.PRODUCTION_URL ? [process.env.PRODUCTION_URL] : [])
   ],
   credentials: true,
   optionsSuccessStatus: 200
@@ -45,7 +52,7 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 app.use(limiter);
-app.use(express.json({ limit: '10kb' })); // Limit body size
+app.use(express.json({ limit: MAX_BODY_SIZE }));
 
 // Validation middleware
 function validateLeadData(req, res, next) {
@@ -61,11 +68,11 @@ function validateLeadData(req, res, next) {
     }
   }
   
-  // Phone validation (E.164 format)
+  // Phone validation (at least 10 digits, consistent with frontend)
   if (phone) {
-    const phoneRegex = /^\+?[1-9]\d{1,14}$/;
-    if (!phoneRegex.test(phone.replace(/\D/g, ''))) {
-      errors.push('Invalid phone format');
+    const digitsOnly = phone.replace(/\D/g, '');
+    if (digitsOnly.length < 10 || digitsOnly.length > 15) {
+      errors.push('Invalid phone format (must be 10-15 digits)');
     }
   }
   

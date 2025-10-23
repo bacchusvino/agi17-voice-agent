@@ -19,13 +19,13 @@ CREATE POLICY "secure_anon_insert" ON public.leads
     length(COALESCE(email, '')) <= 100 AND
     length(COALESCE(phone, '')) <= 20 AND
     length(COALESCE(notes, '')) <= 500 AND
-    -- Prevent spam: no duplicate emails within 1 hour
+    -- Prevent spam: no duplicate emails within 5 minutes
     NOT EXISTS (
-      SELECT 1 FROM public.leads 
-      WHERE email = NEW.email 
-      AND email IS NOT NULL 
+      SELECT 1 FROM public.leads
+      WHERE email = NEW.email
+      AND email IS NOT NULL
       AND email != ''
-      AND created_at > NOW() - INTERVAL '1 hour'
+      AND created_at > NOW() - INTERVAL '5 minutes'
     )
   );
 
@@ -44,23 +44,6 @@ CREATE POLICY "authenticated_update" ON public.leads
 CREATE POLICY "service_role_full_access" ON public.leads
   FOR ALL TO service_role
   USING (true);
-
--- Add rate limiting function
-CREATE OR REPLACE FUNCTION check_rate_limit(ip_address text)
-RETURNS boolean AS $$
-DECLARE
-  request_count integer;
-BEGIN
-  -- Count requests from this IP in the last minute
-  SELECT COUNT(*) INTO request_count
-  FROM public.leads 
-  WHERE created_at > NOW() - INTERVAL '1 minute'
-  AND source = 'landing_page';
-  
-  -- Allow max 5 requests per minute per IP
-  RETURN request_count < 5;
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- Add comment explaining security model
 COMMENT ON POLICY "secure_anon_insert" ON public.leads IS 
