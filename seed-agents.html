@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QualiFy Agent Seeder - Test Data Generator</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f5f7fa;
+      padding: 2rem;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .card {
+      background: white;
+      border-radius: 10px;
+      padding: 2rem;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      margin-bottom: 2rem;
+    }
+
+    h1 {
+      color: #333;
+      margin-bottom: 0.5rem;
+    }
+
+    .subtitle {
+      color: #666;
+      font-size: 0.95rem;
+      margin-bottom: 2rem;
+    }
+
+    .agent-list {
+      margin-bottom: 2rem;
+    }
+
+    .agent-item {
+      background: #f8f9fa;
+      border-left: 4px solid #0066cc;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      border-radius: 6px;
+    }
+
+    .agent-name {
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 0.5rem;
+    }
+
+    .agent-details {
+      font-size: 0.9rem;
+      color: #666;
+      font-family: monospace;
+      line-height: 1.6;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 0.75rem 1.5rem;
+      border-radius: 6px;
+      border: none;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-size: 1rem;
+    }
+
+    .btn-primary {
+      background: #0066cc;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #0052a3;
+    }
+
+    .btn-primary:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+
+    .status {
+      margin-top: 2rem;
+      padding: 1rem;
+      border-radius: 6px;
+      display: none;
+    }
+
+    .status.show {
+      display: block;
+    }
+
+    .status.success {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+
+    .status.error {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+
+    .status.info {
+      background: #d1ecf1;
+      color: #0c5460;
+      border: 1px solid #bee5eb;
+    }
+
+    .output {
+      background: #1e1e1e;
+      color: #00ff00;
+      padding: 1rem;
+      border-radius: 6px;
+      font-family: monospace;
+      font-size: 0.9rem;
+      max-height: 300px;
+      overflow-y: auto;
+      margin-top: 1rem;
+      display: none;
+    }
+
+    .output.show {
+      display: block;
+    }
+
+    .output-line {
+      margin: 0.25rem 0;
+    }
+
+    .output-success {
+      color: #00ff00;
+    }
+
+    .output-error {
+      color: #ff6b6b;
+    }
+
+    .output-info {
+      color: #4dabf7;
+    }
+
+    .copy-btn {
+      background: #6c757d;
+      color: white;
+      padding: 0.25rem 0.75rem;
+      border-radius: 4px;
+      border: none;
+      cursor: pointer;
+      font-size: 0.85rem;
+      margin-left: 0.5rem;
+    }
+
+    .copy-btn:hover {
+      background: #5a6268;
+    }
+
+    .warning {
+      background: #fff3cd;
+      border: 1px solid #ffc107;
+      color: #856404;
+      padding: 1rem;
+      border-radius: 6px;
+      margin-bottom: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <h1>🎤 QualiFy Agent Seeder</h1>
+      <p class="subtitle">Create test agent accounts for demo purposes</p>
+
+      <div class="warning">
+        ⚠️ <strong>Demo Only:</strong> This creates test accounts with demo passwords. Do not use in production.
+      </div>
+
+      <div class="agent-list">
+        <h2 style="margin-bottom: 1rem; color: #333;">Test Agents to Create</h2>
+        
+        <div class="agent-item">
+          <div class="agent-name">Sarah Johnson</div>
+          <div class="agent-details">
+            Email: sarah@demo.qualify.local<br>
+            Password: <code>DemoPass123!</code><br>
+            Agency: Coastal Realty SD<br>
+            Phone: 619-555-0101
+          </div>
+        </div>
+
+        <div class="agent-item">
+          <div class="agent-name">Michael Chen</div>
+          <div class="agent-details">
+            Email: michael@demo.qualify.local<br>
+            Password: <code>DemoPass456!</code><br>
+            Agency: Urban Properties<br>
+            Phone: 619-555-0102
+          </div>
+        </div>
+
+        <div class="agent-item">
+          <div class="agent-name">Jessica Martinez</div>
+          <div class="agent-details">
+            Email: jessica@demo.qualify.local<br>
+            Password: <code>DemoPass789!</code><br>
+            Agency: Beachfront Homes<br>
+            Phone: 619-555-0103
+          </div>
+        </div>
+      </div>
+
+      <button class="btn btn-primary" id="seedBtn">Create Test Agents</button>
+
+      <div id="status" class="status"></div>
+      
+      <div id="output" class="output"></div>
+    </div>
+
+    <div class="card">
+      <h2 style="margin-bottom: 1rem; color: #333;">Quick Start</h2>
+      <p style="margin-bottom: 1rem; color: #666;">After agents are created, visit the <a href="agent-dashboard.html" target="_blank">Agent Dashboard</a> and log in with any of the credentials above.</p>
+      <p style="color: #666; font-size: 0.9rem;">The dashboard will show your leads and allow you to qualify them with voice calls.</p>
+    </div>
+  </div>
+
+  <script>
+    const SUPABASE_URL = 'https://tyrwkeqavitwkffjcznj.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR5cndrZXFhdml0d2tmZmpjem5qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg5OTA5MzcsImV4cCI6MjA3NDU2NjkzN30.XlP3j-5SQjje7nfv2jvtccQMJtlbSI22vqQtfEj7Nc4';
+
+    const { createClient } = supabase;
+    const supabaseClient = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    const testAgents = [
+      {
+        name: 'Sarah Johnson',
+        email: 'sarah@demo.qualify.local',
+        password: 'DemoPass123!',
+        agency: 'Coastal Realty SD',
+        phone: '619-555-0101',
+      },
+      {
+        name: 'Michael Chen',
+        email: 'michael@demo.qualify.local',
+        password: 'DemoPass456!',
+        agency: 'Urban Properties',
+        phone: '619-555-0102',
+      },
+      {
+        name: 'Jessica Martinez',
+        email: 'jessica@demo.qualify.local',
+        password: 'DemoPass789!',
+        agency: 'Beachfront Homes',
+        phone: '619-555-0103',
+      },
+    ];
+
+    document.getElementById('seedBtn').addEventListener('click', seedAgents);
+
+    async function seedAgents() {
+      const btn = document.getElementById('seedBtn');
+      const status = document.getElementById('status');
+      const output = document.getElementById('output');
+
+      btn.disabled = true;
+      btn.textContent = 'Creating agents...';
+      output.classList.add('show');
+      output.innerHTML = '';
+
+      logOutput('🚀 Starting test agent creation...', 'info');
+      logOutput('', 'info');
+
+      let successCount = 0;
+      let skipCount = 0;
+      let errorCount = 0;
+
+      for (const agent of testAgents) {
+        try {
+          logOutput(`Creating: ${agent.name}`, 'info');
+
+          const { data: authData, error: authError } = await supabaseClient.auth.signUp({
+            email: agent.email,
+            password: agent.password,
+            options: {
+              data: {
+                name: agent.name,
+                agency: agent.agency,
+                phone: agent.phone,
+              },
+            },
+          });
+
+          if (authError) {
+            if (authError.message.includes('already registered')) {
+              logOutput(`  ⚠️  Already exists: ${agent.email}`, 'info');
+              skipCount++;
+              continue;
+            }
+            throw authError;
+          }
+
+          if (!authData.user) {
+            throw new Error('No user returned from signup');
+          }
+
+          // Generate secure API key
+          const apiKey = generateSecureApiKey();
+
+          // Create agent profile
+          const { data: profileData, error: profileError } = await supabaseClient
+            .from('agents')
+            .insert([
+              {
+                id: authData.user.id,
+                name: agent.name,
+                email: agent.email,
+                agency: agent.agency,
+                phone: agent.phone,
+                api_key: apiKey,
+                status: 'active',
+                created_at: new Date().toISOString(),
+              },
+            ])
+            .select();
+
+          if (profileError) throw profileError;
+
+          logOutput(`  ✅ Created successfully`, 'success');
+          logOutput(`     📧 ${agent.email}`, 'success');
+          logOutput(`     🔑 ${agent.password}`, 'success');
+          logOutput(`     🔐 API: ${apiKey.substring(0, 8)}...`, 'success');
+          logOutput('', 'info');
+
+          successCount++;
+
+        } catch (error) {
+          logOutput(`  ❌ Error: ${error.message}`, 'error');
+          logOutput('', 'info');
+          errorCount++;
+        }
+      }
+
+      logOutput('════════════════════════════════════', 'info');
+      logOutput(`✨ Complete!`, 'success');
+      logOutput(`   ✅ Created: ${successCount}`, 'success');
+      logOutput(`   ⏭️  Skipped: ${skipCount}`, 'info');
+      logOutput(`   ❌ Errors: ${errorCount}`, errorCount > 0 ? 'error' : 'info');
+      logOutput('', 'info');
+      logOutput('Ready for demo! Visit: agent-dashboard.html', 'success');
+
+      btn.disabled = false;
+      btn.textContent = 'Create Test Agents';
+
+      // Show summary
+      if (errorCount === 0) {
+        showStatus(`✅ Successfully created ${successCount} test agents!`, 'success');
+      } else {
+        showStatus(`⚠️ Created ${successCount} agents, ${errorCount} errors`, 'error');
+      }
+    }
+
+    function logOutput(text, type = 'info') {
+      const output = document.getElementById('output');
+      const line = document.createElement('div');
+      line.className = `output-line output-${type}`;
+      line.textContent = text;
+      output.appendChild(line);
+      output.scrollTop = output.scrollHeight;
+    }
+
+    function showStatus(message, type) {
+      const status = document.getElementById('status');
+      status.className = `status show ${type}`;
+      status.textContent = message;
+    }
+
+    function generateSecureApiKey() {
+      const arr = new Uint8Array(32);
+      crypto.getRandomValues(arr);
+      return Array.from(arr, x => x.toString(16).padStart(2, '0')).join('');
+    }
+  </script>
+</body>
+</html>
