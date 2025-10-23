@@ -2,8 +2,8 @@
 import { createClient } from 'https://cdn.skypack.dev/@supabase/supabase-js@2'
 
 // Initialize Supabase client
-const supabaseUrl = 'https://your-project-ref.supabase.co'
-const supabaseKey = 'your-anon-key'
+const supabaseUrl = 'https://tyrwkeqavitw4fjfcnj.supabase.co'
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR5cndrZXFhdml0d2tmZmpjem5qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg5OTA5MzcsImV4cCI6MjA3NDU2NjkzN30.XlP3j-5SQjje7nfv2jvtccQMJtlbSI22vqQtfEj7Nc4'
 
 // For development, you can use these placeholder values
 // In production, replace with your actual Supabase project URL and anon key
