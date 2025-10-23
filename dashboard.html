@@ -340,25 +340,63 @@
     // Supabase configuration - USE ENVIRONMENT VARIABLES IN PRODUCTION
     const SUPABASE_URL = 'https://tyrwkeqavitwkffjcznj.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR5cndrZXFhdml0d2tmZmpjem5qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg5OTA5MzcsImV4cCI6MjA3NDU2NjkzN30.XlP3j-5SQjje7nfv2jvtccQMJtlbSI22vqQtfEj7Nc4';
-    
+
     // Initialize Supabase client
     const { createClient } = supabase;
     const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+    // Configuration
+    const LEADS_PER_PAGE = 50;
     let allLeads = [];
+    let currentPage = 0;
 
-    // Fetch leads from Supabase
-    async function fetchLeads() {
+    // Check authentication on page load
+    async function checkAuth() {
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      if (!session) {
+        alert('Please log in to access the dashboard');
+        window.location.href = 'agent-signup.html';
+        return false;
+      }
+      return true;
+    }
+
+    // Fetch leads from Supabase with pagination and filters
+    async function fetchLeads(useFilters = false) {
       try {
         document.getElementById('loading').style.display = 'block';
         document.getElementById('emptyState').style.display = 'none';
         document.getElementById('leadsTable').style.display = 'none';
         document.getElementById('error').style.display = 'none';
 
-        const { data, error } = await supabaseClient
+        let query = supabaseClient
           .from('leads')
-          .select('*')
-          .order('created_at', { ascending: false });
+          .select('*', { count: 'exact' });
+
+        // Apply filters if searching/filtering
+        if (useFilters) {
+          const statusFilter = document.getElementById('statusFilter').value;
+          const sourceFilter = document.getElementById('sourceFilter').value;
+          const searchQuery = document.getElementById('searchInput').value.toLowerCase().trim();
+
+          if (statusFilter) {
+            query = query.eq('status', statusFilter);
+          }
+
+          if (sourceFilter) {
+            query = query.eq('source', sourceFilter);
+          }
+
+          if (searchQuery) {
+            // Use Supabase's text search for better performance
+            query = query.or(`name.ilike.%${searchQuery}%,email.ilike.%${searchQuery}%,phone.ilike.%${searchQuery}%,address.ilike.%${searchQuery}%`);
+          }
+        }
+
+        // Add pagination and ordering
+        const { data, error, count } = await query
+          .order('created_at', { ascending: false })
+          .range(currentPage * LEADS_PER_PAGE, (currentPage + 1) * LEADS_PER_PAGE - 1);
 
         if (error) throw error;
 
@@ -401,20 +439,28 @@
     function renderLeads(leads) {
       const tbody = document.getElementById('leadsTableBody');
       tbody.innerHTML = '';
+      const now = new Date(); // Create once for performance
 
       leads.forEach(lead => {
         const row = document.createElement('tr');
-        
-        // Create cells safely using DOM methods instead of innerHTML
+
+        // Create cells safely - use textContent where possible for performance
         const nameCell = document.createElement('td');
-        nameCell.innerHTML = `<strong>${DOMPurify.sanitize(lead.name || 'N/A')}</strong>`;
-        
+        const nameStrong = document.createElement('strong');
+        nameStrong.textContent = lead.name || 'N/A';
+        nameCell.appendChild(nameStrong);
+
         const contactCell = document.createElement('td');
-        contactCell.innerHTML = `${DOMPurify.sanitize(lead.email || '-')}<br><small>${DOMPurify.sanitize(lead.phone || '-')}</small>`;
-        
+        contactCell.textContent = lead.email || '-';
+        const phoneSmall = document.createElement('small');
+        phoneSmall.textContent = lead.phone || '-';
+        contactCell.appendChild(document.createElement('br'));
+        contactCell.appendChild(phoneSmall);
+
         const propertyCell = document.createElement('td');
+        // Only use DOMPurify for address which might have special chars
         propertyCell.innerHTML = `${DOMPurify.sanitize(lead.address || 'N/A')}<br><small>${lead.price ? '$' + Number(lead.price).toLocaleString() : '-'}</small>`;
-        
+
         const sourceCell = document.createElement('td');
         sourceCell.textContent = lead.source || 'Unknown';
         
@@ -426,7 +472,7 @@
         
         const dateCell = document.createElement('td');
         const small = document.createElement('small');
-        small.textContent = formatDate(lead.created_at);
+        small.textContent = formatDate(lead.created_at, now);
         dateCell.appendChild(small);
         
         const actionsCell = document.createElement('td');
@@ -488,32 +534,10 @@
       }
     }
 
-    // Filter leads
+    // Filter leads - now uses server-side filtering for better performance
     function filterLeads() {
-      const statusFilter = document.getElementById('statusFilter').value;
-      const sourceFilter = document.getElementById('sourceFilter').value;
-      const searchQuery = document.getElementById('searchInput').value.toLowerCase();
-
-      let filtered = allLeads;
-
-      if (statusFilter) {
-        filtered = filtered.filter(lead => lead.status === statusFilter);
-      }
-
-      if (sourceFilter) {
-        filtered = filtered.filter(lead => lead.source === sourceFilter);
-      }
-
-      if (searchQuery) {
-        filtered = filtered.filter(lead => 
-          (lead.name && lead.name.toLowerCase().includes(searchQuery)) ||
-          (lead.email && lead.email.toLowerCase().includes(searchQuery)) ||
-          (lead.phone && lead.phone.includes(searchQuery)) ||
-          (lead.address && lead.address.toLowerCase().includes(searchQuery))
-        );
-      }
-
-      renderLeads(filtered);
+      currentPage = 0; // Reset to first page when filtering
+      fetchLeads(true); // Pass true to apply filters in query
     }
 
     // Debounce helper
@@ -532,7 +556,8 @@
       document.getElementById('statusFilter').value = '';
       document.getElementById('sourceFilter').value = '';
       document.getElementById('searchInput').value = '';
-      filterLeads();
+      currentPage = 0;
+      fetchLeads(false); // Fetch without filters
     }
 
     // Refresh data
@@ -548,17 +573,16 @@
       ).join(' ');
     }
 
-    // Format date for display
-    function formatDate(dateString) {
+    // Format date for display (pass now for performance)
+    function formatDate(dateString, now) {
       const date = new Date(dateString);
-      const now = new Date();
       const diffTime = Math.abs(now - date);
       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
       if (diffDays === 0) return 'Today';
       if (diffDays === 1) return 'Yesterday';
       if (diffDays < 7) return `${diffDays} days ago`;
-      
+
       return date.toLocaleDateString();
     }
 
@@ -575,11 +599,16 @@
     });
 
     // Load leads on page load
-    window.addEventListener('DOMContentLoaded', fetchLeads);
+    window.addEventListener('DOMContentLoaded', async () => {
+      const isAuthenticated = await checkAuth();
+      if (isAuthenticated) {
+        fetchLeads();
+      }
+    });
 
-    // Auto-refresh every 30 seconds - DISABLED for demo to preserve battery
-    // Uncomment if you need real-time updates:
-    // setInterval(fetchLeads, 30000);
+    // Auto-refresh every 30 seconds
+    // Disabled by default to preserve resources - enable in production if needed
+    // setInterval(() => fetchLeads(false), 30000);
 
     // Expose functions globally for onclick handlers
     window.refreshData = refreshData;
