@@ -460,12 +460,18 @@
           .select();
         
         if (profileError) throw profileError;
-        
+
+        // Send welcome email (non-blocking - don't wait for it)
+        sendWelcomeEmail(name, email, agency, phone, apiKey).catch(err => {
+          console.warn('Welcome email failed:', err);
+          // Don't fail the registration if email fails
+        });
+
         // Show success message and API key
         successMessage.classList.add('show');
         apiKeyValue.textContent = apiKey;
         apiKeyDisplay.style.display = 'block';
-        
+
         // Reset form
         this.reset();
         
@@ -498,6 +504,66 @@
       const arr = new Uint8Array(32);
       crypto.getRandomValues(arr);
       return Array.from(arr, x => x.toString(16).padStart(2, '0')).join('');
+    }
+
+    // Send welcome email via API
+    async function sendWelcomeEmail(name, email, agency, phone, apiKey) {
+      const API_URL = window.location.hostname === 'localhost'
+        ? 'http://localhost:5057'
+        : 'https://your-api-domain.com'; // Update with your production API URL
+
+      try {
+        const response = await fetch(`${API_URL}/api/email/welcome`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ name, email, agency, phone, apiKey })
+        });
+
+        const data = await response.json();
+
+        if (data.ok) {
+          console.log('✅ Welcome email sent successfully');
+        } else {
+          console.warn('⚠️ Welcome email failed:', data.error);
+        }
+
+        return data;
+      } catch (error) {
+        console.error('❌ Failed to send welcome email:', error);
+        throw error;
+      }
+    }
+
+    // Send request for more information email via API
+    async function sendRequestMoreInfoEmail(name, email, missingInfo) {
+      const API_URL = window.location.hostname === 'localhost'
+        ? 'http://localhost:5057'
+        : 'https://your-api-domain.com'; // Update with your production API URL
+
+      try {
+        const response = await fetch(`${API_URL}/api/email/request-info`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ name, email, missingInfo })
+        });
+
+        const data = await response.json();
+
+        if (data.ok) {
+          console.log('✅ Request info email sent successfully');
+        } else {
+          console.warn('⚠️ Request info email failed:', data.error);
+        }
+
+        return data;
+      } catch (error) {
+        console.error('❌ Failed to send request info email:', error);
+        throw error;
+      }
     }
 
     // Close mobile menu when clicking on links
