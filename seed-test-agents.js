@@ -9,11 +9,16 @@
 import { createClient } from '@supabase/supabase-js';
 import 'dotenv/config';
 
-const SUPABASE_URL = 'https://tyrwkeqavitwkffjcznj.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR5cndrZXFhdml0d2tmZmpjem5qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg5OTA5MzcsImV4cCI6MjA3NDU2NjkzN30.XlP3j-5SQjje7nfv2jvtccQMJtlbSI22vqQtfEj7Nc4';
+// Load from environment variables
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
 
-// You'll need a service role key for creating users via admin API
-// For now, we'll use the anon key and create via auth.signUp
+if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+  console.error('CRITICAL: Missing required environment variables: SUPABASE_URL and/or SUPABASE_ANON_KEY');
+  console.error('Please set these in your .env file');
+  process.exit(1);
+}
+
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // Test agent data
@@ -100,7 +105,7 @@ async function seedAgents() {
       console.log(`  ✅ Agent created successfully`);
       console.log(`     Email: ${agent.email}`);
       console.log(`     Password: ${agent.password}`);
-      console.log(`     API Key: ${apiKey.substring(0, 8)}...${apiKey.substring(-8)}`);
+      console.log(`     API Key: ${apiKey.substring(0, 8)}...${apiKey.substring(apiKey.length - 8)}`);
       console.log(`\n`);
 
     } catch (error) {

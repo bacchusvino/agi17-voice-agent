@@ -35,6 +35,12 @@ serve(async (req) => {
       throw new Error('Content is required')
     }
 
+    // Validate role to prevent privilege escalation
+    const allowedRoles = ['user', 'assistant', 'system'];
+    if (!allowedRoles.includes(role)) {
+      throw new Error('Invalid role. Must be one of: user, assistant, system')
+    }
+
     // Insert message
     const { data, error } = await supabase
       .from('messages')
