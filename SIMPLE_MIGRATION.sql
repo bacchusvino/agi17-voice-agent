@@ -180,11 +180,11 @@ CREATE POLICY "secure_anon_insert" ON public.leads
     length(COALESCE(phone, '')) <= 20 AND
     length(COALESCE(notes, '')) <= 500 AND
     NOT EXISTS (
-      SELECT 1 FROM public.leads
-      WHERE email = NEW.email
-      AND email IS NOT NULL
-      AND email != ''
-      AND created_at > NOW() - INTERVAL '5 minutes'
+      SELECT 1 FROM public.leads l
+      WHERE l.email = leads.email
+      AND l.email IS NOT NULL
+      AND l.email != ''
+      AND l.created_at > NOW() - INTERVAL '5 minutes'
     )
   );
 
@@ -231,8 +231,8 @@ CREATE POLICY "Allow agent signup for anon and authenticated" ON public.agents
     length(api_key) >= 32 AND
     status IN ('active', 'inactive', 'suspended') AND
     NOT EXISTS (
-      SELECT 1 FROM public.agents
-      WHERE email = NEW.email
+      SELECT 1 FROM public.agents a
+      WHERE a.email = agents.email
     )
   );
 
