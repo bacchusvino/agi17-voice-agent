@@ -178,14 +178,7 @@ CREATE POLICY "secure_anon_insert" ON public.leads
     length(trim(name)) <= 100 AND
     length(COALESCE(email, '')) <= 100 AND
     length(COALESCE(phone, '')) <= 20 AND
-    length(COALESCE(notes, '')) <= 500 AND
-    NOT EXISTS (
-      SELECT 1 FROM public.leads l
-      WHERE l.email = leads.email
-      AND l.email IS NOT NULL
-      AND l.email != ''
-      AND l.created_at > NOW() - INTERVAL '5 minutes'
-    )
+    length(COALESCE(notes, '')) <= 500
   );
 
 CREATE POLICY "authenticated_select" ON public.leads
@@ -200,7 +193,7 @@ CREATE POLICY "service_role_full_access" ON public.leads
   FOR ALL TO service_role
   USING (true);
 
-COMMENT ON POLICY "secure_anon_insert" ON public.leads IS 'Secure anonymous insert with validation and duplicate prevention. Requires authentication for read/update operations.';
+COMMENT ON POLICY "secure_anon_insert" ON public.leads IS 'Secure anonymous insert with validation. Requires authentication for read/update operations.';
 
 -- -----------------------------------------------------------------------------
 -- 5. RLS POLICIES FOR AGENTS TABLE
@@ -229,11 +222,7 @@ CREATE POLICY "Allow agent signup for anon and authenticated" ON public.agents
     length(regexp_replace(phone, '\D', '', 'g')) >= 10 AND
     api_key IS NOT NULL AND
     length(api_key) >= 32 AND
-    status IN ('active', 'inactive', 'suspended') AND
-    NOT EXISTS (
-      SELECT 1 FROM public.agents a
-      WHERE a.email = agents.email
-    )
+    status IN ('active', 'inactive', 'suspended')
   );
 
 CREATE POLICY "Agents can read own profile" ON public.agents
