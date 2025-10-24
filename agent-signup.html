@@ -439,18 +439,6 @@
       submitBtn.textContent = 'Creating Account...';
       
       try {
-        // Check if email already exists in agents table
-        const { data: existingAgent, error: checkError } = await supabaseClient
-          .from('agents')
-          .select('email')
-          .eq('email', email)
-          .single();
-
-        if (existingAgent) {
-          showError('An account with this email already exists. Please log in instead.');
-          return;
-        }
-
         // Create user in Supabase Auth
         const { data: authData, error: authError } = await supabaseClient.auth.signUp({
           email: email,
@@ -491,7 +479,14 @@
           }])
           .select();
         
-        if (profileError) throw profileError;
+        if (profileError) {
+          // Handle duplicate email error from database unique constraint
+          if (profileError.message && profileError.message.includes('duplicate') || profileError.code === '23505') {
+            showError('An account with this email already exists. Please log in instead.');
+            return;
+          }
+          throw profileError;
+        }
 
         // Send welcome email (non-blocking - don't wait for it)
         sendWelcomeEmail(name, email, agency, phone, apiKey).catch(err => {
