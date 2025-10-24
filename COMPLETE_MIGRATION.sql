@@ -121,6 +121,19 @@ CREATE TRIGGER update_agents_updated_at
   FOR EACH ROW
   EXECUTE FUNCTION update_agents_updated_at();
 
+-- Add agent_id column if it doesn't exist
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public'
+    AND table_name = 'leads'
+    AND column_name = 'agent_id'
+  ) THEN
+    ALTER TABLE public.leads ADD COLUMN agent_id UUID;
+  END IF;
+END $$;
+
 -- Add foreign key from leads to agents if not exists
 DO $$
 BEGIN
