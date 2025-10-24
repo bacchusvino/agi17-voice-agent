@@ -3,6 +3,7 @@ import express from "express";
 import cors from "cors";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
+import crypto from "crypto";
 import "dotenv/config";
 import { appendLeadRow } from "./utils/sheets.js";
 import {
@@ -41,8 +42,6 @@ const corsOptions = {
     'http://localhost:5173',
     'http://localhost:8000',
     'http://127.0.0.1:8000',
-    'https://your-domain.com', // Replace with your actual domain
-    'https://qualify.com', // Replace with actual production domain
     // Add production domain via environment variable
     ...(process.env.PRODUCTION_URL ? [process.env.PRODUCTION_URL] : [])
   ],
@@ -68,11 +67,21 @@ function validateLeadData(req, res, next) {
     }
   }
   
-  // Phone validation (at least 10 digits, consistent with frontend)
+  // Phone validation - US format only (San Diego area)
   if (phone) {
     const digitsOnly = phone.replace(/\D/g, '');
-    if (digitsOnly.length < 10 || digitsOnly.length > 15) {
-      errors.push('Invalid phone format (must be 10-15 digits)');
+    // US phone numbers: 10 digits, or 11 with country code '1'
+    if (digitsOnly.length < 10 || digitsOnly.length > 11) {
+      errors.push('Invalid phone format (must be US phone number: 10-11 digits)');
+    }
+    // Optionally validate San Diego area codes: 619, 858, 760, 442, 935
+    if (digitsOnly.length === 10) {
+      const areaCode = digitsOnly.substring(0, 3);
+      const validAreaCodes = ['619', '858', '760', '442', '935'];
+      if (!validAreaCodes.includes(areaCode)) {
+        // Warning only - don't reject, as agents may have clients from elsewhere
+        console.warn(`Phone number has non-San Diego area code: ${areaCode}`);
+      }
     }
   }
   
@@ -94,9 +103,10 @@ function validateLeadData(req, res, next) {
   }
   
   // Sanitize strings to prevent CSV injection
-  if (ownerName) req.body.ownerName = ownerName.replace(/^[=+\-@]/, '');
-  if (city) req.body.city = city.replace(/^[=+\-@]/, '');
-  if (notes) req.body.notes = notes.replace(/^[=+\-@]/, '');
+  // Remove ALL leading dangerous characters and prefix with single quote to neutralize
+  if (ownerName) req.body.ownerName = ownerName.replace(/^[=+\-@]+/, '');
+  if (city) req.body.city = city.replace(/^[=+\-@]+/, '');
+  if (notes) req.body.notes = notes.replace(/^[=+\-@]+/, '');
   
   if (errors.length > 0) {
     return res.status(400).json({ 
@@ -114,7 +124,7 @@ app.get("/api/health", (_req, res) => res.json({ ok: true }));
 
 // lead ingest handler
 app.post("/api/leads", validateLeadData, async (req, res) => {
-  const requestId = Math.random().toString(36).substr(2, 9);
+  const requestId = crypto.randomUUID();
   
   try {
     const {
@@ -142,16 +152,26 @@ app.post("/api/leads", validateLeadData, async (req, res) => {
     res.status(201).json({ ok: true });
     
   } catch (err) {
+    // Sanitize sensitive data before logging
+    const sanitizedBody = {
+      source: req.body.source,
+      ownerName: req.body.ownerName,
+      phone: req.body.phone ? '[REDACTED]' : undefined,
+      city: req.body.city,
+      consentBasis: req.body.consentBasis,
+      notes: req.body.notes ? '[REDACTED]' : undefined,
+    };
+
     console.error(`Lead processing failed (ID: ${requestId}):`, {
       error: err.message,
       stack: err.stack,
-      body: req.body
+      body: sanitizedBody
     });
-    
+
     // Return generic error to client
-    res.status(500).json({ 
-      ok: false, 
-      error: 'Unable to process request' 
+    res.status(500).json({
+      ok: false,
+      error: 'Unable to process request'
     });
   }
 });
