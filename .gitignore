@@ -19,6 +19,14 @@ env-template
 google-credentials.json
 config.js
 
+# Security-sensitive files
+*.key
+*.pem
+credentials.json
+secrets.json
+.env.local
+.env.production
+
 # Node.js dependencies
 node_modules/
 npm-debug.log
@@ -27,5 +35,6 @@ npm-debug.log
 # Package manager lock files (keep package-lock.json but ignore node_modules)
 # Uncomment below if you want to ignore lock files:
 # package-lock.json
+
 # Local Netlify folder
 .netlify

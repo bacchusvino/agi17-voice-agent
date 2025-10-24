@@ -25,6 +25,8 @@
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       line-height: 1.6;
       color: #333;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
     }
 
     .container {
@@ -138,6 +140,12 @@
       color: #666;
     }
 
+    /* Override paragraph color in hero section for better contrast */
+    #hero p {
+      color: #ffffff;
+      font-weight: 500;
+    }
+
     /* Buttons */
     .btn {
       display: inline-block;
@@ -163,24 +171,26 @@
 
     .btn-secondary {
       background: transparent;
-      color: #0066cc;
-      border: 2px solid #0066cc;
+      color: #ffffff;
+      border: 2px solid #ffffff;
+      font-weight: 600;
     }
 
     .btn-secondary:hover {
-      background: #0066cc;
-      color: white;
+      background: #ffffff;
+      color: #5b3cc4;
     }
 
     .btn-outline-primary {
       background: transparent;
-      color: #0066cc;
-      border: 2px solid #0066cc;
+      color: #ffffff;
+      border: 2px solid #ffffff;
+      font-weight: 600;
     }
 
     .btn-outline-primary:hover {
-      background: #0066cc;
-      color: white;
+      background: #ffffff;
+      color: #5b3cc4;
     }
 
     /* Hero */
@@ -204,12 +214,47 @@
       flex-wrap: wrap;
     }
 
-    .hero-image {
+    .video-container {
+      position: relative;
+      width: 100%;
+      max-width: 800px;
+      margin: 2rem auto;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+
+    .video-container::before {
+      content: '';
+      display: block;
+      padding-top: 56.25%; /* 16:9 aspect ratio */
+    }
+
+    .video-container iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    /* YouTube Video Embed */
+    .video-container {
+      position: relative;
+      width: 100%;
       max-width: 100%;
-      height: auto;
       margin: 2rem 0;
       border-radius: 10px;
+      overflow: hidden;
       box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+
+    .video-container iframe {
+      width: 100%;
+      height: auto;
+      aspect-ratio: 16 / 9;
+      border: none;
     }
 
     /* Benefits */
@@ -473,7 +518,8 @@
         <li><a href="#how">How It Works</a></li>
         <li><a href="#proof">Social Proof</a></li>
         <li><a href="#faq">FAQ</a></li>
-        <li><a href="#cta">Get Started</a></li>
+        <li><a href="agent-signup.html">Sign Up</a></li>
+        <li><a href="dashboard.html">Agent Login</a></li>
       </ul>
       <button class="mobile-menu" id="mobileMenu">☰</button>
     </div>
@@ -485,13 +531,17 @@
       <div class="hero-content">
         <h1>San Diego Agents: Stop giving 40% to Zillow.</h1>
         <p>QualiFy captures, qualifies, and books local buyers/sellers for you.</p>
-        <img src="https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&cs=tinysrgb&w=600&h=400&dpr=2" 
-             alt="Real estate agent using laptop with automated lead qualification dashboard showing San Diego properties" 
-             class="hero-image" 
-             loading="lazy">
+        <div class="video-container">
+          <iframe 
+            src="https://www.youtube.com/embed/D67bCjHTGG0" 
+            title="QualiFy Demo Video" 
+            frameborder="0" 
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+            allowfullscreen>
+          </iframe>
+        </div>
         <div class="hero-buttons">
-          <a href="#cta" class="btn btn-primary">Start Free Trial</a>
-          <a href="#proof" class="btn btn-secondary">Watch 60-sec Demo</a>
+          <a href="agent-signup.html" class="btn btn-primary">Start Free Trial</a>
         </div>
       </div>
     </div>
@@ -622,6 +672,9 @@
           <input type="tel" id="phone" name="phone" placeholder="Your Phone Number" required>
         </div>
         <div class="form-group">
+          <input type="text" id="address" name="address" placeholder="Property Address (optional)">
+        </div>
+        <div class="form-group">
           <textarea id="notes" name="notes" placeholder="Additional notes (optional)" rows="3"></textarea>
         </div>
         <div class="form-group">
@@ -644,13 +697,14 @@
     </div>
   </footer>
 
-  <script type="module">
-    // Import configuration
-    import CONFIG from './config.js';
+  <script>
+    // Supabase configuration - USE ENVIRONMENT VARIABLES IN PRODUCTION
+    const SUPABASE_URL = 'https://tyrwkeqavitwkffjcznj.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR5cndrZXFhdml0d2tmZmpjem5qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg5OTA5MzcsImV4cCI6MjA3NDU2NjkzN30.XlP3j-5SQjje7nfv2jvtccQMJtlbSI22vqQtfEj7Nc4';
     
-    // Supabase configuration from centralized config
+    // Supabase client
     const { createClient } = supabase;
-    const supabaseClient = createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
+    const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     
     // Make supabaseClient available globally for other scripts
     window.supabaseClient = supabaseClient;
@@ -661,8 +715,8 @@
       navLinks.classList.toggle('active');
     });
 
-    // FAQ toggle
-    function toggleFaq(index) {
+    // FAQ toggle - make it globally accessible
+    window.toggleFaq = function(index) {
       const answer = document.getElementById(`faq-${index}`);
       const question = answer.previousElementSibling;
       const icon = question.querySelector('span');
@@ -678,6 +732,7 @@
       const name = document.getElementById('name').value.trim();
       const email = document.getElementById('email').value.trim();
       const phone = document.getElementById('phone').value.trim();
+      const address = document.getElementById('address').value.trim();
       const notes = document.getElementById('notes').value.trim();
       
       // Validate inputs
@@ -690,9 +745,10 @@
         alert('Please enter a valid email address');
         return;
       }
-      
-      if (!phone || phone.replace(/\D/g, '').length < 10) {
-        alert('Please enter a valid phone number (at least 10 digits)');
+
+      const phoneDigits = phone.replace(/\D/g, '');
+      if (!phone || phoneDigits.length < 10 || phoneDigits.length > 15) {
+        alert('Please enter a valid phone number (10-15 digits)');
         return;
       }
       
@@ -701,9 +757,10 @@
         name: name.substring(0, 100),
         email: email.toLowerCase().substring(0, 100),
         phone: phone.substring(0, 20),
+        address: address ? address.substring(0, 200) : null,
         notes: notes.substring(0, 500),
-        source: 'landing_page',
-        status: 'new'
+        source: 'landing_page'
+        // status will be set by database default
       };
       
       try {
@@ -750,18 +807,42 @@
         const Ctor = window.SpeechRecognition || window.webkitSpeechRecognition;
         recognition = new Ctor();
         recognition.lang = 'en-US';
-        recognition.interimResults = true;
+        recognition.interimResults = false; // Only use final results to prevent duplication
         recognition.continuous = true;
 
         recognition.onresult = (e) => {
-          let trans = '';
+          // Only process final results (isFinal = true)
           for (let i = e.resultIndex; i < e.results.length; i++) {
-            trans += e.results[i][0].transcript;
+            if (e.results[i].isFinal) {
+              const transcript = e.results[i][0].transcript.trim();
+              if (transcript) {
+                // Append to textarea with proper spacing
+                notes.value = notes.value
+                  ? notes.value + ' ' + transcript
+                  : transcript;
+
+                // Extract email and phone from transcript
+                const emailRegex = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/;
+                const phoneRegex = /(\+?1[-.\s]?)?\(?([0-9]{3})\)?[-.\s]?([0-9]{3})[-.\s]?([0-9]{4})/;
+
+                const emailMatch = transcript.match(emailRegex);
+                const phoneMatch = transcript.match(phoneRegex);
+
+                if (emailMatch && !document.getElementById('email').value) {
+                  document.getElementById('email').value = emailMatch[0];
+                }
+
+                if (phoneMatch && !document.getElementById('phone').value) {
+                  document.getElementById('phone').value = phoneMatch[0];
+                }
+              }
+            }
           }
-          // append safely to textarea
-          notes.value = (notes.value ? notes.value + ' ' : '') + trans.trim();
         };
-        recognition.onerror = () => stop();
+        recognition.onerror = (e) => {
+          console.error('Voice recognition error:', e.error);
+          stop();
+        };
         recognition.onend = () => { if (listening) recognition.start(); }; // auto-restart while "on"
       }
 
