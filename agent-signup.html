@@ -284,7 +284,7 @@
         <li><a href="index.html#how">How It Works</a></li>
         <li><a href="index.html#proof">Social Proof</a></li>
         <li><a href="index.html#faq">FAQ</a></li>
-        <li><a href="agent-dashboard.html">Agent Login</a></li>
+        <li><a href="dashboard.html">Agent Login</a></li>
       </ul>
       <button class="mobile-menu" id="mobileMenu">☰</button>
     </div>
@@ -325,7 +325,12 @@
             <label for="phone">Phone Number *</label>
             <input type="tel" id="phone" name="phone" required>
           </div>
-          
+
+          <div class="form-group">
+            <label for="password">Password *</label>
+            <input type="password" id="password" name="password" required minlength="6">
+          </div>
+
           <button type="submit" class="btn btn-primary" id="submitBtn">
             Create Account
           </button>
@@ -343,13 +348,14 @@
         <div id="apiKeyDisplay" style="display: none;">
           <h3>Your API Key</h3>
           <div class="api-key-display">
-            <strong>API Key:</strong> <span id="apiKeyValue"></span>
+            <strong>API Key:</strong> <span id="apiKeyValue" style="filter: blur(5px);">••••••••••••••••••••••••</span>
+            <button type="button" class="btn btn-secondary" id="copyApiKey" style="margin-top: 0.5rem;">Copy to Clipboard</button>
           </div>
           <p style="margin-top: 1rem; font-size: 0.9rem; color: #666;">
             Save this API key securely. You'll need it to access your dashboard and manage leads.
           </p>
           <div style="margin-top: 1rem;">
-            <a href="agent-dashboard.html" class="btn btn-primary">Go to Dashboard</a>
+            <a href="dashboard.html" class="btn btn-primary">Go to Dashboard</a>
           </div>
         </div>
       </div>
@@ -365,8 +371,8 @@
 
   <script>
     // Supabase configuration - USE ENVIRONMENT VARIABLES IN PRODUCTION
-    const SUPABASE_URL = 'https://YOUR_PROJECT_REF.supabase.co';
-    const SUPABASE_ANON_KEY = 'YOUR_ANON_KEY_HERE';
+    const SUPABASE_URL = 'https://tyrwkeqavitwkffjcznj.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR5cndrZXFhdml0d2tmZmpjem5qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg5OTA5MzcsImV4cCI6MjA3NDU2NjkzN30.XlP3j-5SQjje7nfv2jvtccQMJtlbSI22vqQtfEj7Nc4';
     
     // Supabase client
     const { createClient } = supabase;
@@ -396,36 +402,60 @@
       
       // Get form data
       const name = document.getElementById('name').value.trim();
-      const email = document.getElementById('email').value.trim();
+      const email = document.getElementById('email').value.trim().toLowerCase();
       const agency = document.getElementById('agency').value.trim();
       const phone = document.getElementById('phone').value.trim();
-      
+      const password = document.getElementById('password').value;
+
       // Validate inputs
       if (!name || name.length < 2) {
         showError('Please enter a valid name (at least 2 characters)');
         return;
       }
-      
+
       if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
         showError('Please enter a valid email address');
         return;
       }
-      
+
       if (!agency || agency.length < 2) {
         showError('Please enter a valid agency name');
         return;
       }
-      
-      if (!phone || phone.replace(/\D/g, '').length < 10) {
-        showError('Please enter a valid phone number (at least 10 digits)');
+
+      const phoneDigits = phone.replace(/\D/g, '');
+      if (!phone || phoneDigits.length < 10 || phoneDigits.length > 15) {
+        showError('Please enter a valid phone number (10-15 digits)');
+        return;
+      }
+
+      if (!password || password.length < 6) {
+        showError('Password must be at least 6 characters');
         return;
       }
       
       // Disable submit button
       submitBtn.disabled = true;
       submitBtn.textContent = 'Creating Account...';
-      
+
       try {
+        // First, check if email already exists in agents table
+        const { data: existingAgent, error: checkError } = await supabaseClient
+          .from('agents')
+          .select('email')
+          .eq('email', email)
+          .maybeSingle();
+
+        if (checkError && checkError.code !== 'PGRST116') {
+          // PGRST116 is "no rows returned" which is fine
+          throw checkError;
+        }
+
+        if (existingAgent) {
+          showError('An account with this email already exists. Please log in instead.');
+          return;
+        }
+
         // Generate unique user ID and API key
         const userId = crypto.randomUUID();
         const apiKey = generateApiKey();
@@ -444,13 +474,40 @@
           }])
           .select();
         
-        if (profileError) throw profileError;
-        
+        if (profileError) {
+          // Handle duplicate email error from database unique constraint
+          if (profileError.message && profileError.message.includes('duplicate') || profileError.code === '23505') {
+            showError('An account with this email already exists. Please log in instead.');
+            return;
+          }
+          throw profileError;
+        }
+
+        // Send welcome email (non-blocking - don't wait for it)
+        sendWelcomeEmail(name, email, agency, phone, apiKey).catch(err => {
+          console.warn('Welcome email failed:', err);
+          // Don't fail the registration if email fails
+        });
+
         // Show success message and API key
         successMessage.classList.add('show');
         apiKeyValue.textContent = apiKey;
+        apiKeyValue.dataset.key = apiKey; // Store for copy functionality
         apiKeyDisplay.style.display = 'block';
-        
+
+        // Setup copy to clipboard functionality
+        document.getElementById('copyApiKey').onclick = function() {
+          navigator.clipboard.writeText(apiKey).then(() => {
+            this.textContent = 'Copied!';
+            setTimeout(() => {
+              this.textContent = 'Copy to Clipboard';
+            }, 2000);
+          }).catch(err => {
+            console.error('Failed to copy:', err);
+            alert('Failed to copy. Please select and copy manually.');
+          });
+        };
+
         // Reset form
         this.reset();
         
@@ -469,21 +526,76 @@
       const errorText = document.getElementById('errorText');
       errorText.textContent = message;
       errorMessage.classList.add('show');
-    }
-    
-    function generatePassword() {
-      // Generate a secure random password
-      return Math.random().toString(36).slice(-12) + Math.random().toString(36).slice(-12);
+
+      // Scroll to error message
+      errorMessage.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
     
     function generateApiKey() {
-      // Generate a secure API key
-      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-      let result = '';
-      for (let i = 0; i < 32; i++) {
-        result += chars.charAt(Math.floor(Math.random() * chars.length));
+      // Generate a secure API key using crypto.getRandomValues
+      const arr = new Uint8Array(32);
+      crypto.getRandomValues(arr);
+      return Array.from(arr, x => x.toString(16).padStart(2, '0')).join('');
+    }
+
+    // Send welcome email via API
+    async function sendWelcomeEmail(name, email, agency, phone, apiKey) {
+      const API_URL = window.location.hostname === 'localhost'
+        ? 'http://localhost:5057'
+        : 'https://your-api-domain.com'; // Update with your production API URL
+
+      try {
+        const response = await fetch(`${API_URL}/api/email/welcome`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ name, email, agency, phone, apiKey })
+        });
+
+        const data = await response.json();
+
+        if (data.ok) {
+          console.log('✅ Welcome email sent successfully');
+        } else {
+          console.warn('⚠️ Welcome email failed:', data.error);
+        }
+
+        return data;
+      } catch (error) {
+        console.error('❌ Failed to send welcome email:', error);
+        throw error;
       }
-      return result;
+    }
+
+    // Send request for more information email via API
+    async function sendRequestMoreInfoEmail(name, email, missingInfo) {
+      const API_URL = window.location.hostname === 'localhost'
+        ? 'http://localhost:5057'
+        : 'https://your-api-domain.com'; // Update with your production API URL
+
+      try {
+        const response = await fetch(`${API_URL}/api/email/request-info`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ name, email, missingInfo })
+        });
+
+        const data = await response.json();
+
+        if (data.ok) {
+          console.log('✅ Request info email sent successfully');
+        } else {
+          console.warn('⚠️ Request info email failed:', data.error);
+        }
+
+        return data;
+      } catch (error) {
+        console.error('❌ Failed to send request info email:', error);
+        throw error;
+      }
     }
 
     // Close mobile menu when clicking on links

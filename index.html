@@ -519,7 +519,7 @@
         <li><a href="#proof">Social Proof</a></li>
         <li><a href="#faq">FAQ</a></li>
         <li><a href="agent-signup.html">Sign Up</a></li>
-        <li><a href="agent-dashboard.html">Agent Login</a></li>
+        <li><a href="dashboard.html">Agent Login</a></li>
       </ul>
       <button class="mobile-menu" id="mobileMenu">☰</button>
     </div>
@@ -699,8 +699,8 @@
 
   <script>
     // Supabase configuration - USE ENVIRONMENT VARIABLES IN PRODUCTION
-    const SUPABASE_URL = 'https://YOUR_PROJECT_REF.supabase.co';
-    const SUPABASE_ANON_KEY = 'YOUR_ANON_KEY_HERE';
+    const SUPABASE_URL = 'https://tyrwkeqavitwkffjcznj.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR5cndrZXFhdml0d2tmZmpjem5qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg5OTA5MzcsImV4cCI6MjA3NDU2NjkzN30.XlP3j-5SQjje7nfv2jvtccQMJtlbSI22vqQtfEj7Nc4';
     
     // Supabase client
     const { createClient } = supabase;
@@ -745,9 +745,10 @@
         alert('Please enter a valid email address');
         return;
       }
-      
-      if (!phone || phone.replace(/\D/g, '').length < 10) {
-        alert('Please enter a valid phone number (at least 10 digits)');
+
+      const phoneDigits = phone.replace(/\D/g, '');
+      if (!phone || phoneDigits.length < 10 || phoneDigits.length > 15) {
+        alert('Please enter a valid phone number (10-15 digits)');
         return;
       }
       
@@ -816,14 +817,32 @@
               const transcript = e.results[i][0].transcript.trim();
               if (transcript) {
                 // Append to textarea with proper spacing
-                notes.value = notes.value 
+                notes.value = notes.value
                   ? notes.value + ' ' + transcript
                   : transcript;
+
+                // Extract email and phone from transcript
+                const emailRegex = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/;
+                const phoneRegex = /(\+?1[-.\s]?)?\(?([0-9]{3})\)?[-.\s]?([0-9]{3})[-.\s]?([0-9]{4})/;
+
+                const emailMatch = transcript.match(emailRegex);
+                const phoneMatch = transcript.match(phoneRegex);
+
+                if (emailMatch && !document.getElementById('email').value) {
+                  document.getElementById('email').value = emailMatch[0];
+                }
+
+                if (phoneMatch && !document.getElementById('phone').value) {
+                  document.getElementById('phone').value = phoneMatch[0];
+                }
               }
             }
           }
         };
-        recognition.onerror = () => stop();
+        recognition.onerror = (e) => {
+          console.error('Voice recognition error:', e.error);
+          stop();
+        };
         recognition.onend = () => { if (listening) recognition.start(); }; // auto-restart while "on"
       }
 

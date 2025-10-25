@@ -1,12 +1,15 @@
 // Supabase configuration and utilities
 import { createClient } from 'https://cdn.skypack.dev/@supabase/supabase-js@2'
 
-// Initialize Supabase client
-const supabaseUrl = 'https://your-project-ref.supabase.co'
-const supabaseKey = 'your-anon-key'
+// Initialize Supabase client from window config
+// These should be set in index.html from environment variables
+const supabaseUrl = window.SUPABASE_URL || ''
+const supabaseKey = window.SUPABASE_ANON_KEY || ''
 
-// For development, you can use these placeholder values
-// In production, replace with your actual Supabase project URL and anon key
+if (!supabaseUrl || !supabaseKey) {
+  console.error('CRITICAL: Supabase credentials not configured. Set window.SUPABASE_URL and window.SUPABASE_ANON_KEY')
+}
+
 const supabase = createClient(supabaseUrl, supabaseKey)
 
 // Lead management functions
@@ -61,13 +64,15 @@ export const leadService = {
   // Update lead status
   async updateLeadStatus(leadId, status, notes = null) {
     try {
+      const updateData = { status: status };
+      if (notes !== null) {
+        updateData.notes = notes;
+      }
+      // Note: updated_at is automatically set by database trigger
+
       const { data, error } = await supabase
         .from('leads')
-        .update({ 
-          status: status,
-          notes: notes,
-          updated_at: new Date().toISOString()
-        })
+        .update(updateData)
         .eq('id', leadId)
         .select()
 
