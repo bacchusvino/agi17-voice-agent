@@ -355,10 +355,7 @@
             Save this API key securely. You'll need it to access your dashboard and manage leads.
           </p>
           <div style="margin-top: 1rem;">
-            <a href="agent-login.html" class="btn btn-primary">Login to Dashboard</a>
-            <p style="margin-top: 0.5rem; font-size: 0.9rem; color: #666;">
-              Use your API key to access your dashboard and manage leads.
-            </p>
+            <a href="dashboard.html" class="btn btn-primary">Go to Dashboard</a>
           </div>
         </div>
       </div>
@@ -459,15 +456,36 @@
           return;
         }
 
-        // Generate unique user ID and API key
-        const userId = crypto.randomUUID();
+        // Generate API key
         const apiKey = generateApiKey();
         
-        // Store agent profile in database
+        // Create user in Supabase Auth first
+        const { data: authData, error: authError } = await supabaseClient.auth.signUp({
+          email: email,
+          password: generatePassword(), // Generate a secure password
+          options: {
+            data: {
+              name: name,
+              agency: agency,
+              phone: phone
+            }
+          }
+        });
+        
+        if (authError) {
+          // Handle duplicate user error
+          if (authError.message.includes('already registered')) {
+            showError('An account with this email already exists. Please log in instead.');
+            return;
+          }
+          throw authError;
+        }
+        
+        // Store agent profile in database using the auth user ID
         const { data: profileData, error: profileError } = await supabaseClient
           .from('agents')
           .insert([{
-            id: userId,
+            id: authData.user.id,
             name: name,
             email: email,
             agency: agency,
@@ -539,6 +557,14 @@
       const arr = new Uint8Array(32);
       crypto.getRandomValues(arr);
       return Array.from(arr, x => x.toString(16).padStart(2, '0')).join('');
+    }
+
+    function generatePassword() {
+      // Generate a secure password with letters, numbers, and symbols
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*';
+      const arr = new Uint8Array(16);
+      crypto.getRandomValues(arr);
+      return Array.from(arr, x => chars[x % chars.length]).join('');
     }
 
     // Send welcome email via API

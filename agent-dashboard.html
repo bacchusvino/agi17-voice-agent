@@ -429,9 +429,13 @@
         <p>Access your QualiFy dashboard</p>
         <form id="loginForm">
           <div class="form-group">
-            <label for="apiKey">API Key</label>
-            <input type="text" id="apiKey" name="apiKey" required 
-                   placeholder="Enter your API key">
+            <label for="email">Email Address</label>
+            <input type="email" id="email" name="email" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" required>
           </div>
           
           <button type="submit" class="btn btn-primary" id="loginBtn" style="width: 100%;">
@@ -540,32 +544,11 @@
 
     // Check if user is already logged in
     async function checkAuth() {
-      const savedApiKey = localStorage.getItem('agent_api_key');
-      const savedAgentData = localStorage.getItem('agent_data');
-      
-      if (savedApiKey && savedAgentData) {
-        try {
-          // Verify the API key is still valid
-          const { data: agentData, error } = await supabaseClient
-            .from('agents')
-            .select('*')
-            .eq('api_key', savedApiKey)
-            .single();
-
-          if (!error && agentData && agentData.status === 'active') {
-            currentUser = agentData;
-            showDashboard();
-            loadDashboardData();
-          } else {
-            // API key is invalid, clear stored data
-            localStorage.removeItem('agent_api_key');
-            localStorage.removeItem('agent_data');
-          }
-        } catch (error) {
-          console.error('Auth check error:', error);
-          localStorage.removeItem('agent_api_key');
-          localStorage.removeItem('agent_data');
-        }
+      const { data: { user } } = await supabaseClient.auth.getUser();
+      if (user) {
+        currentUser = user;
+        showDashboard();
+        loadDashboardData();
       }
     }
 
@@ -573,7 +556,8 @@
     document.getElementById('loginForm').addEventListener('submit', async function(e) {
       e.preventDefault();
       
-      const apiKey = document.getElementById('apiKey').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
       const loginBtn = document.getElementById('loginBtn');
       const successMessage = document.getElementById('successMessage');
       const errorMessage = document.getElementById('errorMessage');
@@ -583,8 +567,13 @@
       errorMessage.classList.remove('show');
       
       // Validate inputs
-      if (!apiKey) {
-        showError('Please enter your API key');
+      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        showError('Please enter a valid email address');
+        return;
+      }
+      
+      if (!password || password.length < 6) {
+        showError('Password must be at least 6 characters');
         return;
       }
       
@@ -593,26 +582,14 @@
       loginBtn.innerHTML = '<div class="loading"></div> Logging in...';
       
       try {
-        // Query the agents table to find the agent with this API key
-        const { data: agentData, error } = await supabaseClient
-          .from('agents')
-          .select('*')
-          .eq('api_key', apiKey)
-          .single();
-
-        if (error || !agentData) {
-          throw new Error('Invalid API key. Please check your key and try again.');
-        }
-
-        if (agentData.status !== 'active') {
-          throw new Error('Your account is not active. Please contact support.');
-        }
-
-        // Store the agent data and API key
-        currentUser = agentData;
-        localStorage.setItem('agent_api_key', apiKey);
-        localStorage.setItem('agent_data', JSON.stringify(agentData));
+        const { data, error } = await supabaseClient.auth.signInWithPassword({
+          email: email,
+          password: password
+        });
         
+        if (error) throw error;
+        
+        currentUser = data.user;
         successMessage.classList.add('show');
         
         setTimeout(() => {
@@ -741,10 +718,7 @@
 
     // Logout function
     document.getElementById('logoutBtn').addEventListener('click', async function() {
-      // Clear stored authentication data
-      localStorage.removeItem('agent_api_key');
-      localStorage.removeItem('agent_data');
-      currentUser = null;
+      await supabaseClient.auth.signOut();
       location.reload();
     });
 
