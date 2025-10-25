@@ -456,10 +456,13 @@
           return;
         }
 
-        // Create user in Supabase Auth
+        // Generate API key
+        const apiKey = generateApiKey();
+        
+        // Create user in Supabase Auth first
         const { data: authData, error: authError } = await supabaseClient.auth.signUp({
           email: email,
-          password: password,
+          password: generatePassword(), // Generate a secure password
           options: {
             data: {
               name: name,
@@ -468,7 +471,7 @@
             }
           }
         });
-
+        
         if (authError) {
           // Handle duplicate user error
           if (authError.message.includes('already registered')) {
@@ -478,10 +481,7 @@
           throw authError;
         }
         
-        // Generate API key (in production, this would be done server-side)
-        const apiKey = generateApiKey();
-        
-        // Store agent profile in database
+        // Store agent profile in database using the auth user ID
         const { data: profileData, error: profileError } = await supabaseClient
           .from('agents')
           .insert([{
@@ -491,8 +491,7 @@
             agency: agency,
             phone: phone,
             api_key: apiKey,
-            status: 'active',
-            created_at: new Date().toISOString()
+            status: 'active'
           }])
           .select();
         
@@ -558,6 +557,14 @@
       const arr = new Uint8Array(32);
       crypto.getRandomValues(arr);
       return Array.from(arr, x => x.toString(16).padStart(2, '0')).join('');
+    }
+
+    function generatePassword() {
+      // Generate a secure password with letters, numbers, and symbols
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*';
+      const arr = new Uint8Array(16);
+      crypto.getRandomValues(arr);
+      return Array.from(arr, x => chars[x % chars.length]).join('');
     }
 
     // Send welcome email via API
