@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QualiFy Resources - Real Estate Insights & Blog</title>
+  <meta name="description" content="Learn from industry insights, FSBO seller trends, and real estate lead automation strategies.">
+  <style>
+    :root {
+      --hero-start: #5b3cc4;
+      --hero-end: #7a3ce6;
+      --text-on-hero: #ffffff;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    /* Navigation */
+    nav {
+      position: sticky;
+      top: 0;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid #e5e5e5;
+      z-index: 100;
+    }
+
+    .nav-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .logo {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #0066cc;
+      text-decoration: none;
+    }
+
+    .nav-links {
+      display: flex;
+      list-style: none;
+      gap: 2rem;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      color: #333;
+      font-weight: 500;
+      transition: color 0.3s;
+    }
+
+    .nav-links a:hover {
+      color: #0066cc;
+    }
+
+    /* Mobile nav */
+    .mobile-menu {
+      display: none;
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+
+    @media (max-width: 768px) {
+      .nav-links {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: white;
+        flex-direction: column;
+        padding: 1rem;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      }
+
+      .nav-links.active {
+        display: flex;
+      }
+
+      .mobile-menu {
+        display: block;
+      }
+    }
+
+    /* Hero */
+    .hero {
+      background: linear-gradient(135deg, var(--hero-start), var(--hero-end));
+      color: var(--text-on-hero);
+      padding: 4rem 0;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+      line-height: 1.2;
+    }
+
+    h2 {
+      font-size: 1.5rem;
+      font-weight: bold;
+      margin: 2rem 0 1rem;
+    }
+
+    .hero p {
+      font-size: 1.2rem;
+      font-weight: 500;
+      margin: 0;
+    }
+
+    /* Blog Section */
+    section {
+      padding: 4rem 0;
+    }
+
+    .blog-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+      gap: 2rem;
+      margin-top: 2rem;
+    }
+
+    .blog-card {
+      background: white;
+      border: 1px solid #e5e5e5;
+      border-radius: 10px;
+      overflow: hidden;
+      transition: all 0.3s;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .blog-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+
+    .blog-card-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 2rem 1.5rem;
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .blog-card h3 {
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+      line-height: 1.4;
+    }
+
+    .blog-card-meta {
+      font-size: 0.9rem;
+      opacity: 0.9;
+      margin-bottom: 1rem;
+    }
+
+    .blog-card-excerpt {
+      font-size: 1rem;
+      line-height: 1.6;
+      margin-bottom: 1rem;
+      color: rgba(255,255,255,0.95);
+    }
+
+    .blog-card-footer {
+      padding: 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .blog-tag {
+      display: inline-block;
+      background: #e5e5e5;
+      color: #333;
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .read-more {
+      display: inline-block;
+      color: #0066cc;
+      text-decoration: none;
+      font-weight: 600;
+      transition: color 0.3s;
+    }
+
+    .read-more:hover {
+      color: #004b99;
+    }
+
+    /* Footer */
+    footer {
+      background: #333;
+      color: white;
+      text-align: center;
+      padding: 2rem 0;
+      font-size: 0.9rem;
+      margin-top: 4rem;
+    }
+
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 2rem;
+      }
+
+      .blog-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation -->
+  <nav>
+    <div class="nav-container">
+      <a href="../index.html" class="logo">QualiFy</a>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../index.html#benefits">Benefits</a></li>
+        <li><a href="../index.html#how">How It Works</a></li>
+        <li><a href="index.html">Resources</a></li>
+        <li><a href="../agent-signup.html">Sign Up</a></li>
+        <li><a href="../dashboard.html">Agent Login</a></li>
+      </ul>
+      <button class="mobile-menu" id="mobileMenu">☰</button>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="container">
+      <h1>QualiFy Resources</h1>
+      <p>Real estate insights, FSBO trends, and lead automation strategies</p>
+    </div>
+  </div>
+
+  <!-- Blog Posts -->
+  <section>
+    <div class="container">
+      <h2>Latest Articles</h2>
+      <div class="blog-grid">
+        <!-- Blog Post 1 -->
+        <div class="blog-card">
+          <div class="blog-card-header">
+            <div>
+              <h3>Why San Diego FSBO Sellers Are Struggling in 2025</h3>
+              <div class="blog-card-meta">Published November 1, 2025</div>
+            </div>
+            <p class="blog-card-excerpt">Discover why FSBO sellers are facing new challenges in 2025, from complex commission rules to limited visibility—and how agents can position themselves as the solution.</p>
+          </div>
+          <div class="blog-card-footer">
+            <span class="blog-tag">FSBO Sellers</span>
+            <a href="fsbo-struggles-2025.html" class="read-more">Read More →</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <p>© 2025 QualiFy. San Diego pilot.</p>
+    </div>
+  </footer>
+
+  <script>
+    // Mobile menu toggle
+    document.getElementById('mobileMenu').addEventListener('click', function() {
+      const navLinks = document.getElementById('navLinks');
+      navLinks.classList.toggle('active');
+    });
+
+    // Close mobile menu when clicking on links
+    document.querySelectorAll('.nav-links a').forEach(link => {
+      link.addEventListener('click', () => {
+        document.getElementById('navLinks').classList.remove('active');
+      });
+    });
+  </script>
+</body>
+</html>
