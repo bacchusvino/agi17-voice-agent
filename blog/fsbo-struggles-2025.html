@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Why San Diego FSBO Sellers Are Struggling in 2025 - QualiFy</title>
+  <meta name="description" content="Discover why FSBO sellers are facing new challenges in 2025, from complex commission rules to limited visibility—and how agents can position themselves as the solution.">
+  <style>
+    :root {
+      --hero-start: #5b3cc4;
+      --hero-end: #7a3ce6;
+      --text-on-hero: #ffffff;
+      --accent: #0066cc;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      line-height: 1.8;
+      color: #333;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    /* Navigation */
+    nav {
+      position: sticky;
+      top: 0;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid #e5e5e5;
+      z-index: 100;
+    }
+
+    .nav-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .logo {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    .nav-links {
+      display: flex;
+      list-style: none;
+      gap: 2rem;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      color: #333;
+      font-weight: 500;
+      transition: color 0.3s;
+    }
+
+    .nav-links a:hover {
+      color: var(--accent);
+    }
+
+    .mobile-menu {
+      display: none;
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+
+    @media (max-width: 768px) {
+      .nav-links {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: white;
+        flex-direction: column;
+        padding: 1rem;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      }
+
+      .nav-links.active {
+        display: flex;
+      }
+
+      .mobile-menu {
+        display: block;
+      }
+    }
+
+    /* Hero */
+    .hero {
+      background: linear-gradient(135deg, var(--hero-start), var(--hero-end));
+      color: var(--text-on-hero);
+      padding: 3rem 0;
+      text-align: center;
+    }
+
+    .hero h1 {
+      font-size: 2.2rem;
+      font-weight: bold;
+      margin-bottom: 0.75rem;
+      line-height: 1.3;
+    }
+
+    .post-meta {
+      font-size: 1rem;
+      opacity: 0.95;
+      display: flex;
+      justify-content: center;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    /* Breadcrumb */
+    .breadcrumb {
+      padding: 1rem 0;
+      font-size: 0.95rem;
+    }
+
+    .breadcrumb a {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .breadcrumb a:hover {
+      text-decoration: underline;
+    }
+
+    /* Article */
+    article {
+      padding: 3rem 0;
+      background: white;
+    }
+
+    h2 {
+      font-size: 1.8rem;
+      font-weight: bold;
+      margin: 2rem 0 1rem;
+      color: #1f2937;
+    }
+
+    h2:first-of-type {
+      margin-top: 0;
+    }
+
+    h3 {
+      font-size: 1.3rem;
+      font-weight: bold;
+      margin: 1.5rem 0 0.75rem;
+      color: #1f2937;
+    }
+
+    p {
+      font-size: 1.1rem;
+      margin-bottom: 1.25rem;
+      line-height: 1.8;
+      color: #555;
+    }
+
+    ul, ol {
+      margin: 1.5rem 0 1.5rem 2rem;
+      line-height: 1.9;
+    }
+
+    li {
+      margin-bottom: 0.75rem;
+      color: #555;
+    }
+
+    strong {
+      color: #1f2937;
+      font-weight: 600;
+    }
+
+    em {
+      font-style: italic;
+      color: #666;
+    }
+
+    /* Callout Box */
+    .callout {
+      background: linear-gradient(135deg, rgba(91, 60, 196, 0.05), rgba(122, 60, 230, 0.05));
+      border-left: 4px solid var(--accent);
+      padding: 1.5rem;
+      margin: 2rem 0;
+      border-radius: 6px;
+    }
+
+    .callout-title {
+      font-weight: 600;
+      color: #1f2937;
+      margin-bottom: 0.5rem;
+    }
+
+    .callout p {
+      margin-bottom: 0;
+      font-size: 1rem;
+    }
+
+    /* CTA Box */
+    .cta-box {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 2rem;
+      border-radius: 10px;
+      text-align: center;
+      margin: 3rem 0;
+    }
+
+    .cta-box h3 {
+      color: white;
+      margin-top: 0;
+    }
+
+    .cta-box p {
+      color: rgba(255,255,255,0.95);
+      margin-bottom: 1.5rem;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 0.75rem 1.5rem;
+      background: white;
+      color: #667eea;
+      text-decoration: none;
+      font-weight: 600;
+      border-radius: 6px;
+      transition: all 0.3s;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+
+    /* Footer */
+    footer {
+      background: #333;
+      color: white;
+      text-align: center;
+      padding: 2rem 0;
+      font-size: 0.9rem;
+      margin-top: 4rem;
+    }
+
+    .back-to-blog {
+      margin-bottom: 2rem;
+    }
+
+    .back-to-blog a {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 0.95rem;
+    }
+
+    .back-to-blog a:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 768px) {
+      .hero h1 {
+        font-size: 1.7rem;
+      }
+
+      h2 {
+        font-size: 1.4rem;
+      }
+
+      h3 {
+        font-size: 1.1rem;
+      }
+
+      p {
+        font-size: 1rem;
+      }
+
+      .post-meta {
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation -->
+  <nav>
+    <div class="nav-container">
+      <a href="../index.html" class="logo">QualiFy</a>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../index.html#benefits">Benefits</a></li>
+        <li><a href="../index.html#how">How It Works</a></li>
+        <li><a href="index.html">Resources</a></li>
+        <li><a href="../agent-signup.html">Sign Up</a></li>
+        <li><a href="../dashboard.html">Agent Login</a></li>
+      </ul>
+      <button class="mobile-menu" id="mobileMenu">☰</button>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="container">
+      <h1>Why San Diego FSBO Sellers Are Struggling in 2025</h1>
+      <div class="post-meta">
+        <span>📅 November 1, 2025</span>
+        <span>📖 5 min read</span>
+        <span>🏠 FSBO Sellers</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Breadcrumb -->
+  <div class="container">
+    <div class="breadcrumb">
+      <a href="../index.html">Home</a> / <a href="index.html">Resources</a> / Why San Diego FSBO Sellers Are Struggling in 2025
+    </div>
+  </div>
+
+  <!-- Article -->
+  <article>
+    <div class="container">
+      <div class="back-to-blog">
+        <a href="index.html">← Back to Resources</a>
+      </div>
+
+      <p>Many San Diego homeowners hope to save on commission by selling their homes themselves. But in 2025, new national commission rules are leaving both sellers and buyers confused — and that confusion often leads to expensive mistakes.</p>
+
+      <h2>The New Reality: Complex Rules, Confused Sellers</h2>
+
+      <p>FSBO sellers now juggle complex paperwork, legal requirements, and neighborhood-specific regulations — from fire-zone disclosures to coastal compliance. One missed detail can delay closing or put the sale at risk.</p>
+
+      <div class="callout">
+        <div class="callout-title">Did you know?</div>
+        <p>California's specific regulations add another layer of complexity. FSBO sellers must navigate California Fair Employment and Housing Act (FEHA) compliance, CAR contract templates, and local San Diego requirements without professional guidance.</p>
+      </div>
+
+      <h3>What's Changed in 2025?</h3>
+
+      <ul>
+        <li><strong>Commission transparency rules:</strong> Buyers and sellers now see explicit commission terms upfront, creating confusion about what's negotiable</li>
+        <li><strong>MLS uncertainty:</strong> Many FSBO sellers aren't clear on how to get their listings exposed to buyer agents</li>
+        <li><strong>Buyer agent compensation:</strong> The shift in how buyer agents are compensated has left some sellers unsure about fair practices</li>
+        <li><strong>Legal liability:</strong> Missing a single disclosure can expose FSBO sellers to lawsuits—even after closing</li>
+      </ul>
+
+      <h2>FSBO Visibility: The Silent Deal-Killer</h2>
+
+      <p>FSBO listings also tend to get less visibility, attracting fewer qualified buyers and lower offers. Studies show FSBO homes typically sell for <strong>6–13% less</strong> than agent-represented properties in California.</p>
+
+      <p>Why? Because most serious buyers work with agents, and agent-represented buyers often skip FSBO listings entirely due to:</p>
+
+      <ul>
+        <li>Uncertainty about buyer agent compensation</li>
+        <li>Lack of professional staging and marketing</li>
+        <li>Limited online presence (not fully syndicated across all portals)</li>
+        <li>Concerns about legal protections</li>
+      </ul>
+
+      <h3>The Math Doesn't Add Up</h3>
+
+      <p>A San Diego home selling for $800K represents approximately $24,000 in typical commission (3% buyer, 3% seller). An FSBO seller might save $24K upfront, but a 6–13% lower sale price means a loss of $48K–$104K. That's not a win.</p>
+
+      <div class="callout">
+        <div class="callout-title">Real-world example</div>
+        <p>A FSBO seller lists an $800K property without agent representation. They save $24K in commission but receive offers averaging $760K due to reduced visibility and buyer hesitation. Net result: $40K loss, plus months of wasted time and legal liability.</p>
+      </div>
+
+      <h2>Where FSBO Sellers Are Getting Stuck</h2>
+
+      <h3>Paperwork Overload</h3>
+
+      <p>California requires extensive disclosures: property condition reports, earthquake zone disclosures, fire zone disclaimers, HOA documentation, lead-based paint disclosures (if pre-1978), and more. One missing form can void the sale or trigger lawsuits months later.</p>
+
+      <h3>Pricing Mistakes</h3>
+
+      <p>Without a professional market analysis, FSBO sellers often overprice (scaring away buyers) or underprice (leaving money on the table). San Diego's diverse neighborhoods each have unique value drivers that require local expertise.</p>
+
+      <h3>No Buyer Agent Network</h3>
+
+      <p>Professional agents have established relationships with buyer agents across San Diego County. A FSBO seller has none. This means fewer qualified showings and less competitive bidding.</p>
+
+      <h3>Negotiation Leverage Loss</h3>
+
+      <p>Professional agents manage multiple offers, counteroffer strategy, and inspection negotiations. FSBO sellers often cave under pressure or miss better terms.</p>
+
+      <h2>You Shouldn't Have to Do This Alone</h2>
+
+      <p>FSBO can work — but the smartest sellers make sure they have professional help available when they need it. That's where real estate agents come in.</p>
+
+      <p>Instead of competing for commission, forward-thinking agents can position themselves as <strong>trusted advisors</strong> to FSBO sellers who recognize they need expert guidance.</p>
+
+      <div class="callout">
+        <div class="callout-title">The agent's opportunity</div>
+        <p>FSBO sellers are motivated, often ready to move quickly, and increasingly aware that going solo is risky. Agents who reach them early—before they've made costly mistakes—can build long-term relationships and repeat business.</p>
+      </div>
+
+      <h2>How Agents Can Capture FSBO Leads</h2>
+
+      <p>The key is reaching FSBO sellers <strong>before their deal gets stuck</strong>. This means:</p>
+
+      <ol>
+        <li><strong>Early engagement:</strong> Identify FSBO listings in your market within days of posting</li>
+        <li><strong>Value-first approach:</strong> Offer a free market analysis and disclosure checklist (no sales pitch required)</li>
+        <li><strong>Quick response:</strong> FSBO sellers are time-sensitive; agents who respond same-day win</li>
+        <li><strong>Solve their specific problems:</strong> Address pricing confusion, visibility concerns, or legal uncertainty</li>
+      </ol>
+
+      <p>When FSBO sellers realize they're in over their head—and 80% of them do—they'll call an agent. Make sure they call <em>you</em>.</p>
+
+      <div class="cta-box">
+        <h3>Connect with FSBO Sellers Automatically</h3>
+        <p>QualiFy helps agents reach motivated FSBO sellers before deals fall apart. Our AI voice agents qualify FSBO leads, book appointments, and keep you in the pipeline.</p>
+        <a href="../agent-signup.html" class="btn">Start Your Free Trial</a>
+      </div>
+
+      <h2>The Bottom Line</h2>
+
+      <p>San Diego FSBO sellers in 2025 are facing real obstacles: complex rules, limited visibility, and significant legal exposure. While commission savings sound appealing, the math usually works against them.</p>
+
+      <p>For agents, FSBO sellers represent one of the most qualified lead sources available—highly motivated, ready to move, and increasingly aware they need professional help. Reaching them fast with genuine value positions you to close deals and build lasting client relationships.</p>
+
+      <p><strong>The window is narrow, but the opportunity is real. Capture FSBO leads before they get stuck.</strong></p>
+    </div>
+  </article>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <p>© 2025 QualiFy. San Diego pilot.</p>
+    </div>
+  </footer>
+
+  <script>
+    // Mobile menu toggle
+    document.getElementById('mobileMenu').addEventListener('click', function() {
+      const navLinks = document.getElementById('navLinks');
+      navLinks.classList.toggle('active');
+    });
+
+    // Close mobile menu when clicking on links
+    document.querySelectorAll('.nav-links a').forEach(link => {
+      link.addEventListener('click', () => {
+        document.getElementById('navLinks').classList.remove('active');
+      });
+    });
+  </script>
+</body>
+</html>
