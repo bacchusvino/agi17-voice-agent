@@ -1,5 +1,7 @@
 # AGI17 Voice Agent — QualiFy Real Estate Lead Automation
 
+> **Work Report Note:** All commits performed by Lead (Joscha); team contributions integrated manually via main branch.
+
 **Status:** [![Supabase CI](https://github.com/bacchusvino/agi17-voice-agent/actions/workflows/supabase-ci.yml/badge.svg?branch=main)](https://github.com/bacchusvino/agi17-voice-agent/actions/workflows/supabase-ci.yml)
 
 A modern voice-enabled lead automation platform for San Diego real estate agents, built with Supabase and featuring AI-powered voice capture capabilities.
