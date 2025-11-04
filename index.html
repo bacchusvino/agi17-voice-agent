@@ -43,13 +43,13 @@
       backdrop-filter: blur(10px);
       border-bottom: 1px solid #e5e5e5;
       z-index: 100;
+      padding: 16px 32px;
     }
 
     .nav-container {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 1rem 20px;
       max-width: 1200px;
       margin: 0 auto;
     }
@@ -72,6 +72,8 @@
       color: #333;
       font-weight: 500;
       transition: color 0.3s;
+      margin: 0 12px;
+      font-size: 0.94rem;
     }
 
     .nav-links a:hover {
@@ -93,7 +95,50 @@
       cursor: pointer;
     }
 
-    @media (max-width: 768px) {
+    /* Login dropdown */
+    .login-dropdown {
+      position: relative;
+    }
+
+    .login-dropdown > a {
+      cursor: pointer;
+    }
+
+    .login-dropdown-menu {
+      display: none;
+      position: absolute;
+      top: 100%;
+      right: 0;
+      background: white;
+      border: 1px solid #e5e5e5;
+      border-radius: 6px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      min-width: 160px;
+      margin-top: 8px;
+      padding: 0.5rem 0;
+      z-index: 1000;
+    }
+
+    .login-dropdown:hover .login-dropdown-menu,
+    .login-dropdown.active .login-dropdown-menu {
+      display: block;
+    }
+
+    .login-dropdown-menu a {
+      display: block;
+      padding: 0.75rem 1.5rem;
+      color: #333;
+      text-decoration: none;
+      margin: 0;
+      font-size: 0.94rem;
+    }
+
+    .login-dropdown-menu a:hover {
+      background: #f8f9fa;
+      color: #0066cc;
+    }
+
+    @media (max-width: 1050px) {
       .nav-links {
         display: none;
         position: absolute;
@@ -112,6 +157,14 @@
 
       .mobile-menu {
         display: block;
+      }
+
+      .login-dropdown-menu {
+        position: static;
+        display: block;
+        box-shadow: none;
+        border: none;
+        margin-top: 0;
       }
     }
 
@@ -568,16 +621,16 @@
     <div class="nav-container">
       <a href="#hero" class="logo">QualiFy</a>
       <ul class="nav-links" id="navLinks">
-        <li><a href="agent-page.html">For Agents</a></li>
-        <li><a href="fsbo-page.html">For Sellers</a></li>
-        <li><a href="#benefits">Benefits</a></li>
-        <li><a href="#how">How It Works</a></li>
-        <li><a href="#proof">Social Proof</a></li>
-        <li><a href="#faq">FAQ</a></li>
+        <li><a href="/">For Agents</a></li>
+        <li><a href="#how-it-works">How It Works</a></li>
         <li><a href="blog/">Resources</a></li>
-        <li><a href="dashboard.html">Agent Login</a></li>
-        <li><a href="seller-login.html">Seller Login</a></li>
-        <li><a href="seller-signup.html">Seller Signup</a></li>
+        <li class="login-dropdown">
+          <a>Login ▼</a>
+          <div class="login-dropdown-menu">
+            <a href="dashboard.html">Agent Login</a>
+            <a href="seller-login.html">Seller Login</a>
+          </div>
+        </li>
       </ul>
       <button class="mobile-menu" id="mobileMenu">☰</button>
     </div>
@@ -630,7 +683,7 @@
   </section>
 
   <!-- How It Works Section -->
-  <section id="how">
+  <section id="how-it-works">
     <div class="container">
       <h2>How It Works</h2>
       <div class="steps">
@@ -654,7 +707,7 @@
   </section>
 
   <!-- Social Proof Section -->
-  <section id="proof">
+  <section id="social-proof">
     <div class="container">
       <h2>Social Proof</h2>
       <div class="testimonial">
