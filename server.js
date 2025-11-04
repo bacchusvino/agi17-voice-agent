@@ -259,5 +259,56 @@ app.post("/api/email/request-info", async (req, res) => {
   }
 });
 
+// Voice API endpoints
+
+// Queue voice call
+app.post("/api/voice/queue", async (req, res) => {
+  const requestId = crypto.randomUUID();
+  
+  try {
+    const { phone, leadId } = req.body || {};
+    
+    if (!phone || !leadId) {
+      return res.status(400).json({
+        ok: false,
+        error: 'Missing required fields: phone, leadId'
+      });
+    }
+
+    // TODO: Implement voice call queueing logic
+    // This would integrate with Retell or other voice service
+    
+    console.log(`Voice call queued (ID: ${requestId})`, { phone, leadId });
+    
+    res.status(200).json({ 
+      ok: true,
+      message: 'Call queued successfully'
+    });
+    
+  } catch (err) {
+    console.error(`Voice queue failed (ID: ${requestId}):`, err);
+    res.status(500).json({
+      ok: false,
+      error: 'Unable to queue call'
+    });
+  }
+});
+
+// Retell webhook callback
+app.post("/api/voice/callback", async (req, res) => {
+  try {
+    console.log("📞 Retell Webhook Received:", JSON.stringify(req.body, null, 2));
+
+    // TODO: Later we match call to leadId in DB
+    // const { call_id, transcript } = req.body?.call || {};
+
+    // ✅ Acknowledge receipt (required by Retell)
+    return res.status(204).send();
+  } catch (err) {
+    console.error("Webhook error:", err);
+    return res.status(500).json({ error: "Webhook failure" });
+  }
+});
+
 const PORT = process.env.PORT || 5057; // avoid conflicts with Vite (5173)
 app.listen(PORT, () => console.log(`✅ API running on http://localhost:${PORT}`));
