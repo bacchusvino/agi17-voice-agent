@@ -467,7 +467,7 @@
             data: {
               name: name,
               agency: agency,
-              phone: phone
+              phone: phoneDigits.substring(0, 15) // Store cleaned phone number
             }
           }
         });
@@ -489,7 +489,7 @@
             name: name,
             email: email,
             agency: agency,
-            phone: phone,
+            phone: phoneDigits.substring(0, 15), // Store cleaned phone number
             api_key: apiKey,
             status: 'active'
           }])
