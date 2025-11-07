@@ -13,6 +13,7 @@
       --hero-end:   #7a3ce6;   /* richer violet */
       --panel-bg:   #ffffff;
       --text-on-hero: #ffffff;
+      --brand-purple: #7C3AED; /* Primary brand purple */
     }
 
     * {
@@ -57,8 +58,13 @@
     .logo {
       font-size: 1.5rem;
       font-weight: bold;
-      color: #0066cc;
+      color: var(--brand-purple);
       text-decoration: none;
+      transition: opacity 0.3s;
+    }
+
+    .logo:hover {
+      opacity: 0.8;
     }
 
     .nav-links {
@@ -74,16 +80,25 @@
       transition: color 0.3s;
       margin: 0 12px;
       font-size: 0.94rem;
+      position: relative;
     }
 
     .nav-links a:hover {
-      color: #0066cc;
+      color: var(--brand-purple);
     }
 
     .nav-links a.active {
-      color: #0066cc;
-      border-bottom: 2px solid #0066cc;
-      padding-bottom: 0.25rem;
+      color: var(--brand-purple);
+    }
+
+    .nav-links a.active::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: var(--brand-purple);
     }
 
     /* Mobile nav */
@@ -93,49 +108,12 @@
       border: none;
       font-size: 1.5rem;
       cursor: pointer;
-    }
-
-    /* Login dropdown */
-    .login-dropdown {
-      position: relative;
-    }
-
-    .login-dropdown > a {
-      cursor: pointer;
-    }
-
-    .login-dropdown-menu {
-      display: none;
-      position: absolute;
-      top: 100%;
-      right: 0;
-      background: white;
-      border: 1px solid #e5e5e5;
-      border-radius: 6px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      min-width: 160px;
-      margin-top: 8px;
-      padding: 0.5rem 0;
-      z-index: 1000;
-    }
-
-    .login-dropdown:hover .login-dropdown-menu,
-    .login-dropdown.active .login-dropdown-menu {
-      display: block;
-    }
-
-    .login-dropdown-menu a {
-      display: block;
-      padding: 0.75rem 1.5rem;
       color: #333;
-      text-decoration: none;
-      margin: 0;
-      font-size: 0.94rem;
+      transition: color 0.3s;
     }
 
-    .login-dropdown-menu a:hover {
-      background: #f8f9fa;
-      color: #0066cc;
+    .mobile-menu:hover {
+      color: var(--brand-purple);
     }
 
     @media (max-width: 1050px) {
@@ -149,22 +127,30 @@
         flex-direction: column;
         padding: 1rem;
         box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        gap: 0;
       }
 
       .nav-links.active {
         display: flex;
       }
 
-      .mobile-menu {
-        display: block;
+      .nav-links li {
+        width: 100%;
       }
 
-      .login-dropdown-menu {
-        position: static;
+      .nav-links a {
         display: block;
-        box-shadow: none;
-        border: none;
-        margin-top: 0;
+        padding: 0.75rem 1rem;
+        margin: 0;
+        border-bottom: 1px solid #f0f0f0;
+      }
+
+      .nav-links a:last-child {
+        border-bottom: none;
+      }
+
+      .mobile-menu {
+        display: block;
       }
     }
 
@@ -366,7 +352,7 @@
     }
 
     .step-number {
-      background: #0066cc;
+      background: var(--brand-purple);
       color: white;
       width: 40px;
       height: 40px;
@@ -385,7 +371,7 @@
     }
 
     .testimonial {
-      background: #0066cc;
+      background: var(--brand-purple);
       color: white;
       padding: 3rem;
       border-radius: 10px;
@@ -416,7 +402,7 @@
     .metric-value {
       font-size: 2rem;
       font-weight: bold;
-      color: #0066cc;
+      color: var(--brand-purple);
     }
 
     /* FAQ */
@@ -613,6 +599,11 @@
     html {
       scroll-behavior: smooth;
     }
+
+    /* Offset for anchor links to account for sticky nav */
+    section[id] {
+      scroll-margin-top: 80px;
+    }
   </style>
 </head>
 <body>
@@ -621,18 +612,12 @@
     <div class="nav-container">
       <a href="#hero" class="logo">QualiFy</a>
       <ul class="nav-links" id="navLinks">
-        <li><a href="/">For Agents</a></li>
+        <li><a href="#benefits">Benefits</a></li>
         <li><a href="#how-it-works">How It Works</a></li>
-        <li><a href="blog/">Resources</a></li>
-        <li class="login-dropdown">
-          <a>Login ▼</a>
-          <div class="login-dropdown-menu">
-            <a href="dashboard.html">Agent Login</a>
-            <a href="seller-login.html">Seller Login</a>
-          </div>
-        </li>
+        <li><a href="#social-proof">Social Proof</a></li>
+        <li><a href="#faq">FAQ</a></li>
       </ul>
-      <button class="mobile-menu" id="mobileMenu">☰</button>
+      <button class="mobile-menu" id="mobileMenu" aria-label="Toggle menu">☰</button>
     </div>
   </nav>
 
@@ -640,8 +625,8 @@
   <section id="hero">
     <div class="container">
       <div class="hero-content">
-        <h1>San Diego Agents: Stop giving 40% to Zillow.</h1>
-        <p>QualiFy captures, qualifies, and books local buyers/sellers for you.</p>
+        <h1>San Diego Agents: Convert FSBOs Into Listings - Automatically</h1>
+        <p>QualiFy finds Craigslist FSBOs, calls them, qualifies intent, and books only serious sellers on your calendar.</p>
         <div class="video-container">
           <iframe 
             src="https://www.youtube.com/embed/D67bCjHTGG0" 
@@ -671,7 +656,7 @@
         <div class="benefit-card">
           <div class="benefit-icon">🏠</div>
           <h3>Own your pipeline</h3>
-          <p>Stop paying 40% to lead marketplaces.</p>
+          <p>No more $200/lead Zillow bills. Just qualified FSBOs ready to list.</p>
         </div>
         <div class="benefit-card">
           <div class="benefit-icon">🎥</div>
@@ -711,8 +696,8 @@
     <div class="container">
       <h2>Social Proof</h2>
       <div class="testimonial">
-        <blockquote>"Booked 3 qualified seller calls in week one."</blockquote>
-        <cite>— SD Agent</cite>
+        <blockquote>"Converted 2 Craigslist FSBOs to listings in my first 10 days."</blockquote>
+        <cite>— Maria R., Kearny Mesa</cite>
       </div>
       <div class="metrics">
         <div class="metric">
@@ -761,6 +746,15 @@
           </button>
           <div class="faq-answer" id="faq-2">
             Yes—voice, script, and criteria are editable.
+          </div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question" onclick="toggleFaq(3)">
+            Why FSBOs instead of MLS leads?
+            <span>+</span>
+          </button>
+          <div class="faq-answer" id="faq-3">
+            FSBOs are motivated sellers who haven't committed to another agent yet. They're your best chance to earn a full listing commission without competing against 10 other agents on the same MLS lead.
           </div>
         </div>
       </div>
