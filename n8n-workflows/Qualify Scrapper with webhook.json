@@ -74,7 +74,15 @@
       "credentials": {
         "supabaseApi": {
           "id": "3heIjqAwyVLI48Un",
-          "name": "Supabase account"
+          "name": "Supabase account",
+          "parameters": {
+            "headers": {
+              "apikey": "={{ $env.SUPABASE_ANON_KEY }}",
+              "Authorization": "Bearer {{ $env.SUPABASE_ANON_KEY }}",
+              "Content-Type": "application/json",
+              "Prefer": "return=representation"
+            }
+          }
         }
       }
     },
