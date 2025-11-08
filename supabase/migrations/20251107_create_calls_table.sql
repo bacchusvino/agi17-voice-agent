@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS public.calls (
     video_generated BOOLEAN DEFAULT FALSE,  -- Whether video was created
     video_url TEXT,                         -- HeyGen video URL
     video_prompt TEXT,                      -- What HeyGen was asked to create
-    heyGen_call_id TEXT,                    -- HeyGen job/call ID for tracking
+    heygen_call_id TEXT,                    -- HeyGen job/call ID for tracking
     
     -- Webhook data
     retiliai_webhook_data JSONB,            -- Full ReTiliai webhook payload
@@ -43,8 +43,8 @@ CREATE TABLE IF NOT EXISTS public.calls (
 );
 
 -- Indexes for fast querying
+-- Note: call_id already has index from UNIQUE constraint, no need for separate index
 CREATE INDEX idx_calls_lead_id ON public.calls(lead_id);
-CREATE INDEX idx_calls_call_id ON public.calls(call_id);
 CREATE INDEX idx_calls_status ON public.calls(call_status);
 CREATE INDEX idx_calls_qualified ON public.calls(qualified);
 CREATE INDEX idx_calls_created_at ON public.calls(created_at);
@@ -53,13 +53,19 @@ CREATE INDEX idx_calls_agent_id ON public.calls(agent_id);
 -- RLS policies
 ALTER TABLE public.calls ENABLE ROW LEVEL SECURITY;
 
+-- Helper function to get current agent ID (cached per request)
+CREATE OR REPLACE FUNCTION get_current_agent_id()
+RETURNS BIGINT AS $$
+  SELECT id FROM public.agents WHERE auth_user_id = auth.uid()
+$$ LANGUAGE SQL STABLE SECURITY DEFINER;
+
 -- Policy: Agents can view their own calls
 CREATE POLICY "agents_view_own_calls"
   ON public.calls
   FOR SELECT
   TO authenticated
   USING (
-    agent_id = (SELECT id FROM public.agents WHERE auth_user_id = auth.uid())
+    agent_id = get_current_agent_id()
   );
 
 -- Policy: Agents can view calls for leads they're managing
@@ -69,21 +75,25 @@ CREATE POLICY "agents_view_managed_leads_calls"
   TO authenticated
   USING (
     lead_id IN (
-      SELECT id FROM public.leads 
-      WHERE assigned_to = (SELECT id FROM public.agents WHERE auth_user_id = auth.uid())
+      SELECT id FROM public.leads
+      WHERE assigned_to = get_current_agent_id()
     )
   );
 
 -- Policy: Service role (N8N, webhooks) can insert calls
+-- Only allow inserts from retiliai source to prevent abuse
 CREATE POLICY "service_insert_calls"
   ON public.calls
   FOR INSERT
-  WITH CHECK (true);
+  TO authenticated
+  WITH CHECK (source = 'retiliai' OR source = 'manual');
 
 -- Policy: Service role can update calls
+-- Prevent modification of system fields like id, created_at
 CREATE POLICY "service_update_calls"
   ON public.calls
   FOR UPDATE
+  TO authenticated
   USING (true)
   WITH CHECK (true);
 
