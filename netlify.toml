@@ -1,6 +1,5 @@
 [build]
   publish = "."
-  command = "npm ci"
   functions = "netlify/functions"
 
 [[redirects]]
