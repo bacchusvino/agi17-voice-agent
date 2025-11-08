@@ -1,0 +1,56 @@
+{
+  "name": "ReTiliai Call → Supabase → HeyGen",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "8bfa9f5f-8f8f-8f8f-8f8f-8f8f8f8f8f8f",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 400],
+      "webhookId": "retiliai-call-webhook"
+    },
+    {
+      "parameters": {
+        "functionCode": "const data = $input.first();\n\nreturn {\n  call_id: data.json.call_id,\n  phone_number: data.json.phone_number,\n  call_status: data.json.call_status || 'completed',\n  transcript: data.json.transcript || data.json.messages?.map(m => `${m.role}: ${m.content}`).join('\\n'),\n  duration_seconds: data.json.duration_seconds,\n  sentiment_analysis: {\n    overall: data.json.sentiment?.overall || 'neutral',\n    confidence: data.json.sentiment?.confidence || 0.5\n  },\n  qualification_score: data.json.qualification_score || calculateScore(data.json),\n  qualified: data.json.qualified_lead || false,\n  hot_lead_indicators: data.json.hot_indicators || extractHotIndicators(data.json),\n  summary: data.json.call_summary || generateSummary(data.json.transcript),\n  retiliai_webhook_data: data.json,\n  started_at: data.json.started_at || new Date().toISOString(),\n  ended_at: data.json.ended_at || new Date().toISOString()\n};\n\nfunction calculateScore(data) {\n  let score = 50;\n  if (data.qualified_lead) score += 30;\n  if (data.sentiment?.overall === 'positive') score += 15;\n  if (data.ready_to_sell) score += 10;\n  return Math.min(100, score);\n}\n\nfunction extractHotIndicators(data) {\n  return {\n    ready_to_sell: data.ready_to_sell || false,\n    timeline: data.timeline || 'unknown',\n    flexible_price: data.flexible_price || false,\n    interested_in_agent: data.interested_in_agent || false\n  };\n}\n\nfunction generateSummary(transcript) {\n  if (!transcript) return 'Call completed';\n  return transcript.substring(0, 200) + '...';\n}"
+      },
+      "id": "c3f9e4e4-f4e4-f4e4-f4e4-f4e4f4e4f4e4",
+      "name": "Parse ReTiliai Webhook",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [450, 400]
+    },
+    {
+      "parameters": {},
+      "id": "success_node",
+      "name": "Success Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [800, 400]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Parse ReTiliai Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse ReTiliai Webhook": {
+      "main": [
+        [
+          {
+            "node": "Success Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}
