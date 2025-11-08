@@ -1,5 +1,5 @@
 // Supabase configuration and utilities
-import { createClient } from 'https://cdn.skypack.dev/@supabase/supabase-js@2'
+import { createClient } from '@supabase/supabase-js'
 
 // Initialize Supabase client
 const supabaseUrl = 'https://tyrwkeqavitwkffjcznj.supabase.co'
