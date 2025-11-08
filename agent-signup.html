@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agent Signup - QualiFy</title>
+  <meta name="description" content="Join QualiFy and start capturing qualified real estate leads in San Diego.">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    /* Improve hero gradient + form contrast (WCAG AA) */
+    :root {
+      --hero-start: #5b3cc4;   /* deeper indigo */
+      --hero-end:   #7a3ce6;   /* richer violet */
+      --panel-bg:   #ffffff;
+      --text-on-hero: #ffffff;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    /* Navigation */
+    nav {
+      position: sticky;
+      top: 0;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid #e5e5e5;
+      z-index: 100;
+    }
+
+    .nav-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .logo {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #0066cc;
+      text-decoration: none;
+    }
+
+    .nav-links {
+      display: flex;
+      list-style: none;
+      gap: 2rem;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      color: #333;
+      font-weight: 500;
+      transition: color 0.3s;
+    }
+
+    .nav-links a:hover {
+      color: #0066cc;
+    }
+
+    /* Mobile nav */
+    .mobile-menu {
+      display: none;
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+
+    @media (max-width: 768px) {
+      .nav-links {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: white;
+        flex-direction: column;
+        padding: 1rem;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      }
+
+      .nav-links.active {
+        display: flex;
+      }
+
+      .mobile-menu {
+        display: block;
+      }
+    }
+
+    /* Hero Section */
+    #hero {
+      background: linear-gradient(135deg, var(--hero-start), var(--hero-end));
+      color: var(--text-on-hero);
+      text-align: center;
+      padding: 4rem 0;
+    }
+
+    .hero-content {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      font-weight: bold;
+      margin-bottom: 1rem;
+      line-height: 1.2;
+    }
+
+    p {
+      font-size: 1.1rem;
+      margin-bottom: 2rem;
+      color: #ffffff;
+      font-weight: 500;
+    }
+
+    /* Form Section */
+    #signup-form {
+      background: white;
+      padding: 4rem 0;
+    }
+
+    .form-container {
+      max-width: 500px;
+      margin: 0 auto;
+      background: #f8f9fa;
+      padding: 3rem;
+      border-radius: 10px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      font-size: 2rem;
+      font-weight: bold;
+      margin-bottom: 1rem;
+      text-align: center;
+      color: #333;
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 0.75rem;
+      border: 2px solid #e5e5e5;
+      border-radius: 6px;
+      font-size: 1rem;
+      transition: border-color 0.3s;
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: #0066cc;
+      box-shadow: 0 0 0 3px rgba(0,102,204,0.1);
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 0.75rem 1.5rem;
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.3s;
+      cursor: pointer;
+      border: none;
+      font-size: 1rem;
+      width: 100%;
+    }
+
+    .btn-primary {
+      background: #0066cc;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #0052a3;
+      transform: translateY(-2px);
+    }
+
+    .btn-primary:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* Success/Error Messages */
+    .message {
+      padding: 1rem;
+      border-radius: 6px;
+      margin-top: 1rem;
+      display: none;
+    }
+
+    .message.show {
+      display: block;
+    }
+
+    .message.success {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+
+    .message.error {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+
+    .api-key-display {
+      background: #f8f9fa;
+      border: 1px solid #e5e5e5;
+      border-radius: 6px;
+      padding: 1rem;
+      margin-top: 1rem;
+      font-family: monospace;
+      word-break: break-all;
+    }
+
+    .api-key-display strong {
+      color: #0066cc;
+    }
+
+    /* Footer */
+    footer {
+      background: #333;
+      color: white;
+      text-align: center;
+      padding: 2rem 0;
+      font-size: 0.9rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 2rem;
+      }
+
+      .form-container {
+        padding: 2rem;
+        margin: 0 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation -->
+  <nav>
+    <div class="nav-container">
+      <a href="index.html" class="logo">QualiFy</a>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="index.html#benefits">Benefits</a></li>
+        <li><a href="index.html#how">How It Works</a></li>
+        <li><a href="index.html#proof">Social Proof</a></li>
+        <li><a href="index.html#faq">FAQ</a></li>
+        <li><a href="dashboard.html">Agent Login</a></li>
+      </ul>
+      <button class="mobile-menu" id="mobileMenu">☰</button>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section id="hero">
+    <div class="container">
+      <div class="hero-content">
+        <h1>Join QualiFy</h1>
+        <p>Start capturing qualified real estate leads in San Diego today.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Signup Form Section -->
+  <section id="signup-form">
+    <div class="container">
+      <div class="form-container">
+        <h2>Agent Signup</h2>
+        <form id="signupForm">
+          <div class="form-group">
+            <label for="name">Full Name *</label>
+            <input type="text" id="name" name="name" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="email">Email Address *</label>
+            <input type="email" id="email" name="email" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="agency">Agency Name *</label>
+            <input type="text" id="agency" name="agency" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="phone">Phone Number *</label>
+            <input type="tel" id="phone" name="phone" required>
+          </div>
+
+          <div class="form-group">
+            <label for="password">Password *</label>
+            <input type="password" id="password" name="password" required minlength="6">
+          </div>
+
+          <button type="submit" class="btn btn-primary" id="submitBtn">
+            Create Account
+          </button>
+          
+          <div class="message success" id="successMessage">
+            <strong>Account created successfully!</strong><br>
+            Your API key has been generated. Please save it securely.
+          </div>
+          
+          <div class="message error" id="errorMessage">
+            <strong>Error:</strong> <span id="errorText"></span>
+          </div>
+        </form>
+        
+        <div id="apiKeyDisplay" style="display: none;">
+          <h3>Your API Key</h3>
+          <div class="api-key-display">
+            <strong>API Key:</strong> <span id="apiKeyValue" style="filter: blur(5px);">••••••••••••••••••••••••</span>
+            <button type="button" class="btn btn-secondary" id="copyApiKey" style="margin-top: 0.5rem;">Copy to Clipboard</button>
+          </div>
+          <p style="margin-top: 1rem; font-size: 0.9rem; color: #666;">
+            Save this API key securely. You'll need it to access your dashboard and manage leads.
+          </p>
+          <div style="margin-top: 1rem;">
+            <a href="dashboard.html" class="btn btn-primary">Go to Dashboard</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <p>© 2025 QualiFy. San Diego pilot.</p>
+    </div>
+  </footer>
+
+  <script>
+    // Supabase configuration - USE ENVIRONMENT VARIABLES IN PRODUCTION
+    const SUPABASE_URL = 'https://tyrwkeqavitwkffjcznj.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR5cndrZXFhdml0d2tmZmpjem5qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg5OTA5MzcsImV4cCI6MjA3NDU2NjkzN30.XlP3j-5SQjje7nfv2jvtccQMJtlbSI22vqQtfEj7Nc4';
+    
+    // Supabase client
+    const { createClient } = supabase;
+    const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    
+    // Mobile menu toggle
+    document.getElementById('mobileMenu').addEventListener('click', function() {
+      const navLinks = document.getElementById('navLinks');
+      navLinks.classList.toggle('active');
+    });
+
+    // Form submission
+    document.getElementById('signupForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      const submitBtn = document.getElementById('submitBtn');
+      const successMessage = document.getElementById('successMessage');
+      const errorMessage = document.getElementById('errorMessage');
+      const apiKeyDisplay = document.getElementById('apiKeyDisplay');
+      const apiKeyValue = document.getElementById('apiKeyValue');
+      const errorText = document.getElementById('errorText');
+      
+      // Hide previous messages
+      successMessage.classList.remove('show');
+      errorMessage.classList.remove('show');
+      apiKeyDisplay.style.display = 'none';
+      
+      // Get form data
+      const name = document.getElementById('name').value.trim();
+      const email = document.getElementById('email').value.trim().toLowerCase();
+      const agency = document.getElementById('agency').value.trim();
+      const phone = document.getElementById('phone').value.trim();
+      const password = document.getElementById('password').value;
+
+      // Validate inputs
+      if (!name || name.length < 2) {
+        showError('Please enter a valid name (at least 2 characters)');
+        return;
+      }
+
+      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        showError('Please enter a valid email address');
+        return;
+      }
+
+      if (!agency || agency.length < 2) {
+        showError('Please enter a valid agency name');
+        return;
+      }
+
+      const phoneDigits = phone.replace(/\D/g, '');
+      if (!phone || phoneDigits.length < 10 || phoneDigits.length > 15) {
+        showError('Please enter a valid phone number (10-15 digits)');
+        return;
+      }
+
+      if (!password || password.length < 6) {
+        showError('Password must be at least 6 characters');
+        return;
+      }
+      
+      // Disable submit button
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Creating Account...';
+      
+      try {
+        // Create user in Supabase Auth
+        const { data: authData, error: authError } = await supabaseClient.auth.signUp({
+          email: email,
+          password: password,
+          options: {
+            data: {
+              name: name,
+              agency: agency,
+              phone: phone
+            }
+          }
+        });
+
+        if (authError) {
+          // Handle duplicate user error
+          if (authError.message.includes('already registered')) {
+            showError('An account with this email already exists. Please log in instead.');
+            return;
+          }
+          throw authError;
+        }
+        
+        // Generate API key (in production, this would be done server-side)
+        const apiKey = generateApiKey();
+        
+        // Store agent profile in database
+        const { data: profileData, error: profileError } = await supabaseClient
+          .from('agents')
+          .insert([{
+            id: authData.user.id,
+            name: name,
+            email: email,
+            agency: agency,
+            phone: phone,
+            api_key: apiKey,
+            status: 'active',
+            created_at: new Date().toISOString()
+          }])
+          .select();
+        
+        if (profileError) {
+          // Handle duplicate email error from database unique constraint
+          if (profileError.message && profileError.message.includes('duplicate') || profileError.code === '23505') {
+            showError('An account with this email already exists. Please log in instead.');
+            return;
+          }
+          throw profileError;
+        }
+
+        // Send welcome email (non-blocking - don't wait for it)
+        sendWelcomeEmail(name, email, agency, phone, apiKey).catch(err => {
+          console.warn('Welcome email failed:', err);
+          // Don't fail the registration if email fails
+        });
+
+        // Show success message and API key
+        successMessage.classList.add('show');
+        apiKeyValue.textContent = apiKey;
+        apiKeyValue.dataset.key = apiKey; // Store for copy functionality
+        apiKeyDisplay.style.display = 'block';
+
+        // Setup copy to clipboard functionality
+        document.getElementById('copyApiKey').onclick = function() {
+          navigator.clipboard.writeText(apiKey).then(() => {
+            this.textContent = 'Copied!';
+            setTimeout(() => {
+              this.textContent = 'Copy to Clipboard';
+            }, 2000);
+          }).catch(err => {
+            console.error('Failed to copy:', err);
+            alert('Failed to copy. Please select and copy manually.');
+          });
+        };
+
+        // Reset form
+        this.reset();
+        
+      } catch (error) {
+        console.error('Signup error:', error);
+        showError(error.message || 'Unable to create account. Please try again.');
+      } finally {
+        // Re-enable submit button
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Create Account';
+      }
+    });
+    
+    function showError(message) {
+      const errorMessage = document.getElementById('errorMessage');
+      const errorText = document.getElementById('errorText');
+      errorText.textContent = message;
+      errorMessage.classList.add('show');
+
+      // Scroll to error message
+      errorMessage.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+    
+    function generateApiKey() {
+      // Generate a secure API key using crypto.getRandomValues
+      const arr = new Uint8Array(32);
+      crypto.getRandomValues(arr);
+      return Array.from(arr, x => x.toString(16).padStart(2, '0')).join('');
+    }
+
+    // Send welcome email via API
+    async function sendWelcomeEmail(name, email, agency, phone, apiKey) {
+      const API_URL = window.location.hostname === 'localhost'
+        ? 'http://localhost:5057'
+        : 'https://your-api-domain.com'; // Update with your production API URL
+
+      try {
+        const response = await fetch(`${API_URL}/api/email/welcome`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ name, email, agency, phone, apiKey })
+        });
+
+        const data = await response.json();
+
+        if (data.ok) {
+          console.log('✅ Welcome email sent successfully');
+        } else {
+          console.warn('⚠️ Welcome email failed:', data.error);
+        }
+
+        return data;
+      } catch (error) {
+        console.error('❌ Failed to send welcome email:', error);
+        throw error;
+      }
+    }
+
+    // Send request for more information email via API
+    async function sendRequestMoreInfoEmail(name, email, missingInfo) {
+      const API_URL = window.location.hostname === 'localhost'
+        ? 'http://localhost:5057'
+        : 'https://your-api-domain.com'; // Update with your production API URL
+
+      try {
+        const response = await fetch(`${API_URL}/api/email/request-info`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ name, email, missingInfo })
+        });
+
+        const data = await response.json();
+
+        if (data.ok) {
+          console.log('✅ Request info email sent successfully');
+        } else {
+          console.warn('⚠️ Request info email failed:', data.error);
+        }
+
+        return data;
+      } catch (error) {
+        console.error('❌ Failed to send request info email:', error);
+        throw error;
+      }
+    }
+
+    // Close mobile menu when clicking on links
+    document.querySelectorAll('.nav-links a').forEach(link => {
+      link.addEventListener('click', () => {
+        document.getElementById('navLinks').classList.remove('active');
+      });
+    });
+  </script>
+</body>
+</html>

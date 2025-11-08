@@ -1,0 +1,118 @@
+{
+  "name": "QualiFy Craigslist FSBO Scraper",
+  "nodes": [
+    {
+      "parameters": {},
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://sandiego.craigslist.org/search/reo?sale_by=owner",
+        "headers": {
+          "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36"
+        }
+      },
+      "name": "Fetch Craigslist",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 2,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "mode": "simple",
+        "json": true
+      },
+      "name": "Parse HTML",
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1,
+      "position": [650, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Extract listing data from each result\nreturn $input.all().map(item => {\n  const html = item.json.html || '';\n  const titleMatch = html.match(/<span class=\"cl-search-title\"[^>]*>([^<]+)<\\/span>/);\n  const priceMatch = html.match(/\\$(([\\d,]+))/);\n  const linkMatch = html.match(/href=\"([^\"]*)\"/);  \n  \n  return {\n    title: titleMatch?.[1]?.trim() || 'Unknown',\n    price: priceMatch?.[1] || 'N/A',\n    link: linkMatch?.[1] || '',\n    source: 'craigslist_fsbo',\n    city: 'San Diego',\n    created_at: new Date().toISOString()\n  };\n});"
+      },
+      "name": "Extract Listing Data",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [850, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://tyrwkeqavitwkffjcznj.supabase.co/rest/v1/leads",
+        "headers": {
+          "apikey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR5cndrZXFhdml0d2tmZmpjem5qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg5OTA5MzcsImV4cCI6MjA3NDU2NjkzN30.XlP3j-5SQjje7nfv2jvtccQMJtlbSI22vqQtfEj7Nc4",
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "name": "={{ $json.title }}",
+          "notes": "{{ $json.price }} - {{ $json.link }}",
+          "source": "craigslist",
+          "status": "new"
+        }
+      },
+      "name": "Insert to Supabase",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 2,
+      "position": [1050, 300]
+    }
+  ],
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "Fetch Craigslist",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Craigslist": {
+      "main": [
+        [
+          {
+            "node": "Parse HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse HTML": {
+      "main": [
+        [
+          {
+            "node": "Extract Listing Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Listing Data": {
+      "main": [
+        [
+          {
+            "node": "Insert to Supabase",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {},
+  "versionId": "4f4a7c8a-2d1e-4b9e-8c3a-1b5d9e2f4a6c",
+  "id": "qualify-craigslist-scraper",
+  "meta": {
+    "instanceId": "qualify-n8n-prod"
+  },
+  "tags": []
+}
