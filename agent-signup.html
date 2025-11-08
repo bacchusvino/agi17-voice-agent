@@ -240,20 +240,6 @@
       border: 1px solid #f5c6cb;
     }
 
-    .api-key-display {
-      background: #f8f9fa;
-      border: 1px solid #e5e5e5;
-      border-radius: 6px;
-      padding: 1rem;
-      margin-top: 1rem;
-      font-family: monospace;
-      word-break: break-all;
-    }
-
-    .api-key-display strong {
-      color: #0066cc;
-    }
-
     /* Footer */
     footer {
       background: #333;
@@ -282,7 +268,7 @@
     <div class="nav-container">
       <a href="index.html" class="logo">QualiFy</a>
       <ul class="nav-links" id="navLinks">
-        <li><a href="index.html">Home</a></li>
+        <li><a href="fsbo-register.html">For Sale By Owner</a></li>
         <li><a href="agent-login.html">Agent Login</a></li>
       </ul>
       <button class="mobile-menu" id="mobileMenu">☰</button>
@@ -336,7 +322,7 @@
           
           <div class="message success" id="successMessage">
             <strong>Account created successfully!</strong><br>
-            Your API key has been generated. Please save it securely.
+            Redirecting to your dashboard...
           </div>
           
           <div class="message error" id="errorMessage">
@@ -344,19 +330,7 @@
           </div>
         </form>
         
-        <div id="apiKeyDisplay" style="display: none;">
-          <h3>Your API Key</h3>
-          <div class="api-key-display">
-            <strong>API Key:</strong> <span id="apiKeyValue" style="filter: blur(5px);">••••••••••••••••••••••••</span>
-            <button type="button" class="btn btn-secondary" id="copyApiKey" style="margin-top: 0.5rem;">Copy to Clipboard</button>
-          </div>
-          <p style="margin-top: 1rem; font-size: 0.9rem; color: #666;">
-            Save this API key securely. You'll need it to access your dashboard and manage leads.
-          </p>
-          <div style="margin-top: 1rem;">
-            <a href="agent-login.html" class="btn btn-primary">Go to Dashboard</a>
-          </div>
-        </div>
+
       </div>
     </div>
   </section>
@@ -390,14 +364,11 @@
       const submitBtn = document.getElementById('submitBtn');
       const successMessage = document.getElementById('successMessage');
       const errorMessage = document.getElementById('errorMessage');
-      const apiKeyDisplay = document.getElementById('apiKeyDisplay');
-      const apiKeyValue = document.getElementById('apiKeyValue');
       const errorText = document.getElementById('errorText');
       
       // Hide previous messages
       successMessage.classList.remove('show');
       errorMessage.classList.remove('show');
-      apiKeyDisplay.style.display = 'none';
       
       // Get form data
       const name = document.getElementById('name').value.trim();
@@ -459,9 +430,7 @@
           }
           throw authError;
         }
-        
-        // Generate API key (in production, this would be done server-side)
-        const apiKey = generateApiKey();
+
         
         // Store agent profile in database
         const { data: profileData, error: profileError } = await supabaseClient
@@ -472,7 +441,6 @@
             email: email,
             agency: agency,
             phone: phone,
-            api_key: apiKey,
             status: 'active',
             created_at: new Date().toISOString()
           }])
@@ -487,30 +455,13 @@
           throw profileError;
         }
 
-        // Send welcome email (non-blocking - don't wait for it)
-        sendWelcomeEmail(name, email, agency, phone, apiKey).catch(err => {
-          console.warn('Welcome email failed:', err);
-          // Don't fail the registration if email fails
-        });
-
-        // Show success message and API key
+        // Show success message
         successMessage.classList.add('show');
-        apiKeyValue.textContent = apiKey;
-        apiKeyValue.dataset.key = apiKey; // Store for copy functionality
-        apiKeyDisplay.style.display = 'block';
-
-        // Setup copy to clipboard functionality
-        document.getElementById('copyApiKey').onclick = function() {
-          navigator.clipboard.writeText(apiKey).then(() => {
-            this.textContent = 'Copied!';
-            setTimeout(() => {
-              this.textContent = 'Copy to Clipboard';
-            }, 2000);
-          }).catch(err => {
-            console.error('Failed to copy:', err);
-            alert('Failed to copy. Please select and copy manually.');
-          });
-        };
+        
+        // Redirect to dashboard after 2 seconds
+        setTimeout(() => {
+          window.location.href = 'agent-login.html';
+        }, 2000);
 
         // Reset form
         this.reset();
@@ -534,73 +485,7 @@
       // Scroll to error message
       errorMessage.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
-    
-    function generateApiKey() {
-      // Generate a secure API key using crypto.getRandomValues
-      const arr = new Uint8Array(32);
-      crypto.getRandomValues(arr);
-      return Array.from(arr, x => x.toString(16).padStart(2, '0')).join('');
-    }
 
-    // Send welcome email via API
-    async function sendWelcomeEmail(name, email, agency, phone, apiKey) {
-      const API_URL = window.location.hostname === 'localhost'
-        ? 'http://localhost:5057'
-        : 'https://your-api-domain.com'; // Update with your production API URL
-
-      try {
-        const response = await fetch(`${API_URL}/api/email/welcome`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ name, email, agency, phone, apiKey })
-        });
-
-        const data = await response.json();
-
-        if (data.ok) {
-          console.log('✅ Welcome email sent successfully');
-        } else {
-          console.warn('⚠️ Welcome email failed:', data.error);
-        }
-
-        return data;
-      } catch (error) {
-        console.error('❌ Failed to send welcome email:', error);
-        throw error;
-      }
-    }
-
-    // Send request for more information email via API
-    async function sendRequestMoreInfoEmail(name, email, missingInfo) {
-      const API_URL = window.location.hostname === 'localhost'
-        ? 'http://localhost:5057'
-        : 'https://your-api-domain.com'; // Update with your production API URL
-
-      try {
-        const response = await fetch(`${API_URL}/api/email/request-info`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ name, email, missingInfo })
-        });
-
-        const data = await response.json();
-
-        if (data.ok) {
-          console.log('✅ Request info email sent successfully');
-        } else {
-          console.warn('⚠️ Request info email failed:', data.error);
-        }
-
-        return data;
-      } catch (error) {
-        console.error('❌ Failed to send request info email:', error);
-        throw error;
-      }
-    }
 
     // Close mobile menu when clicking on links
     document.querySelectorAll('.nav-links a').forEach(link => {
