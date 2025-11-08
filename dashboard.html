@@ -355,7 +355,7 @@
       const { data: { session } } = await supabaseClient.auth.getSession();
       if (!session) {
         alert('Please log in to access the dashboard');
-        window.location.href = 'agent-signup.html';
+        window.location.href = 'agent-login.html';
         return false;
       }
       return true;
