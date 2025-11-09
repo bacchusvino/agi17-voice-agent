@@ -4,8 +4,17 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>QualiFy Dashboard - Lead Management</title>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/dist/umd/supabase.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"></script>
+  <script>
+    // Error handling for library loading
+    window.addEventListener('error', function(e) {
+      if (e.message && e.message.toLowerCase().includes('supabase')) {
+        console.error('Supabase library failed to load:', e);
+        alert('Failed to load required libraries. Please refresh the page.');
+      }
+    }, true);
+  </script>
   <style>
     * {
       margin: 0;
