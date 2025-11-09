@@ -2,6 +2,23 @@
   publish = "."
   functions = "netlify/functions"
 
+# Explicit routes for registration pages (must come BEFORE catch-all)
+[[redirects]]
+  from = "/fsbo-register"
+  to = "/fsbo-register.html"
+  status = 200
+
+[[redirects]]
+  from = "/agent-signup"
+  to = "/agent-signup.html"
+  status = 200
+
+[[redirects]]
+  from = "/agent-login"
+  to = "/agent-login.html"
+  status = 200
+
+# Catch-all redirect to index (must be LAST)
 [[redirects]]
   from = "/*"
   to = "/index.html"
