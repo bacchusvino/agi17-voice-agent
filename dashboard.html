@@ -504,16 +504,28 @@
         contactBtn.dataset.status = 'contacted';
         contactBtn.title = 'Mark Contacted';
         contactBtn.textContent = '📞';
-        
+
+        const callBtn = document.createElement('button');
+        callBtn.className = 'btn btn-primary';
+        callBtn.dataset.leadId = lead.id;
+        callBtn.dataset.phone = lead.phone;
+        callBtn.title = 'Trigger AI Voice Call';
+        callBtn.textContent = '🤖';
+        callBtn.onclick = (e) => {
+          e.stopPropagation();
+          triggerVoiceCall(lead.id, lead.phone);
+        };
+
         const rejectBtn = document.createElement('button');
         rejectBtn.className = 'btn btn-danger';
         rejectBtn.dataset.leadId = lead.id;
         rejectBtn.dataset.status = 'not_interested';
         rejectBtn.title = 'Not Interested';
         rejectBtn.textContent = '✕';
-        
+
         div.appendChild(qualifyBtn);
         div.appendChild(contactBtn);
+        div.appendChild(callBtn);
         div.appendChild(rejectBtn);
         actionsCell.appendChild(div);
         
@@ -543,6 +555,54 @@
         alert('Lead status updated!');
       } catch (error) {
         alert('Error updating status: ' + error.message);
+      }
+    }
+
+    // Trigger HeyGen voice call via Netlify function
+    async function triggerVoiceCall(leadId, phoneNumber) {
+      if (!phoneNumber) {
+        alert('No phone number available for this lead');
+        return;
+      }
+
+      // Confirm before triggering call
+      if (!confirm(`Trigger AI voice call to ${phoneNumber}?`)) {
+        return;
+      }
+
+      try {
+        const response = await fetch('/.netlify/functions/trigger-call', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            leadId: leadId,
+            phoneNumber: phoneNumber
+          })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || 'Failed to trigger call');
+        }
+
+        // Update lead status to show call was initiated
+        await supabaseClient
+          .from('leads')
+          .update({
+            status: 'contacted',
+            notes: `AI voice call initiated at ${new Date().toISOString()}`
+          })
+          .eq('id', leadId);
+
+        await fetchLeads();
+        alert('✓ AI voice call initiated successfully!');
+
+      } catch (error) {
+        console.error('Error triggering call:', error);
+        alert('Error triggering call: ' + error.message);
       }
     }
 
