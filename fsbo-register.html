@@ -5,9 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sell FSBO in San Diego - Connect with Agents - QualiFy</title>
   <meta name="description" content="For Sale By Owner? Connect with pre-screened real estate agents in San Diego. Save on commissions while getting professional help.">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/dist/umd/supabase.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"></script>
   <script src="js/config.js"></script>
+  <script>
+    // Error handling for library loading
+    window.addEventListener('error', function(e) {
+      if (e.message && e.message.toLowerCase().includes('supabase')) {
+        console.error('Supabase library failed to load:', e);
+        alert('Failed to load required libraries. Please refresh the page.');
+      }
+    }, true);
+  </script>
   <style>
     :root {
       --hero-start: #5b3cc4;

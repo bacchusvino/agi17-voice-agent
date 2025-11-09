@@ -682,10 +682,9 @@
     <div class="nav-container">
       <a href="index.html" class="logo">QualiFy</a>
       <ul class="nav-links">
-        <li><a href="agent-page.html">For Agents</a></li>
-        <li><a href="fsbo-page.html">For Sellers</a></li>
-        <li><a href="agent-signup.html" class="nav-primary">Sign Up</a></li>
-        <li><a href="agent-login.html">Login</a></li>
+        <li><a href="/fsbo-register">🏠 For Sellers</a></li>
+        <li><a href="/agent-signup">🎯 For Agents</a></li>
+        <li><a href="/agent-login">Login</a></li>
       </ul>
     </div>
   </nav>
@@ -694,19 +693,36 @@
   <section id="hero">
     <div class="container">
       <div class="hero-content">
-        <h1>San Diego Agents: Convert FSBOs Into Listings - Automatically</h1>
-        <p>QualiFy finds Craigslist FSBOs, calls them, qualifies intent, and books only serious sellers on your calendar.</p>
-        <div class="video-container">
-          <iframe 
-            src="https://www.youtube.com/embed/D67bCjHTGG0" 
-            title="QualiFy Demo Video" 
-            frameborder="0" 
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+        <h1>San Diego Real Estate Made Simple</h1>
+        <p>Whether you're selling your home or finding new listings, QualiFy connects the right people at the right time.</p>
+
+        <!-- Dual Hero CTAs -->
+        <div class="hero-buttons" style="display: flex; gap: 1.5rem; justify-content: center; flex-wrap: wrap; margin-top: 2rem;">
+          <div style="flex: 1; min-width: 280px; max-width: 400px;">
+            <div style="background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); text-align: center;">
+              <h3 style="color: #333; margin-bottom: 0.5rem; font-size: 1.3rem;">🏠 Selling Your Home?</h3>
+              <p style="color: #666; margin-bottom: 1.5rem; font-size: 0.95rem;">For Sale By Owner? Connect with pre-screened agents. Keep your commission.</p>
+              <a href="/fsbo-register" class="btn btn-primary" style="width: 100%; background: var(--brand-purple); display: block;">Get Started as Seller</a>
+            </div>
+          </div>
+
+          <div style="flex: 1; min-width: 280px; max-width: 400px;">
+            <div style="background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); text-align: center;">
+              <h3 style="color: #333; margin-bottom: 0.5rem; font-size: 1.3rem;">🎯 Real Estate Agent?</h3>
+              <p style="color: #666; margin-bottom: 1.5rem; font-size: 0.95rem;">Convert FSBOs into listings automatically. Qualified leads on your calendar.</p>
+              <a href="/agent-signup" class="btn btn-primary" style="width: 100%; display: block;">Start Free Trial</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="video-container" style="margin-top: 3rem;">
+          <iframe
+            src="https://www.youtube.com/embed/D67bCjHTGG0"
+            title="QualiFy Demo Video"
+            frameborder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowfullscreen>
           </iframe>
-        </div>
-        <div class="hero-buttons">
-          <a href="#cta" class="btn btn-primary">Start Free Trial</a>
         </div>
       </div>
     </div>

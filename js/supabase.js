@@ -21,7 +21,7 @@ export const leadService = {
           email: leadData.email,
           phone: leadData.phone || null,
           source: leadData.source || 'landing_page',
-          status: 'new',
+          // status: 'new' - removed, let database handle default via schema
           notes: leadData.notes || null
         }])
         .select()

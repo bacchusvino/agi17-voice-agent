@@ -630,10 +630,11 @@
           document.getElementById('agentName').textContent = agentData.name;
         }
         
-        // Load leads
+        // Load leads - SECURITY: Only show leads assigned to this agent
         const { data: leadsData, error } = await supabaseClient
           .from('leads')
           .select('*')
+          .eq('agent_id', currentUser.id)
           .order('created_at', { ascending: false })
           .limit(50);
         

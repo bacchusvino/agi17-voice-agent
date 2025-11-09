@@ -5,9 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Agent Login - QualiFy</title>
   <meta name="description" content="Log in to your QualiFy agent dashboard.">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/dist/umd/supabase.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"></script>
   <script src="js/config.js"></script>
+  <script>
+    // Error handling for library loading
+    window.addEventListener('error', function(e) {
+      if (e.message && e.message.toLowerCase().includes('supabase')) {
+        console.error('Supabase library failed to load:', e);
+        alert('Failed to load required libraries. Please refresh the page.');
+      }
+    }, true);
+  </script>
   <link rel="stylesheet" href="css/nav.css">
   <script src="js/nav.js"></script>
   <style>
@@ -336,9 +345,11 @@
         });
 
         if (error) {
-          if (error.message.includes('Invalid login credentials')) {
+          // Use error codes instead of string matching for robustness
+          const errorCode = error.code || error.status;
+          if (errorCode === 'invalid_credentials' || errorCode === 'invalid_grant' || errorCode === 400) {
             showError('password', 'Invalid email or password');
-          } else if (error.message.includes('Email not confirmed')) {
+          } else if (errorCode === 'email_not_confirmed' || error.message?.includes('Email not confirmed')) {
             showError('email', 'Please confirm your email first');
           } else {
             throw error;
