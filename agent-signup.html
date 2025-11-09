@@ -437,7 +437,13 @@
           throw authError;
         }
 
-        
+
+        // Generate secure API key for the agent
+        // Format: qfy_[timestamp]_[random-uuid]
+        const timestamp = Date.now().toString(36);
+        const randomPart = crypto.randomUUID().replace(/-/g, '');
+        const apiKey = `qfy_${timestamp}_${randomPart}`;
+
         // Store agent profile in database
         const { data: profileData, error: profileError } = await supabaseClient
           .from('agents')
@@ -447,6 +453,7 @@
             email: email,
             agency: agency,
             phone: phone,
+            api_key: apiKey,
             status: 'active',
             created_at: new Date().toISOString()
           }])

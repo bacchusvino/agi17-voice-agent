@@ -93,10 +93,12 @@ function validateLeadData(req, res, next) {
     errors.push('Notes too long (max 500 characters)');
   }
   
-  // Sanitize strings to prevent CSV injection
+  // Sanitize strings to prevent CSV injection (all fields that go to Google Sheets)
   if (ownerName) req.body.ownerName = ownerName.replace(/^[=+\-@]/, '');
   if (city) req.body.city = city.replace(/^[=+\-@]/, '');
   if (notes) req.body.notes = notes.replace(/^[=+\-@]/, '');
+  if (req.body.source) req.body.source = req.body.source.replace(/^[=+\-@]/, '');
+  if (req.body.consentBasis) req.body.consentBasis = req.body.consentBasis.replace(/^[=+\-@]/, '');
   
   if (errors.length > 0) {
     return res.status(400).json({ 
