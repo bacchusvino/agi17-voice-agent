@@ -6,6 +6,8 @@
   <title>Agent Dashboard - QualiFy</title>
   <meta name="description" content="Manage your real estate leads with QualiFy dashboard.">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"></script>
+  <script src="js/config.js"></script>
   <style>
     /* Improve hero gradient + form contrast (WCAG AA) */
     :root {
@@ -525,12 +527,12 @@
 
   <script>
     // Supabase configuration - USE ENVIRONMENT VARIABLES IN PRODUCTION
-    const SUPABASE_URL = 'https://tyrwkeqavitwkffjcznj.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR5cndrZXFhdml0d2tmZmpjem5qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg5OTA5MzcsImV4cCI6MjA3NDU2NjkzN30.XlP3j-5SQjje7nfv2jvtccQMJtlbSI22vqQtfEj7Nc4';
-    
-    // Supabase client
+    // Supabase client using centralized config
     const { createClient } = supabase;
-    const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const supabaseClient = createClient(
+      window.QualifyConfig.supabase.url,
+      window.QualifyConfig.supabase.anonKey
+    );
     
     // Global variables
     let currentUser = null;
