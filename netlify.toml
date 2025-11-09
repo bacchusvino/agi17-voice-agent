@@ -2,7 +2,7 @@
   publish = "."
   functions = "netlify/functions"
 
-# Explicit routes for registration pages (must come BEFORE catch-all)
+# Explicit routes for HTML pages
 [[redirects]]
   from = "/fsbo-register"
   to = "/fsbo-register.html"
@@ -18,7 +18,7 @@
   to = "/agent-login.html"
   status = 200
 
-# Catch-all redirect to index (must be LAST)
+# Catch-all for SPA - only applies to routes without .html extension
 [[redirects]]
   from = "/*"
   to = "/index.html"
