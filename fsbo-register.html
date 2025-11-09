@@ -809,7 +809,6 @@
           name: document.getElementById('name').value.trim(),
           email: document.getElementById('email').value.trim(),
           phone: document.getElementById('phone').value.trim(),
-          address: document.getElementById('address').value.trim(),
           price: parseInt(document.getElementById('price').value),
           timeline: document.getElementById('timeline').value,
           source: 'fsbo_landing_page',
@@ -818,7 +817,7 @@
         };
 
         // Validate required fields
-        if (!formData.name || !formData.email || !formData.phone || !formData.address || !formData.price || !formData.timeline) {
+        if (!formData.name || !formData.email || !formData.phone || !formData.price || !formData.timeline) {
           throw new Error('Please fill in all required fields');
         }
 
