@@ -1,0 +1,151 @@
+{
+  "name": "Qualify Scrapper",
+  "nodes": [
+    {
+      "parameters": {},
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        -80
+      ],
+      "id": "f119a08e-863d-476c-b679-5ebe7b5f2ee4"
+    },
+    {
+      "parameters": {
+        "url": "=https://sandiego.craigslist.org/search/reo?sale_by=owner",
+        "responseFormat": "string",
+        "jsonParameters": true,
+        "options": {},
+        "headerParametersJson": "=",
+        "queryParametersJson": "="
+      },
+      "name": "Fetch Craigslist",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 2,
+      "position": [
+        224,
+        -80
+      ],
+      "id": "492e3b6e-b5e4-4603-a8fe-320a7ea84110"
+    },
+    {
+      "parameters": {
+        "operation": "extractHtmlContent",
+        "extractionValues": {
+          "values": [
+            {
+              "key": "html",
+              "cssSelector": "li.cl-static-search-result",
+              "returnValue": "html",
+              "returnArray": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Parse HTML",
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1,
+      "position": [
+        448,
+        -80
+      ],
+      "id": "c3f440c3-e8ff-4bb7-8876-ecd54f881535"
+    },
+    {
+      "parameters": {
+        "functionCode": "// We will build a new output array:\nconst output = [];\n\nfor (const item of items) {\n\n  // Make sure we really have an array of listing HTML blocks:\n  const listings = item.json.html;\n  if (!Array.isArray(listings)) continue;\n\n  for (const html of listings) {\n\n    // Extract listing fields using REGEX:\n    const link = (html.match(/href=\"([^\"]+)\"/) || [])[1] || null;\n    const title = (html.match(/<div class=\"title\">([^<]+)<\\/div>/i) || [])[1] || null;\n    const price = (html.match(/<div class=\"price\">([^<]+)<\\/div>/i) || [])[1] || null;\n    const location = (html.match(/<div class=\"location\">([^<]+)<\\/div>/i) || [])[1] || null;\n\n    // Push clean structured result:\n    output.push({\n      json: {\n        title,\n        price,\n        link,\n        location,\n        source: \"craigslist_fsbo\",\n        scraped_at: new Date().toISOString(),\n      }\n    });\n  }\n}\n\n// Return structured items:\nreturn output;\n"
+      },
+      "name": "Extract Listing Data",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        672,
+        -80
+      ],
+      "id": "1fc109a0-ecde-446e-b069-310a777b5ad5",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "tableId": "leads",
+        "dataToSend": "autoMapInputData"
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        896,
+        -80
+      ],
+      "id": "3bd717b5-0c8d-44d8-a917-d67ee87addfd",
+      "name": "Create a row",
+      "alwaysOutputData": false,
+      "credentials": {
+        "supabaseApi": {
+          "id": "3heIjqAwyVLI48Un",
+          "name": "Supabase account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "Fetch Craigslist",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Craigslist": {
+      "main": [
+        [
+          {
+            "node": "Parse HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse HTML": {
+      "main": [
+        [
+          {
+            "node": "Extract Listing Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Listing Data": {
+      "main": [
+        [
+          {
+            "node": "Create a row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "16227158-0e8d-4cf6-a4c4-26b0c3d54136",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "9ed4901d73062ba60fd21432b597d767eb49b66acf50a17b33f4890960fb7980"
+  },
+  "id": "VvSOI0Q9C6JrYIbk",
+  "tags": []
+}

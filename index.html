@@ -6,6 +6,8 @@
   <title>QualiFy - San Diego Real Estate Lead Automation</title>
   <meta name="description" content="Stop giving 40% to Zillow. QualiFy captures, qualifies, and books local buyers/sellers for San Diego real estate agents.">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link rel="stylesheet" href="css/nav.css">
+  <script src="js/nav.js"></script>
   <style>
     /* Improve hero gradient + form contrast (WCAG AA) */
     :root {
@@ -13,6 +15,7 @@
       --hero-end:   #7a3ce6;   /* richer violet */
       --panel-bg:   #ffffff;
       --text-on-hero: #ffffff;
+      --brand-purple: #7C3AED; /* Primary brand purple */
     }
 
     * {
@@ -43,13 +46,13 @@
       backdrop-filter: blur(10px);
       border-bottom: 1px solid #e5e5e5;
       z-index: 100;
+      padding: 16px 32px;
     }
 
     .nav-container {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 1rem 20px;
       max-width: 1200px;
       margin: 0 auto;
     }
@@ -57,8 +60,13 @@
     .logo {
       font-size: 1.5rem;
       font-weight: bold;
-      color: #0066cc;
+      color: var(--brand-purple);
       text-decoration: none;
+      transition: opacity 0.3s;
+    }
+
+    .logo:hover {
+      opacity: 0.8;
     }
 
     .nav-links {
@@ -72,16 +80,27 @@
       color: #333;
       font-weight: 500;
       transition: color 0.3s;
+      margin: 0 12px;
+      font-size: 0.94rem;
+      position: relative;
     }
 
     .nav-links a:hover {
-      color: #0066cc;
+      color: var(--brand-purple);
     }
 
     .nav-links a.active {
-      color: #0066cc;
-      border-bottom: 2px solid #0066cc;
-      padding-bottom: 0.25rem;
+      color: var(--brand-purple);
+    }
+
+    .nav-links a.active::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: var(--brand-purple);
     }
 
     /* Mobile nav */
@@ -91,6 +110,8 @@
       border: none;
       font-size: 1.5rem;
       cursor: pointer;
+      color: #333;
+      transition: color 0.3s;
     }
 
     /* Dropdown menu */
@@ -162,10 +183,26 @@
         flex-direction: column;
         padding: 1rem;
         box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        gap: 0;
       }
 
       .nav-links.active {
         display: flex;
+      }
+
+      .nav-links li {
+        width: 100%;
+      }
+
+      .nav-links a {
+        display: block;
+        padding: 0.75rem 1rem;
+        margin: 0;
+        border-bottom: 1px solid #f0f0f0;
+      }
+
+      .nav-links a:last-child {
+        border-bottom: none;
       }
 
       .mobile-menu {
@@ -383,7 +420,7 @@
     }
 
     .step-number {
-      background: #0066cc;
+      background: var(--brand-purple);
       color: white;
       width: 40px;
       height: 40px;
@@ -402,7 +439,7 @@
     }
 
     .testimonial {
-      background: #0066cc;
+      background: var(--brand-purple);
       color: white;
       padding: 3rem;
       border-radius: 10px;
@@ -433,7 +470,7 @@
     .metric-value {
       font-size: 2rem;
       font-weight: bold;
-      color: #0066cc;
+      color: var(--brand-purple);
     }
 
     /* FAQ */
@@ -508,7 +545,8 @@
     }
 
     .form-group input,
-    .form-group textarea {
+    .form-group textarea,
+    .form-group select {
       width: 100%;
       padding: 0.75rem;
       border: none;
@@ -517,7 +555,8 @@
     }
 
     .form-group input:focus,
-    .form-group textarea:focus {
+    .form-group textarea:focus,
+    .form-group select:focus {
       outline: none;
       box-shadow: 0 0 0 3px rgba(255,255,255,0.3);
     }
@@ -546,6 +585,52 @@
 
     .success-message.show {
       display: block;
+    }
+
+    /* Error message styling */
+    .error-message {
+      color: #ff4444;
+      font-size: 0.875rem;
+      margin-top: 0.25rem;
+      display: none;
+    }
+
+    .error-message.show {
+      display: block;
+    }
+
+    .form-group input.error,
+    .form-group select.error {
+      border: 2px solid #ff4444;
+      background-color: #fff5f5;
+    }
+
+    /* Honeypot field - hidden from users */
+    .honeypot {
+      position: absolute;
+      left: -9999px;
+      opacity: 0;
+      height: 0;
+      width: 0;
+      overflow: hidden;
+    }
+
+    /* Privacy note */
+    .privacy-note {
+      text-align: center;
+      margin-top: 1rem;
+      font-size: 0.85rem;
+      opacity: 0.85;
+      line-height: 1.5;
+    }
+
+    .privacy-note a {
+      color: #ffffff;
+      text-decoration: underline;
+    }
+
+    .privacy-note a:hover {
+      opacity: 0.8;
     }
 
     /* Footer */
@@ -582,6 +667,11 @@
     html {
       scroll-behavior: smooth;
     }
+
+    /* Offset for anchor links to account for sticky nav */
+    section[id] {
+      scroll-margin-top: 80px;
+    }
   </style>
 </head>
 <body>
@@ -602,8 +692,8 @@
   <section id="hero">
     <div class="container">
       <div class="hero-content">
-        <h1>San Diego Agents: Stop giving 40% to Zillow.</h1>
-        <p>QualiFy captures, qualifies, and books local buyers/sellers for you.</p>
+        <h1>San Diego Agents: Convert FSBOs Into Listings - Automatically</h1>
+        <p>QualiFy finds Craigslist FSBOs, calls them, qualifies intent, and books only serious sellers on your calendar.</p>
         <div class="video-container">
           <iframe 
             src="https://www.youtube.com/embed/D67bCjHTGG0" 
@@ -614,7 +704,7 @@
           </iframe>
         </div>
         <div class="hero-buttons">
-          <a href="agent-signup.html" class="btn btn-primary">Start Free Trial</a>
+          <a href="#cta" class="btn btn-primary">Start Free Trial</a>
         </div>
       </div>
     </div>
@@ -633,7 +723,7 @@
         <div class="benefit-card">
           <div class="benefit-icon">🏠</div>
           <h3>Own your pipeline</h3>
-          <p>Stop paying 40% to lead marketplaces.</p>
+          <p>No more $200/lead Zillow bills. Just qualified FSBOs ready to list.</p>
         </div>
         <div class="benefit-card">
           <div class="benefit-icon">🎥</div>
@@ -673,8 +763,8 @@
     <div class="container">
       <h2>Social Proof</h2>
       <div class="testimonial">
-        <blockquote>"Booked 3 qualified seller calls in week one."</blockquote>
-        <cite>— SD Agent</cite>
+        <blockquote>"Converted 2 Craigslist FSBOs to listings in my first 10 days."</blockquote>
+        <cite>— Maria R., Kearny Mesa</cite>
       </div>
       <div class="metrics">
         <div class="metric">
@@ -725,6 +815,15 @@
             Yes—voice, script, and criteria are editable.
           </div>
         </div>
+        <div class="faq-item">
+          <button class="faq-question" onclick="toggleFaq(3)">
+            Why FSBOs instead of MLS leads?
+            <span>+</span>
+          </button>
+          <div class="faq-answer" id="faq-3">
+            FSBOs are motivated sellers who haven't committed to another agent yet. They're your best chance to earn a full listing commission without competing against 10 other agents on the same MLS lead.
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -736,26 +835,41 @@
       <p>Get qualified appointments in under 7 days.</p>
       <form class="cta-form" id="leadForm">
         <div class="form-group">
-          <input type="text" id="name" name="name" placeholder="Your Name" required>
+          <input type="text" id="full_name" name="full_name" placeholder="Full Name" required>
+          <div class="error-message" id="full_name_error"></div>
         </div>
         <div class="form-group">
-          <input type="email" id="email" name="email" placeholder="Your Email" required>
+          <input type="email" id="email" name="email" placeholder="Email" required>
+          <div class="error-message" id="email_error"></div>
         </div>
         <div class="form-group">
-          <input type="tel" id="phone" name="phone" placeholder="Your Phone Number" required>
+          <input type="tel" id="phone" name="phone" placeholder="Phone" required>
+          <div class="error-message" id="phone_error"></div>
         </div>
         <div class="form-group">
-          <input type="text" id="address" name="address" placeholder="Property Address (optional)">
+          <input type="text" id="service_area" name="service_area" placeholder="Service Area ZIP Codes (e.g., 92101, 92103)" required>
+          <div class="error-message" id="service_area_error"></div>
         </div>
         <div class="form-group">
-          <textarea id="notes" name="notes" placeholder="Additional notes (optional)" rows="3"></textarea>
+          <select id="monthly_closings" name="monthly_closings">
+            <option value="">Monthly Closings</option>
+            <option value="0-1">0-1</option>
+            <option value="2-3">2-3</option>
+            <option value="4-6">4-6</option>
+            <option value="7+">7+</option>
+          </select>
         </div>
         <div class="form-group">
-          <button id="voiceCaptureBtn" type="button" class="btn btn-outline-primary" aria-pressed="false" style="width: 100%; margin-bottom: 1rem;">
-            🎤 Start Voice Capture
-          </button>
+          <select id="appointment_goal" name="appointment_goal">
+            <option value="">Appointment Goal</option>
+            <option value="1-3">1-3</option>
+            <option value="4-6">4-6</option>
+            <option value="7+">7+</option>
+          </select>
         </div>
-        <button type="submit" class="btn btn-primary" style="width: 100%;">Join the Pilot</button>
+        <button type="submit" class="btn btn-primary" style="width: 100%;">Start My Free Trial</button>
+        <p style="text-align: center; margin-top: 1rem; font-size: 0.9rem; opacity: 0.9;">No referral fees. Cancel anytime.</p>
+        <p class="privacy-note">We respect your privacy. No commissions or data selling. <a href="/privacy">Learn more</a>.</p>
         <div class="success-message" id="successMessage">
           Thanks! We'll reach out shortly.
         </div>
@@ -830,79 +944,6 @@
       });
     });
 
-    // Voice Capture functionality
-    (() => {
-      const btn = document.getElementById('voiceCaptureBtn');
-      const notes = document.querySelector('textarea');
-      if (!btn || !notes) return;
-
-      let recognition, listening = false;
-
-      function supported() {
-        return 'webkitSpeechRecognition' in window || 'SpeechRecognition' in window;
-      }
-
-      function init() {
-        const Ctor = window.SpeechRecognition || window.webkitSpeechRecognition;
-        recognition = new Ctor();
-        recognition.lang = 'en-US';
-        recognition.interimResults = false; // Only use final results to prevent duplication
-        recognition.continuous = true;
-
-        recognition.onresult = (e) => {
-          // Only process final results (isFinal = true)
-          for (let i = e.resultIndex; i < e.results.length; i++) {
-            if (e.results[i].isFinal) {
-              const transcript = e.results[i][0].transcript.trim();
-              if (transcript) {
-                // Append to textarea with proper spacing
-                notes.value = notes.value
-                  ? notes.value + ' ' + transcript
-                  : transcript;
-
-                // Extract email and phone from transcript
-                const emailRegex = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/;
-                const phoneRegex = /(\+?1[-.\s]?)?\(?([0-9]{3})\)?[-.\s]?([0-9]{3})[-.\s]?([0-9]{4})/;
-
-                const emailMatch = transcript.match(emailRegex);
-                const phoneMatch = transcript.match(phoneRegex);
-
-                if (emailMatch && !document.getElementById('email').value) {
-                  document.getElementById('email').value = emailMatch[0];
-                }
-
-                if (phoneMatch && !document.getElementById('phone').value) {
-                  document.getElementById('phone').value = phoneMatch[0];
-                }
-              }
-            }
-          }
-        };
-        recognition.onerror = (e) => {
-          console.error('Voice recognition error:', e.error);
-          stop();
-        };
-        recognition.onend = () => { if (listening) recognition.start(); }; // auto-restart while "on"
-      }
-
-      function start() {
-        if (!supported()) { alert('Voice capture not supported in this browser.'); return; }
-        if (!recognition) init();
-        listening = true;
-        recognition.start();
-        btn.setAttribute('aria-pressed', 'true');
-        btn.textContent = '⏹ Stop Voice Capture';
-      }
-
-      function stop() {
-        listening = false;
-        try { recognition && recognition.stop(); } catch {}
-        btn.setAttribute('aria-pressed', 'false');
-        btn.textContent = '🎤 Start Voice Capture';
-      }
-
-      btn.addEventListener('click', () => (listening ? stop() : start()));
-    })();
   </script>
 </body>
 </html>
