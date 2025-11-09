@@ -6,6 +6,8 @@
   <title>Agent Signup - QualiFy</title>
   <meta name="description" content="Join QualiFy and start capturing qualified real estate leads in San Diego.">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"></script>
+  <script src="js/config.js"></script>
   <link rel="stylesheet" href="css/nav.css">
   <script src="js/nav.js"></script>
   <style>
@@ -343,13 +345,12 @@
   </footer>
 
   <script>
-    // Supabase configuration - USE ENVIRONMENT VARIABLES IN PRODUCTION
-    const SUPABASE_URL = 'https://tyrwkeqavitwkffjcznj.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR5cndrZXFhdml0d2tmZmpjem5qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg5OTA5MzcsImV4cCI6MjA3NDU2NjkzN30.XlP3j-5SQjje7nfv2jvtccQMJtlbSI22vqQtfEj7Nc4';
-    
-    // Supabase client
+    // Supabase client using centralized config
     const { createClient } = supabase;
-    const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const supabaseClient = createClient(
+      window.QualifyConfig.supabase.url,
+      window.QualifyConfig.supabase.anonKey
+    );
     
     // Mobile menu toggle
     document.getElementById('mobileMenu').addEventListener('click', function() {
@@ -370,12 +371,17 @@
       successMessage.classList.remove('show');
       errorMessage.classList.remove('show');
       
-      // Get form data
-      const name = document.getElementById('name').value.trim();
-      const email = document.getElementById('email').value.trim().toLowerCase();
-      const agency = document.getElementById('agency').value.trim();
-      const phone = document.getElementById('phone').value.trim();
-      const password = document.getElementById('password').value;
+      // Get and sanitize form data
+      const rawName = document.getElementById('name').value.trim();
+      const rawEmail = document.getElementById('email').value.trim().toLowerCase();
+      const rawAgency = document.getElementById('agency').value.trim();
+      const rawPhone = document.getElementById('phone').value.trim();
+      const password = document.getElementById('password').value; // Don't sanitize password
+
+      const name = DOMPurify.sanitize(rawName, { ALLOWED_TAGS: [] });
+      const email = DOMPurify.sanitize(rawEmail, { ALLOWED_TAGS: [] });
+      const agency = DOMPurify.sanitize(rawAgency, { ALLOWED_TAGS: [] });
+      const phone = DOMPurify.sanitize(rawPhone, { ALLOWED_TAGS: [] });
 
       // Validate inputs
       if (!name || name.length < 2) {

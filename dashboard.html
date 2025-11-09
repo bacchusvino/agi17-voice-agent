@@ -447,22 +447,25 @@
         // Create cells safely - use textContent where possible for performance
         const nameCell = document.createElement('td');
         const nameStrong = document.createElement('strong');
-        nameStrong.textContent = lead.name || 'N/A';
+        // Use DOMPurify for all user-generated content
+        nameStrong.textContent = DOMPurify.sanitize(lead.name || 'N/A', { ALLOWED_TAGS: [] });
         nameCell.appendChild(nameStrong);
 
         const contactCell = document.createElement('td');
-        contactCell.textContent = lead.email || '-';
+        contactCell.textContent = DOMPurify.sanitize(lead.email || '-', { ALLOWED_TAGS: [] });
         const phoneSmall = document.createElement('small');
-        phoneSmall.textContent = lead.phone || '-';
+        phoneSmall.textContent = DOMPurify.sanitize(lead.phone || '-', { ALLOWED_TAGS: [] });
         contactCell.appendChild(document.createElement('br'));
         contactCell.appendChild(phoneSmall);
 
         const propertyCell = document.createElement('td');
-        // Only use DOMPurify for address which might have special chars
-        propertyCell.innerHTML = `${DOMPurify.sanitize(lead.address || 'N/A')}<br><small>${lead.price ? '$' + Number(lead.price).toLocaleString() : '-'}</small>`;
+        // Use DOMPurify for all user-generated content including address
+        const sanitizedAddress = DOMPurify.sanitize(lead.address || 'N/A', { ALLOWED_TAGS: [] });
+        const sanitizedPrice = lead.price ? '$' + Number(lead.price).toLocaleString() : '-';
+        propertyCell.innerHTML = `${sanitizedAddress}<br><small>${sanitizedPrice}</small>`;
 
         const sourceCell = document.createElement('td');
-        sourceCell.textContent = lead.source || 'Unknown';
+        sourceCell.textContent = DOMPurify.sanitize(lead.source || 'Unknown', { ALLOWED_TAGS: [] });
         
         const statusCell = document.createElement('td');
         const badge = document.createElement('span');

@@ -343,7 +343,9 @@
         // Update stats
         const totalCalls = data.length
         const qualifiedCalls = data.filter(c => c.qualified).length
-        const avgScore = Math.round(data.reduce((sum, c) => sum + (c.qualification_score || 0), 0) / totalCalls)
+        const avgScore = totalCalls > 0
+          ? Math.round(data.reduce((sum, c) => sum + (c.qualification_score || 0), 0) / totalCalls)
+          : 0
         const totalDuration = data.reduce((sum, c) => sum + (c.duration_seconds || 0), 0)
 
         document.getElementById('totalCalls').textContent = totalCalls
