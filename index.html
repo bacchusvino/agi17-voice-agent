@@ -114,11 +114,65 @@
       transition: color 0.3s;
     }
 
-    .mobile-menu:hover {
-      color: var(--brand-purple);
+    /* Dropdown menu */
+    .nav-dropdown {
+      position: relative;
     }
 
-    @media (max-width: 1050px) {
+    .nav-dropdown-toggle {
+      background: none;
+      border: none;
+      color: #333;
+      font-weight: 500;
+      cursor: pointer;
+      font-size: 1rem;
+      padding: 0;
+    }
+
+    .dropdown-menu {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      background: white;
+      border: 1px solid #e5e5e5;
+      border-radius: 6px;
+      list-style: none;
+      margin-top: 0.5rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      z-index: 200;
+    }
+
+    .nav-dropdown:hover .dropdown-menu {
+      display: block;
+    }
+
+    .dropdown-menu li {
+      padding: 0;
+    }
+
+    .dropdown-menu a {
+      display: block;
+      padding: 0.75rem 1.5rem;
+      color: #333;
+      text-decoration: none;
+      font-weight: 500;
+      transition: background 0.2s;
+    }
+
+    .dropdown-menu a:hover {
+      background: #f0f0f0;
+      color: #0066cc;
+    }
+
+    /* Sign Up button in nav */
+    .nav-cta {
+      margin-left: 1rem;
+      padding: 0.6rem 1.2rem;
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 768px) {
       .nav-links {
         display: none;
         position: absolute;
@@ -153,6 +207,18 @@
 
       .mobile-menu {
         display: block;
+      }
+      
+      .nav-cta {
+        display: none;
+      }
+      
+      .dropdown-menu {
+        position: static;
+        background: #f9f9f9;
+        box-shadow: none;
+        border: none;
+        margin-top: 0;
       }
     }
 
@@ -612,17 +678,13 @@
   <!-- Navigation -->
   <nav>
     <div class="nav-container">
-      <a href="#hero" class="logo">QualiFy</a>
-      <ul class="nav-links" id="navLinks">
-        <li><a href="#benefits">Benefits</a></li>
-        <li><a href="#how">How It Works</a></li>
-        <li><a href="#proof">Social Proof</a></li>
-        <li><a href="#faq">FAQ</a></li>
-        <li><a href="fsbo-register.html">For Sale By Owner</a></li>
-        <li><a href="agent-signup.html">Agent Sign Up</a></li>
-        <li><a href="agent-login.html">Agent Login</a></li>
+      <a href="index.html" class="logo">QualiFy</a>
+      <ul class="nav-links">
+        <li><a href="agent-page.html">For Agents</a></li>
+        <li><a href="fsbo-page.html">For Sellers</a></li>
+        <li><a href="agent-signup.html" class="nav-primary">Sign Up</a></li>
+        <li><a href="agent-login.html">Login</a></li>
       </ul>
-      <button class="mobile-menu" id="mobileMenu" aria-label="Toggle menu">☰</button>
     </div>
   </nav>
 
@@ -771,10 +833,7 @@
     <div class="container">
       <h2>Ready to keep your commission?</h2>
       <p>Get qualified appointments in under 7 days.</p>
-      <form class="cta-form" id="agentSignupForm">
-        <!-- Honeypot field for spam protection -->
-        <input type="text" id="website_url" name="website_url" class="honeypot" tabindex="-1" autocomplete="off">
-        
+      <form class="cta-form" id="leadForm">
         <div class="form-group">
           <input type="text" id="full_name" name="full_name" placeholder="Full Name" required>
           <div class="error-message" id="full_name_error"></div>
@@ -853,125 +912,28 @@
       icon.textContent = answer.classList.contains('active') ? '−' : '+';
     }
 
-    // Helper function to show error message
-    function showError(fieldId, message) {
-      const field = document.getElementById(fieldId);
-      const errorDiv = document.getElementById(fieldId + '_error');
-      
-      field.classList.add('error');
-      if (errorDiv) {
-        errorDiv.textContent = message;
-        errorDiv.classList.add('show');
-      }
-    }
-
-    // Helper function to clear error
-    function clearError(fieldId) {
-      const field = document.getElementById(fieldId);
-      const errorDiv = document.getElementById(fieldId + '_error');
-      
-      field.classList.remove('error');
-      if (errorDiv) {
-        errorDiv.classList.remove('show');
-        errorDiv.textContent = '';
-      }
-    }
-
-    // Clear errors on input
-    document.getElementById('full_name').addEventListener('input', () => clearError('full_name'));
-    document.getElementById('email').addEventListener('input', () => clearError('email'));
-    document.getElementById('phone').addEventListener('input', () => clearError('phone'));
-    document.getElementById('service_area').addEventListener('input', () => clearError('service_area'));
-
-    // Agent Signup Form submission with Supabase
-    document.getElementById('agentSignupForm').addEventListener('submit', async function(e) {
+    // Form submission - replaced with working version
+    document.getElementById('leadForm').addEventListener('submit', async (e) => {
       e.preventDefault();
-      
-      // Clear all previous errors
-      clearError('full_name');
-      clearError('email');
-      clearError('phone');
-      clearError('service_area');
-      
-      // Spam protection: Check honeypot field
-      const honeypot = document.getElementById('website_url').value;
-      if (honeypot) {
-        // Silently block spam submission
-        console.log('Spam submission blocked');
-        return;
-      }
-      
-      let isValid = true;
-      
-      // Get form values
-      const fullName = document.getElementById('full_name').value.trim();
-      const email = document.getElementById('email').value.trim();
-      const phone = document.getElementById('phone').value.trim();
-      const serviceArea = document.getElementById('service_area').value.trim();
-      const monthlyClosings = document.getElementById('monthly_closings').value;
-      const appointmentGoal = document.getElementById('appointment_goal').value;
-      
-      // Validate Full Name
-      if (!fullName || fullName.length < 2) {
-        showError('full_name', 'Please enter a valid name (at least 2 characters)');
-        isValid = false;
-      }
-      
-      // Validate Email
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!email) {
-        showError('email', 'Email is required');
-        isValid = false;
-      } else if (!emailRegex.test(email)) {
-        showError('email', 'Please enter a valid email address');
-        isValid = false;
-      }
 
-      // Validate Phone (strip symbols/spaces and check for exactly 10 digits)
-      const phoneDigits = phone.replace(/\D/g, '');
-      if (!phone) {
-        showError('phone', 'Phone number is required');
-        isValid = false;
-      } else if (phoneDigits.length !== 10) {
-        showError('phone', 'Please enter a valid 10-digit phone number');
-        isValid = false;
-      }
-
-      // Validate Service Area
-      if (!serviceArea || serviceArea.length < 3) {
-        showError('service_area', 'Please enter your service area ZIP codes');
-        isValid = false;
-      }
-
-      // If validation failed, stop submission
-      if (!isValid) {
-        return;
-      }
-      
-      // Sanitize inputs (limit length to prevent abuse)
-      const sanitizedData = {
-        full_name: fullName.substring(0, 100),
-        email: email.toLowerCase().substring(0, 100),
-        phone: phoneDigits.substring(0, 10), // Store cleaned phone number
-        service_area: serviceArea.substring(0, 200),
-        monthly_closings: monthlyClosings || null,
-        appointment_goal: appointmentGoal || null
+      const formData = {
+        name: document.querySelector('[name="name"]').value,
+        email: document.querySelector('[name="email"]').value,
+        phone: document.querySelector('[name="phone"]').value,
+        address: document.querySelector('[name="address"]').value,
+        source: 'landing_page',
+        trigger_voice: true
       };
-      
-      try {
-        const { data, error } = await supabaseClient
-          .from('agent_leads')
-          .insert([sanitizedData])
-          .select();
-    
-        if (error) throw error;
-    
-        // Redirect to thank you page
-        window.location.href = 'thank-you.html';
-        
-      } catch (error) {
-        console.error('Error details (not shown to user):', error);
-        alert('Unable to save signup. Please try again or contact support.');
+
+      // Submit to your Netlify function
+      const response = await fetch('/.netlify/functions/submit-lead', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(formData)
+      });
+
+      if (response.ok) {
+        alert('Success! Voice agent will call you in 30 seconds.');
       }
     });
 
