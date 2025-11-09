@@ -6,6 +6,8 @@
   <title>Sell FSBO in San Diego - Connect with Agents - QualiFy</title>
   <meta name="description" content="For Sale By Owner? Connect with pre-screened real estate agents in San Diego. Save on commissions while getting professional help.">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"></script>
+  <script src="js/config.js"></script>
   <style>
     :root {
       --hero-start: #5b3cc4;
@@ -805,13 +807,16 @@
           return;
         }
 
-        // Initialize Supabase client
-        const supabaseUrl = 'https://tyrwkeqavitwkffjcznj.supabase.co';
-        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR5cndrZXFhdml0d2tmZmpjem5qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg5OTA5MzcsImV4cCI6MjA3NDU2NjkzN30.XlP3j-5SQjje7nfv2jvtccQMJtlbSI22vqQtfEj7Nc4';
-
+        // Initialize Supabase client using centralized config
         let supabaseClient;
         try {
-          supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
+          if (!window.QualifyConfig?.supabase) {
+            throw new Error('Configuration not loaded');
+          }
+          supabaseClient = window.supabase.createClient(
+            window.QualifyConfig.supabase.url,
+            window.QualifyConfig.supabase.anonKey
+          );
         } catch (error) {
           console.error('Failed to initialize Supabase client:', error);
           return;
@@ -835,17 +840,27 @@
           submitBtn.textContent = 'Submitting...';
 
           try {
-            // Collect form data
+            // Collect and sanitize form data
+            const rawName = document.getElementById('name').value.trim();
+            const rawEmail = document.getElementById('email').value.trim();
+            const rawPhone = document.getElementById('phone').value.trim();
+            const rawAddress = document.getElementById('address').value.trim();
+            const rawPrice = document.getElementById('price').value;
+            const rawTimeline = document.getElementById('timeline').value;
+
             const formData = {
-              name: document.getElementById('name').value.trim(),
-              email: document.getElementById('email').value.trim(),
-              phone: document.getElementById('phone').value.trim(),
-              address: document.getElementById('address').value.trim(),
-              price: parseInt(document.getElementById('price').value),
-              timeline: document.getElementById('timeline').value,
+              name: DOMPurify.sanitize(rawName, { ALLOWED_TAGS: [] }),
+              email: DOMPurify.sanitize(rawEmail, { ALLOWED_TAGS: [] }),
+              phone: DOMPurify.sanitize(rawPhone, { ALLOWED_TAGS: [] }),
+              address: DOMPurify.sanitize(rawAddress, { ALLOWED_TAGS: [] }),
+              price: parseInt(rawPrice),
+              timeline: DOMPurify.sanitize(rawTimeline, { ALLOWED_TAGS: [] }),
               source: 'fsbo_landing_page',
               status: 'new',
-              notes: `FSBO Lead - Timeline: ${document.getElementById('timeline').value}, Asking Price: $${document.getElementById('price').value}, Address: ${document.getElementById('address').value}`
+              notes: DOMPurify.sanitize(
+                `FSBO Lead - Timeline: ${rawTimeline}, Asking Price: $${rawPrice}, Address: ${rawAddress}`,
+                { ALLOWED_TAGS: [] }
+              )
             };
 
             // Validate required fields
