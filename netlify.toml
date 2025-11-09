@@ -2,6 +2,23 @@
   publish = "."
   functions = "netlify/functions"
 
+# Explicit routes for HTML pages
+[[redirects]]
+  from = "/fsbo-register"
+  to = "/fsbo-register.html"
+  status = 200
+
+[[redirects]]
+  from = "/agent-signup"
+  to = "/agent-signup.html"
+  status = 200
+
+[[redirects]]
+  from = "/agent-login"
+  to = "/agent-login.html"
+  status = 200
+
+# Catch-all for SPA - only applies to routes without .html extension
 [[redirects]]
   from = "/*"
   to = "/index.html"
