@@ -730,8 +730,13 @@
     // Format date for display (pass now for performance)
     function formatDate(dateString, now) {
       const date = new Date(dateString);
-      const diffTime = Math.abs(now - date);
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      
+      // Get dates at midnight UTC to compare calendar days, not timestamps
+      const dateUTC = new Date(date.toISOString().split('T')[0]);
+      const nowUTC = new Date(now.toISOString().split('T')[0]);
+      
+      const diffTime = nowUTC - dateUTC;
+      const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
 
       if (diffDays === 0) return 'Today';
       if (diffDays === 1) return 'Yesterday';
