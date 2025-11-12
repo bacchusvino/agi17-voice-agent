@@ -930,28 +930,59 @@
       icon.textContent = answer.classList.contains('active') ? '−' : '+';
     }
 
-    // Form submission - replaced with working version
+    // Form submission handler - Saves to Supabase with status="new"
+    // N8N workflow automatically detects new leads and triggers Retell AI call
     document.getElementById('leadForm').addEventListener('submit', async (e) => {
       e.preventDefault();
 
-      const formData = {
+      const submitButton = e.target.querySelector('button[type="submit"]');
+      const originalButtonText = submitButton.textContent;
+      
+      // Disable button and show loading state
+      submitButton.disabled = true;
+      submitButton.textContent = 'Processing...';
+
+      const leadData = {
         name: document.querySelector('[name="name"]').value,
         email: document.querySelector('[name="email"]').value,
         phone: document.querySelector('[name="phone"]').value,
-        address: document.querySelector('[name="address"]').value,
+        service_area: document.querySelector('[name="service_area"]').value,
+        monthly_closings: document.querySelector('[name="monthly_closings"]').value,
+        appointment_goal: document.querySelector('[name="appointment_goal"]').value,
         source: 'landing_page',
-        trigger_voice: true
+        status: 'new',  // CRITICAL: This triggers n8n workflow
+        created_at: new Date().toISOString()
       };
 
-      // Submit to your Netlify function
-      const response = await fetch('/.netlify/functions/submit-lead', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(formData)
-      });
+      try {
+        // Save directly to Supabase - n8n will detect and trigger Retell call
+        const { data, error } = await supabaseClient
+          .from('leads')
+          .insert([leadData])
+          .select();
 
-      if (response.ok) {
-        alert('Success! Voice agent will call you in 30 seconds.');
+        if (error) {
+          throw error;
+        }
+
+        // Success - lead saved, n8n will trigger call automatically
+        document.getElementById('successMessage').style.display = 'block';
+        document.getElementById('leadForm').reset();
+        
+        alert('Success! Our Qualify Expert will call you within 60 seconds to verify your listing.');
+        
+        // Hide success message after 5 seconds
+        setTimeout(() => {
+          document.getElementById('successMessage').style.display = 'none';
+        }, 5000);
+
+      } catch (error) {
+        console.error('Form submission error:', error);
+        alert('Sorry, there was an error submitting your information. Please try again or call us directly.');
+      } finally {
+        // Re-enable button
+        submitButton.disabled = false;
+        submitButton.textContent = originalButtonText;
       }
     });
 
