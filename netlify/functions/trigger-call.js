@@ -18,6 +18,15 @@ exports.handler = async (event, context) => {
       };
     }
 
+    // Validate phone number format
+    const phoneRegex = /^\+?1?[-.\s]?\(?[0-9]{3}\)?[-.\s]?[0-9]{3}[-.\s]?[0-9]{4}$/;
+    if (!phoneRegex.test(phoneNumber)) {
+      return {
+        statusCode: 400,
+        body: JSON.stringify({ error: 'Invalid phone number format. Expected format: +1-619-555-0142 or 619-555-0142' })
+      };
+    }
+
     // Get RetilAI API key from environment variable (server-side only)
     const apiKey = process.env.RETELL_API_KEY;
 
