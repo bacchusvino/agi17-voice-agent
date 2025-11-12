@@ -752,7 +752,7 @@
 
           <div class="form-group">
             <label for="phone">Phone Number *</label>
-            <input type="tel" id="phone" name="phone" pattern="[0-9]{10,15}" title="Please enter a valid phone number (10-15 digits)" required>
+            <input type="tel" id="phone" name="phone" placeholder="(619) 555-1234" required>
           </div>
 
           <div class="form-group">
@@ -796,6 +796,37 @@
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR5cndrZXFhdml0d2tmZmpjem5qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg5OTA5MzcsImV4cCI6MjA3NDU2NjkzN30.XlP3j-5SQjje7nfv2jvtccQMJtlbSI22vqQtfEj7Nc4';
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+    // Auto-format phone number as user types
+    const phoneInput = document.getElementById('phone');
+    phoneInput.addEventListener('input', function(e) {
+      let value = e.target.value.replace(/\D/g, ''); // Remove non-digits
+      
+      if (value.length > 0) {
+        if (value.length <= 3) {
+          e.target.value = value;
+        } else if (value.length <= 6) {
+          e.target.value = `(${value.slice(0,3)}) ${value.slice(3)}`;
+        } else {
+          e.target.value = `(${value.slice(0,3)}) ${value.slice(3,6)}-${value.slice(6,10)}`;
+        }
+      }
+    });
+
+    // Clean phone number to digits only for storage
+    function cleanPhoneNumber(phone) {
+      const cleaned = phone.replace(/\D/g, '');
+      // Add +1 if it's a 10-digit US number
+      if (cleaned.length === 10) {
+        return '+1' + cleaned;
+      }
+      // If already has country code, keep it
+      if (cleaned.length === 11 && cleaned[0] === '1') {
+        return '+' + cleaned;
+      }
+      // Otherwise return as-is
+      return '+' + cleaned;
+    }
+
     function toggleFaq(index) {
       const answer = document.getElementById(`faq-${index}`);
       const question = answer.previousElementSibling;
@@ -814,7 +845,7 @@
       try {
         const name = document.getElementById('name').value.trim();
         const email = document.getElementById('email').value.trim();
-        const phone = document.getElementById('phone').value.trim();
+        const phone = cleanPhoneNumber(document.getElementById('phone').value.trim());
         const address = document.getElementById('address').value.trim();
         const price = parseInt(document.getElementById('price').value);
         const timeline = document.getElementById('timeline').value;
