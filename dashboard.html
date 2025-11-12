@@ -573,31 +573,7 @@
         const div = document.createElement('div');
         div.className = 'actions';
         
-        const qualifyBtn = document.createElement('button');
-        qualifyBtn.className = 'btn btn-success';
-        qualifyBtn.dataset.leadId = lead.id;
-        qualifyBtn.dataset.status = 'qualified';
-        qualifyBtn.title = 'Mark Qualified';
-        qualifyBtn.textContent = '✓';
-        
-        const contactBtn = document.createElement('button');
-        contactBtn.className = 'btn btn-warning';
-        contactBtn.dataset.leadId = lead.id;
-        contactBtn.dataset.status = 'contacted';
-        contactBtn.title = 'Mark Contacted';
-        contactBtn.textContent = '📞';
-
-        const callBtn = document.createElement('button');
-        callBtn.className = 'btn btn-primary';
-        callBtn.dataset.leadId = lead.id;
-        callBtn.dataset.phone = lead.phone;
-        callBtn.title = 'Trigger AI Voice Call';
-        callBtn.textContent = '🤖';
-        callBtn.onclick = (e) => {
-          e.stopPropagation();
-          triggerVoiceCall(lead.id, lead.phone);
-        };
-
+        // Not Interested button
         const rejectBtn = document.createElement('button');
         rejectBtn.className = 'btn btn-danger';
         rejectBtn.dataset.leadId = lead.id;
@@ -605,10 +581,19 @@
         rejectBtn.title = 'Not Interested';
         rejectBtn.textContent = '✕';
 
-        div.appendChild(qualifyBtn);
-        div.appendChild(contactBtn);
-        div.appendChild(callBtn);
+        // Delete button
+        const deleteBtn = document.createElement('button');
+        deleteBtn.className = 'btn btn-secondary';
+        deleteBtn.dataset.leadId = lead.id;
+        deleteBtn.title = 'Delete Lead';
+        deleteBtn.textContent = '🗑️';
+        deleteBtn.onclick = (e) => {
+          e.stopPropagation();
+          deleteLead(lead.id, lead.name);
+        };
+
         div.appendChild(rejectBtn);
+        div.appendChild(deleteBtn);
         actionsCell.appendChild(div);
         
         row.appendChild(nameCell);
@@ -640,51 +625,24 @@
       }
     }
 
-    // Trigger HeyGen voice call via Netlify function
-    async function triggerVoiceCall(leadId, phoneNumber) {
-      if (!phoneNumber) {
-        alert('No phone number available for this lead');
-        return;
-      }
-
-      // Confirm before triggering call
-      if (!confirm(`Trigger AI voice call to ${phoneNumber}?`)) {
+    // Delete a lead from the database
+    async function deleteLead(leadId, leadName) {
+      if (!confirm(`Delete lead "${leadName}"? This cannot be undone.`)) {
         return;
       }
 
       try {
-        const response = await fetch('/.netlify/functions/trigger-call', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            leadId: leadId,
-            phoneNumber: phoneNumber
-          })
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(data.error || 'Failed to trigger call');
-        }
-
-        // Update lead status to show call was initiated
-        await supabaseClient
+        const { error } = await supabaseClient
           .from('leads')
-          .update({
-            status: 'contacted',
-            notes: `AI voice call initiated at ${new Date().toISOString()}`
-          })
+          .delete()
           .eq('id', leadId);
 
-        await fetchLeads();
-        alert('✓ AI voice call initiated successfully!');
+        if (error) throw error;
 
+        await fetchLeads();
+        alert('Lead deleted successfully');
       } catch (error) {
-        console.error('Error triggering call:', error);
-        alert('Error triggering call: ' + error.message);
+        alert('Error deleting lead: ' + error.message);
       }
     }
 
