@@ -177,7 +177,7 @@ CREATE POLICY "secure_anon_insert" ON public.leads
     length(trim(name)) >= 2 AND
     length(trim(name)) <= 100 AND
     length(COALESCE(email, '')) <= 100 AND
-    length(COALESCE(phone, '')) <= 20 AND
+    length(COALESCE(phone, '')) <= 30 AND
     length(COALESCE(notes, '')) <= 500
   );
 
