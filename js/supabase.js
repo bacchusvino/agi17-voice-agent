@@ -2,12 +2,10 @@
 import { createClient } from '@supabase/supabase-js'
 
 // Initialize Supabase client
-const supabaseUrl = 'https://tyrwkeqavitwkffjcznj.supabase.co'
-const supabaseKey = 'sb_publishable_AVrztDecuuKBPmLmYg2nrQ_w58YX9rK'
-
-// For development, you can use these placeholder values
-// In production, replace with your actual Supabase project URL and anon key
-const supabase = createClient(supabaseUrl, supabaseKey)
+const supabase = createClient(
+  window.QualifyConfig.supabase.url,
+  window.QualifyConfig.supabase.anonKey
+)
 
 // Lead management functions
 export const leadService = {
