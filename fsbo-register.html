@@ -809,34 +809,32 @@
       phoneInput.value = '+1 ';
     }
     
+    // Clear error when typing
     phoneInput.addEventListener('input', function(e) {
-      let value = e.target.value;
-      
-      // Ensure it always starts with +1
-      if (!value.startsWith('+1')) {
-        // Keep only digits after stripping
-        let digits = value.replace(/\D/g, '');
-        e.target.value = '+1' + (digits.startsWith('1') ? digits.slice(1) : digits);
-        value = e.target.value;
-      }
-      
-      // Format as user types: +1 (XXX) XXX-XXXX
-      let cleaned = value.replace(/\D/g, '');
-      if (cleaned.length >= 1) {
-        if (cleaned.length <= 3) {
-          e.target.value = '+1' + (cleaned.length > 0 ? ' (' + cleaned : '');
-        } else if (cleaned.length <= 6) {
-          e.target.value = '+1 (' + cleaned.slice(1, 4) + ') ' + cleaned.slice(4);
-        } else if (cleaned.length <= 10) {
-          e.target.value = '+1 (' + cleaned.slice(1, 4) + ') ' + cleaned.slice(4, 7) + '-' + cleaned.slice(7);
-        } else {
-          e.target.value = '+1 (' + cleaned.slice(1, 4) + ') ' + cleaned.slice(4, 7) + '-' + cleaned.slice(7, 11);
-        }
-      }
-      
-      // Clear error on input
       phoneError.style.display = 'none';
       phoneError.textContent = '';
+    });
+    
+    // Format ONLY when user leaves the field (blur) - allows free typing/deletion
+    phoneInput.addEventListener('blur', function(e) {
+      let value = e.target.value.trim();
+      let cleaned = value.replace(/\D/g, ''); // Remove all non-digits
+      
+      // Ensure it starts with 1 (country code)
+      if (cleaned.length > 0) {
+        if (!cleaned.startsWith('1')) {
+          cleaned = '1' + cleaned;
+        }
+        // Keep only first 11 digits (1 + 10 digit number)
+        cleaned = cleaned.slice(0, 11);
+        
+        // Format as +1 (XXX) XXX-XXXX if we have enough digits
+        if (cleaned.length >= 4) {
+          e.target.value = '+1 (' + cleaned.slice(1, 4) + ') ' + cleaned.slice(4, 7) + (cleaned.length > 7 ? '-' + cleaned.slice(7) : '');
+        } else {
+          e.target.value = '+1 ' + cleaned.slice(1);
+        }
+      }
     });
 
     function validatePhoneFormat(phone) {
