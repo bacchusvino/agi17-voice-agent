@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sell FSBO in San Diego - Connect with Agents - QualiFy</title>
+  <meta name="description" content="For Sale By Owner? Connect with pre-screened real estate agents in San Diego. Save on commissions while getting professional help.">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/dist/umd/supabase.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"></script>
+  <script src="js/config.js"></script>
+  <script>
+    // Error handling for library loading
+    window.addEventListener('error', function(e) {
+      if (e.message && e.message.toLowerCase().includes('supabase')) {
+        console.error('Supabase library failed to load:', e);
+        alert('Failed to load required libraries. Please refresh the page.');
+      }
+    }, true);
+  </script>
+  <style>
+    :root {
+      --hero-start: #5b3cc4;
+      --hero-end: #7a3ce6;
+      --brand-purple: #7C3AED;
+      --accent: #ff4444;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    /* Navigation */
+    nav {
+      position: sticky;
+      top: 0;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid #e5e5e5;
+      z-index: 100;
+      padding: 1rem 2rem;
+    }
+
+    .nav-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .logo {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: var(--brand-purple);
+      text-decoration: none;
+      transition: opacity 0.3s;
+    }
+
+    .logo:hover {
+      opacity: 0.8;
+    }
+
+    .nav-links {
+      display: flex;
+      list-style: none;
+      gap: 1.5rem;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      color: #333;
+      font-weight: 500;
+      font-size: 0.95rem;
+      transition: color 0.3s;
+    }
+
+    .nav-links a:hover {
+      color: var(--brand-purple);
+    }
+
+    /* Hero */
+    #hero {
+      background: linear-gradient(135deg, var(--hero-start), var(--hero-end));
+      color: white;
+      text-align: center;
+      padding: 6rem 0;
+    }
+
+    #hero h1 {
+      font-size: 2.5rem;
+      font-weight: bold;
+      margin-bottom: 1rem;
+      line-height: 1.2;
+    }
+
+    #hero p {
+      font-size: 1.1rem;
+      margin-bottom: 0;
+      font-weight: 500;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+      color: #ffffff;
+    }
+
+    /* Sections */
+    section {
+      padding: 4rem 0;
+    }
+
+    h2 {
+      font-size: 2rem;
+      font-weight: bold;
+      margin-bottom: 3rem;
+      text-align: center;
+      color: #333;
+    }
+
+    h3 {
+      font-size: 1.25rem;
+      font-weight: bold;
+      margin-bottom: 0.75rem;
+    }
+
+    p {
+      font-size: 1rem;
+      margin-bottom: 1rem;
+      line-height: 1.7;
+      color: #666;
+    }
+
+    /* Benefits Section */
+    #benefits {
+      background: white;
+    }
+
+    .benefits-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 2rem;
+      margin-top: 2rem;
+    }
+
+    .benefit-card {
+      background: #f8f9fa;
+      padding: 2rem;
+      border-radius: 10px;
+      border-left: 4px solid var(--brand-purple);
+    }
+
+    .benefit-icon {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+    }
+
+    /* Why QualiFy */
+    #why-qualify {
+      background: #f8f9fa;
+    }
+
+    .comparison {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+      margin-top: 2rem;
+      max-width: 900px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .comparison-card {
+      background: white;
+      padding: 2rem;
+      border-radius: 10px;
+      border-top: 4px solid #ddd;
+    }
+
+    .comparison-card.highlight {
+      border-top-color: var(--brand-purple);
+      box-shadow: 0 10px 30px rgba(124, 58, 237, 0.1);
+    }
+
+    .comparison-card h3 {
+      margin-bottom: 1.5rem;
+      text-align: center;
+    }
+
+    .comparison-list {
+      list-style: none;
+    }
+
+    .comparison-list li {
+      padding: 0.75rem 0;
+      padding-left: 1.5rem;
+      position: relative;
+      font-size: 0.95rem;
+    }
+
+    .comparison-card.highlight li:before {
+      content: '✓';
+      position: absolute;
+      left: 0;
+      color: var(--brand-purple);
+      font-weight: bold;
+    }
+
+    .comparison-card li:before {
+      content: '✕';
+      position: absolute;
+      left: 0;
+      color: #ccc;
+    }
+
+    /* How It Works */
+    #how {
+      background: white;
+    }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 2rem;
+      margin-top: 2rem;
+    }
+
+    .step {
+      background: #f8f9fa;
+      padding: 2rem;
+      border-radius: 10px;
+      text-align: center;
+    }
+
+    .step-number {
+      background: var(--brand-purple);
+      color: white;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 1.25rem;
+      margin: 0 auto 1rem;
+    }
+
+    /* Proof Section */
+    #proof {
+      background: #f8f9fa;
+    }
+
+    .testimonials {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+      margin-top: 2rem;
+      max-width: 900px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .testimonial-card {
+      background: white;
+      padding: 2rem;
+      border-radius: 10px;
+      border-left: 4px solid var(--brand-purple);
+    }
+
+    .testimonial-quote {
+      font-size: 0.95rem;
+      font-style: italic;
+      margin-bottom: 1rem;
+      color: #555;
+    }
+
+    .testimonial-author {
+      font-weight: 600;
+      color: #333;
+      font-size: 0.9rem;
+    }
+
+    /* Risk Section */
+    #risks {
+      background: white;
+    }
+
+    .risk-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 2rem;
+      margin-top: 2rem;
+    }
+
+    .risk-card {
+      background: #fff5f5;
+      padding: 2rem;
+      border-radius: 10px;
+      border-top: 4px solid var(--accent);
+    }
+
+    .risk-card strong {
+      color: var(--accent);
+      display: block;
+      margin-bottom: 0.75rem;
+    }
+
+    /* FAQ */
+    #faq {
+      background: #f8f9fa;
+    }
+
+    .faq-list {
+      max-width: 800px;
+      margin: 2rem auto 0;
+    }
+
+    .faq-item {
+      background: white;
+      margin-bottom: 1rem;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .faq-question {
+      background: none;
+      border: none;
+      width: 100%;
+      padding: 1.5rem;
+      text-align: left;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: background 0.3s;
+    }
+
+    .faq-question:hover {
+      background: #f8f9fa;
+    }
+
+    .faq-answer {
+      padding: 0 1.5rem 1.5rem;
+      color: #666;
+      display: none;
+      font-size: 0.95rem;
+      line-height: 1.7;
+    }
+
+    .faq-answer.active {
+      display: block;
+    }
+
+    /* Form Section */
+    #form-section {
+      background: white;
+      padding: 4rem 0;
+    }
+
+    .form-container {
+      max-width: 500px;
+      margin: 0 auto;
+      background: #f8f9fa;
+      padding: 3rem;
+      border-radius: 10px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    }
+
+    .form-container h2 {
+      margin-bottom: 2rem;
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+      color: #333;
+      font-size: 0.95rem;
+    }
+
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      padding: 0.75rem;
+      border: 2px solid #e5e5e5;
+      border-radius: 6px;
+      font-size: 1rem;
+      font-family: inherit;
+      transition: border-color 0.3s;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: var(--brand-purple);
+      box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+    }
+
+    .btn {
+      width: 100%;
+      padding: 0.75rem;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      background: var(--brand-purple);
+      color: white;
+      font-size: 1rem;
+      transition: all 0.3s;
+    }
+
+    .btn:hover {
+      background: #6d28d9;
+      transform: translateY(-2px);
+    }
+
+    .btn:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .success-message {
+      background: #d4edda;
+      color: #155724;
+      padding: 1rem;
+      border-radius: 6px;
+      margin-top: 1rem;
+      display: none;
+    }
+
+    .success-message.show {
+      display: block;
+    }
+
+    /* Footer */
+    footer {
+      background: #333;
+      color: white;
+      text-align: center;
+      padding: 2rem 0;
+      font-size: 0.9rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      #hero h1 {
+        font-size: 2rem;
+      }
+
+      h2 {
+        font-size: 1.5rem;
+        margin-bottom: 2rem;
+      }
+
+      .comparison {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+      }
+
+      .form-container {
+        padding: 2rem;
+        margin: 0 1rem;
+      }
+
+      section {
+        padding: 2.5rem 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation -->
+  <nav>
+    <div class="nav-container">
+      <a href="index.html" class="logo">QualiFy</a>
+      <ul class="nav-links">
+        <li><a href="agent-signup.html">Agent Sign Up</a></li>
+        <li><a href="agent-login.html">Agent Login</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section id="hero">
+    <div class="container">
+      <h1>Sell Your Home Smarter as a FSBO</h1>
+      <p>Get professional agent support without giving up your commission. Connect with pre-screened agents in San Diego.</p>
+    </div>
+  </section>
+
+  <!-- Why FSBO + Agent -->
+  <section id="why-qualify">
+    <div class="container">
+      <h2>FSBO vs. Traditional Sale</h2>
+      <div class="comparison">
+        <div class="comparison-card">
+          <h3>Selling Solo</h3>
+          <ul class="comparison-list">
+            <li>No professional marketing</li>
+            <li>Limited buyer exposure</li>
+            <li>No negotiation expertise</li>
+            <li>Pricing mistakes common</li>
+            <li>Legal liability risks</li>
+            <li>Slow closing process</li>
+          </ul>
+        </div>
+        <div class="comparison-card highlight">
+          <h3>FSBO + QualiFy Agent</h3>
+          <ul class="comparison-list">
+            <li>Full MLS listing access</li>
+            <li>Professional marketing</li>
+            <li>Expert negotiation</li>
+            <li>Market-rate pricing</li>
+            <li>Legal protection</li>
+            <li>7-10 day close average</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Benefits -->
+  <section id="benefits">
+    <div class="container">
+      <h2>Why Choose QualiFy</h2>
+      <div class="benefits-grid">
+        <div class="benefit-card">
+          <div class="benefit-icon">💰</div>
+          <h3>Keep Your Commission</h3>
+          <p>Work directly with agents instead of listing brokers. Save 3-6% on your sale price.</p>
+        </div>
+        <div class="benefit-card">
+          <div class="benefit-icon">🔍</div>
+          <h3>Full Market Exposure</h3>
+          <p>Agent partners list on MLS, bringing buyer agents and serious buyers. No hidden listings.</p>
+        </div>
+        <div class="benefit-card">
+          <div class="benefit-icon">📋</div>
+          <h3>Legal Protection</h3>
+          <p>Agents handle contracts, disclosures, and inspections. Professional, compliant process.</p>
+        </div>
+        <div class="benefit-card">
+          <div class="benefit-icon">⚡</div>
+          <h3>Faster Closing</h3>
+          <p>Agent experience speeds up inspections, appraisals, and final walk-through.</p>
+        </div>
+        <div class="benefit-card">
+          <div class="benefit-icon">🤝</div>
+          <h3>Negotiation Support</h3>
+          <p>Let professionals handle offers, counter-offers, and repair requests.</p>
+        </div>
+        <div class="benefit-card">
+          <div class="benefit-icon">📱</div>
+          <h3>24/7 Support</h3>
+          <p>Your agent handles buyer calls, showings, and questions around the clock.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works -->
+  <section id="how">
+    <div class="container">
+      <h2>How It Works</h2>
+      <div class="steps">
+        <div class="step">
+          <div class="step-number">1</div>
+          <h3>Register</h3>
+          <p>Tell us about your property and timeline.</p>
+        </div>
+        <div class="step">
+          <div class="step-number">2</div>
+          <h3>Connect</h3>
+          <p>We match you with pre-screened agents in your area.</p>
+        </div>
+        <div class="step">
+          <div class="step-number">3</div>
+          <h3>List & Sell</h3>
+          <p>Agent handles marketing, showings, and negotiation.</p>
+        </div>
+        <div class="step">
+          <div class="step-number">4</div>
+          <h3>Close</h3>
+          <p>Smooth closing with legal protection throughout.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Social Proof -->
+  <section id="proof">
+    <div class="container">
+      <h2>From Real San Diego Sellers</h2>
+      <div class="testimonials">
+        <div class="testimonial-card">
+          <div class="testimonial-quote">"Saved $28,000 in commissions and still got the same results. The agent did all the heavy lifting."</div>
+          <div class="testimonial-author">— Marcus T., Hillcrest</div>
+        </div>
+        <div class="testimonial-card">
+          <div class="testimonial-quote">"I thought I'd manage it myself, but after 3 weeks with zero offers, I was relieved to have professional help."</div>
+          <div class="testimonial-author">— Jessica R., Mission Valley</div>
+        </div>
+        <div class="testimonial-card">
+          <div class="testimonial-quote">"The agent handled the inspection repairs I didn't even know were problems. Worth every penny."</div>
+          <div class="testimonial-author">— David L., La Jolla</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FSBO Risks -->
+  <section id="risks">
+    <div class="container">
+      <h2>Common FSBO Mistakes to Avoid</h2>
+      <div class="risk-grid">
+        <div class="risk-card">
+          <strong>❌ Wrong Price = Longer Wait</strong>
+          <p>Overpriced homes sit. Agent expertise prevents costly 6-month holding costs.</p>
+        </div>
+        <div class="risk-card">
+          <strong>❌ No Buyer Agents Show</strong>
+          <p>Many agents skip FSBO homes. MLS listing changes everything.</p>
+        </div>
+        <div class="risk-card">
+          <strong>❌ Legal Liability</strong>
+          <p>Missing disclosures can trigger lawsuits post-closing. Agents know compliance.</p>
+        </div>
+        <div class="risk-card">
+          <strong>❌ Weak Negotiation</strong>
+          <p>Buyer's agent vs. you = bad deal. Professional negotiators close 15% higher.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section id="faq">
+    <div class="container">
+      <h2>Questions About Selling FSBO?</h2>
+      <div class="faq-list">
+        <div class="faq-item">
+          <button class="faq-question" onclick="toggleFaq(0)">
+            How is this different from listing with a brokerage?
+            <span>+</span>
+          </button>
+          <div class="faq-answer" id="faq-0">
+            You're hiring an independent agent, not a brokerage. That means you negotiate directly with the agent instead of a broker taking 50% of their commission. It's a true FSBO with professional support.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question" onclick="toggleFaq(1)">
+            What do I pay the agent?
+            <span>+</span>
+          </button>
+          <div class="faq-answer" id="faq-1">
+            That's up to you to negotiate directly. Many sellers offer 1.5-3% vs. the standard 3-6%. Some offer flat fees instead of percentages. You control the deal.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question" onclick="toggleFaq(2)">
+            Will my property be on MLS?
+            <span>+</span>
+          </button>
+          <div class="faq-answer" id="faq-2">
+            Yes. Your agent will list it on the San Diego MLS, exposing it to all 50,000+ buyer agents and serious buyers in the market. That's the power of professional listing.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question" onclick="toggleFaq(3)">
+            Are these real estate agents vetted?
+            <span>+</span>
+          </button>
+          <div class="faq-answer" id="faq-3">
+            Yes. Our agents are licensed, background-checked, and have sold properties in your neighborhood. We connect you with professionals, not part-timers.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question" onclick="toggleFaq(4)">
+            What if I already have an agent interested?
+            <span>+</span>
+          </button>
+          <div class="faq-answer" id="faq-4">
+            Great! You're already ahead. Register here and we'll confirm the match or find another agent if there's a better fit. You stay in control.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question" onclick="toggleFaq(5)">
+            How long does closing take?
+            <span>+</span>
+          </button>
+          <div class="faq-answer" id="faq-5">
+            With professional help, typically 7-10 days from offer to close. Without an agent, inspections and appraisals often stall without follow-up. Agents know how to keep momentum.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question" onclick="toggleFaq(6)">
+            Do I still handle all the paperwork?
+            <span>+</span>
+          </button>
+          <div class="faq-answer" id="faq-6">
+            No. Your agent handles listing documents, marketing, showing coordination, inspection negotiations, and closing docs. You stay informed, but the agent does the heavy lifting.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Form Section -->
+  <section id="form-section">
+    <div class="container">
+      <div class="form-container">
+        <h2>Ready to Sell Smart?</h2>
+        <p style="text-align: center; margin-bottom: 2rem; color: #666;">Tell us about your property and we'll connect you with the right agent.</p>
+        <form id="fsboForm">
+          <div class="form-group">
+            <label for="name">Your Name *</label>
+            <input type="text" id="name" name="name" required>
+          </div>
+
+          <div class="form-group">
+            <label for="email">Email Address *</label>
+            <input type="email" id="email" name="email" required>
+          </div>
+
+          <div class="form-group">
+            <label for="phone">Phone Number *</label>
+            <input type="tel" id="phone" name="phone" placeholder="(619) 555-1234" required>
+          </div>
+
+          <div class="form-group">
+            <label for="address">Property Address *</label>
+            <input type="text" id="address" name="address" placeholder="123 Main St, San Diego, CA 92101" required>
+          </div>
+
+          <div class="form-group">
+            <label for="price">Asking Price *</label>
+            <input type="number" id="price" name="price" placeholder="500000" min="0" max="50000000" required>
+          </div>
+
+          <div class="form-group">
+            <label for="timeline">Timeline to Sell *</label>
+            <select id="timeline" name="timeline" required>
+              <option value="">Select timeline</option>
+              <option value="urgent">Urgent (30 days)</option>
+              <option value="soon">Soon (60 days)</option>
+              <option value="flexible">Flexible (90+ days)</option>
+            </select>
+          </div>
+
+          <button type="submit" class="btn" id="submitBtn">Get Connected with an Agent</button>
+          
+          <div class="success-message" id="successMessage">
+            <strong>✓ Thanks for registering!</strong><br>
+            An agent will reach out within 24 hours.
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <p>© 2025 QualiFy. San Diego FSBO marketplace. All rights reserved.</p>
+  </footer>
+
+  <script>
+    const SUPABASE_URL = 'https://tyrwkeqavitwkffjcznj.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR5cndrZXFhdml0d2tmZmpjem5qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg5OTA5MzcsImV4cCI6MjA3NDU2NjkzN30.XlP3j-5SQjje7nfv2jvtccQMJtlbSI22vqQtfEj7Nc4';
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    // Auto-format phone number as user types
+    const phoneInput = document.getElementById('phone');
+    phoneInput.addEventListener('input', function(e) {
+      let value = e.target.value.replace(/\D/g, ''); // Remove non-digits
+      
+      if (value.length > 0) {
+        if (value.length <= 3) {
+          e.target.value = value;
+        } else if (value.length <= 6) {
+          e.target.value = `(${value.slice(0,3)}) ${value.slice(3)}`;
+        } else {
+          e.target.value = `(${value.slice(0,3)}) ${value.slice(3,6)}-${value.slice(6,10)}`;
+        }
+      }
+    });
+
+    // Clean phone number to digits only for storage
+    function cleanPhoneNumber(phone) {
+      const cleaned = phone.replace(/\D/g, '');
+      // Add +1 if it's a 10-digit US number
+      if (cleaned.length === 10) {
+        return '+1' + cleaned;
+      }
+      // If already has country code, keep it
+      if (cleaned.length === 11 && cleaned[0] === '1') {
+        return '+' + cleaned;
+      }
+      // Otherwise return as-is
+      return '+' + cleaned;
+    }
+
+    function toggleFaq(index) {
+      const answer = document.getElementById(`faq-${index}`);
+      const question = answer.previousElementSibling;
+      const icon = question.querySelector('span');
+      answer.classList.toggle('active');
+      icon.textContent = answer.classList.contains('active') ? '−' : '+';
+    }
+
+    document.getElementById('fsboForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const submitBtn = document.getElementById('submitBtn');
+      const successMessage = document.getElementById('successMessage');
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Submitting...';
+
+      try {
+        const name = document.getElementById('name').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const phone = cleanPhoneNumber(document.getElementById('phone').value.trim());
+        const address = document.getElementById('address').value.trim();
+        const price = parseInt(document.getElementById('price').value);
+        const timeline = document.getElementById('timeline').value;
+
+        if (!name || !email || !phone || !address || !price || !timeline) {
+          throw new Error('Please fill in all required fields');
+        }
+
+        const { data, error } = await supabase.from('leads').insert([{
+          name, email, phone, address, price, timeline,
+          source: 'fsbo_landing_page',
+          status: 'new',
+          notes: `FSBO Lead - Timeline: ${timeline}, Price: ${price}`
+        }]).select();
+
+        if (error) throw new Error(error.message);
+
+        successMessage.classList.add('show');
+        document.getElementById('fsboForm').reset();
+        setTimeout(() => window.location.href = 'index.html', 3000);
+
+      } catch (error) {
+        alert(error.message);
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Get Connected with an Agent';
+      }
+    });
+  </script>
+</body>
+</html>

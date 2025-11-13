@@ -6,6 +6,10 @@
   <title>QualiFy - San Diego Real Estate Lead Automation</title>
   <meta name="description" content="Stop giving 40% to Zillow. QualiFy captures, qualifies, and books local buyers/sellers for San Diego real estate agents.">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"></script>
+  <script src="js/config.js"></script>
+  <link rel="stylesheet" href="css/nav.css">
+  <script src="js/nav.js"></script>
   <style>
     /* Improve hero gradient + form contrast (WCAG AA) */
     :root {
@@ -112,11 +116,65 @@
       transition: color 0.3s;
     }
 
-    .mobile-menu:hover {
-      color: var(--brand-purple);
+    /* Dropdown menu */
+    .nav-dropdown {
+      position: relative;
     }
 
-    @media (max-width: 1050px) {
+    .nav-dropdown-toggle {
+      background: none;
+      border: none;
+      color: #333;
+      font-weight: 500;
+      cursor: pointer;
+      font-size: 1rem;
+      padding: 0;
+    }
+
+    .dropdown-menu {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      background: white;
+      border: 1px solid #e5e5e5;
+      border-radius: 6px;
+      list-style: none;
+      margin-top: 0.5rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      z-index: 200;
+    }
+
+    .nav-dropdown:hover .dropdown-menu {
+      display: block;
+    }
+
+    .dropdown-menu li {
+      padding: 0;
+    }
+
+    .dropdown-menu a {
+      display: block;
+      padding: 0.75rem 1.5rem;
+      color: #333;
+      text-decoration: none;
+      font-weight: 500;
+      transition: background 0.2s;
+    }
+
+    .dropdown-menu a:hover {
+      background: #f0f0f0;
+      color: #0066cc;
+    }
+
+    /* Sign Up button in nav */
+    .nav-cta {
+      margin-left: 1rem;
+      padding: 0.6rem 1.2rem;
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 768px) {
       .nav-links {
         display: none;
         position: absolute;
@@ -151,6 +209,18 @@
 
       .mobile-menu {
         display: block;
+      }
+      
+      .nav-cta {
+        display: none;
+      }
+      
+      .dropdown-menu {
+        position: static;
+        background: #f9f9f9;
+        box-shadow: none;
+        border: none;
+        margin-top: 0;
       }
     }
 
@@ -610,14 +680,12 @@
   <!-- Navigation -->
   <nav>
     <div class="nav-container">
-      <a href="#hero" class="logo">QualiFy</a>
-      <ul class="nav-links" id="navLinks">
-        <li><a href="#benefits">Benefits</a></li>
-        <li><a href="#how-it-works">How It Works</a></li>
-        <li><a href="#social-proof">Social Proof</a></li>
-        <li><a href="#faq">FAQ</a></li>
+      <a href="index.html" class="logo">QualiFy</a>
+      <ul class="nav-links">
+        <li><a href="/fsbo-register">🏠 For Sellers</a></li>
+        <li><a href="/agent-signup">🎯 For Agents</a></li>
+        <li><a href="/agent-login">Login</a></li>
       </ul>
-      <button class="mobile-menu" id="mobileMenu" aria-label="Toggle menu">☰</button>
     </div>
   </nav>
 
@@ -625,19 +693,36 @@
   <section id="hero">
     <div class="container">
       <div class="hero-content">
-        <h1>San Diego Agents: Convert FSBOs Into Listings - Automatically</h1>
-        <p>QualiFy finds Craigslist FSBOs, calls them, qualifies intent, and books only serious sellers on your calendar.</p>
-        <div class="video-container">
-          <iframe 
-            src="https://www.youtube.com/embed/D67bCjHTGG0" 
-            title="QualiFy Demo Video" 
-            frameborder="0" 
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+        <h1>San Diego Real Estate Made Simple</h1>
+        <p>Whether you're selling your home or finding new listings, QualiFy connects the right people at the right time.</p>
+
+        <!-- Dual Hero CTAs -->
+        <div class="hero-buttons" style="display: flex; gap: 1.5rem; justify-content: center; flex-wrap: wrap; margin-top: 2rem;">
+          <div style="flex: 1; min-width: 280px; max-width: 400px;">
+            <div style="background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); text-align: center;">
+              <h3 style="color: #333; margin-bottom: 0.5rem; font-size: 1.3rem;">🏠 Selling Your Home?</h3>
+              <p style="color: #666; margin-bottom: 1.5rem; font-size: 0.95rem;">For Sale By Owner? Connect with pre-screened agents. Keep your commission.</p>
+              <a href="/fsbo-register" class="btn btn-primary" style="width: 100%; background: var(--brand-purple); display: block;">Get Started as Seller</a>
+            </div>
+          </div>
+
+          <div style="flex: 1; min-width: 280px; max-width: 400px;">
+            <div style="background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); text-align: center;">
+              <h3 style="color: #333; margin-bottom: 0.5rem; font-size: 1.3rem;">🎯 Real Estate Agent?</h3>
+              <p style="color: #666; margin-bottom: 1.5rem; font-size: 0.95rem;">Convert FSBOs into listings automatically. Qualified leads on your calendar.</p>
+              <a href="/agent-signup" class="btn btn-primary" style="width: 100%; display: block;">Start Free Trial</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="video-container" style="margin-top: 3rem;">
+          <iframe
+            src="https://www.youtube.com/embed/D67bCjHTGG0"
+            title="QualiFy Demo Video"
+            frameborder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowfullscreen>
           </iframe>
-        </div>
-        <div class="hero-buttons">
-          <a href="#cta" class="btn btn-primary">Start Free Trial</a>
         </div>
       </div>
     </div>
@@ -668,7 +753,7 @@
   </section>
 
   <!-- How It Works Section -->
-  <section id="how-it-works">
+  <section id="how">
     <div class="container">
       <h2>How It Works</h2>
       <div class="steps">
@@ -692,7 +777,7 @@
   </section>
 
   <!-- Social Proof Section -->
-  <section id="social-proof">
+  <section id="proof">
     <div class="container">
       <h2>Social Proof</h2>
       <div class="testimonial">
@@ -766,10 +851,7 @@
     <div class="container">
       <h2>Ready to keep your commission?</h2>
       <p>Get qualified appointments in under 7 days.</p>
-      <form class="cta-form" id="agentSignupForm">
-        <!-- Honeypot field for spam protection -->
-        <input type="text" id="website_url" name="website_url" class="honeypot" tabindex="-1" autocomplete="off">
-        
+      <form class="cta-form" id="leadForm">
         <div class="form-group">
           <input type="text" id="full_name" name="full_name" placeholder="Full Name" required>
           <div class="error-message" id="full_name_error"></div>
@@ -822,12 +904,12 @@
 
   <script>
     // Supabase configuration - USE ENVIRONMENT VARIABLES IN PRODUCTION
-    const SUPABASE_URL = 'https://tyrwkeqavitwkffjcznj.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR5cndrZXFhdml0d2tmZmpjem5qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg5OTA5MzcsImV4cCI6MjA3NDU2NjkzN30.XlP3j-5SQjje7nfv2jvtccQMJtlbSI22vqQtfEj7Nc4';
-    
-    // Supabase client
+    // Supabase client using centralized config
     const { createClient } = supabase;
-    const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const supabaseClient = createClient(
+      window.QualifyConfig.supabase.url,
+      window.QualifyConfig.supabase.anonKey
+    );
     
     // Make supabaseClient available globally for other scripts
     window.supabaseClient = supabaseClient;
@@ -848,125 +930,59 @@
       icon.textContent = answer.classList.contains('active') ? '−' : '+';
     }
 
-    // Helper function to show error message
-    function showError(fieldId, message) {
-      const field = document.getElementById(fieldId);
-      const errorDiv = document.getElementById(fieldId + '_error');
-      
-      field.classList.add('error');
-      if (errorDiv) {
-        errorDiv.textContent = message;
-        errorDiv.classList.add('show');
-      }
-    }
-
-    // Helper function to clear error
-    function clearError(fieldId) {
-      const field = document.getElementById(fieldId);
-      const errorDiv = document.getElementById(fieldId + '_error');
-      
-      field.classList.remove('error');
-      if (errorDiv) {
-        errorDiv.classList.remove('show');
-        errorDiv.textContent = '';
-      }
-    }
-
-    // Clear errors on input
-    document.getElementById('full_name').addEventListener('input', () => clearError('full_name'));
-    document.getElementById('email').addEventListener('input', () => clearError('email'));
-    document.getElementById('phone').addEventListener('input', () => clearError('phone'));
-    document.getElementById('service_area').addEventListener('input', () => clearError('service_area'));
-
-    // Agent Signup Form submission with Supabase
-    document.getElementById('agentSignupForm').addEventListener('submit', async function(e) {
+    // Form submission handler - Saves to Supabase with status="new"
+    // N8N workflow automatically detects new leads and triggers Retell AI call
+    document.getElementById('leadForm').addEventListener('submit', async (e) => {
       e.preventDefault();
-      
-      // Clear all previous errors
-      clearError('full_name');
-      clearError('email');
-      clearError('phone');
-      clearError('service_area');
-      
-      // Spam protection: Check honeypot field
-      const honeypot = document.getElementById('website_url').value;
-      if (honeypot) {
-        // Silently block spam submission
-        console.log('Spam submission blocked');
-        return;
-      }
-      
-      let isValid = true;
-      
-      // Get form values
-      const fullName = document.getElementById('full_name').value.trim();
-      const email = document.getElementById('email').value.trim();
-      const phone = document.getElementById('phone').value.trim();
-      const serviceArea = document.getElementById('service_area').value.trim();
-      const monthlyClosings = document.getElementById('monthly_closings').value;
-      const appointmentGoal = document.getElementById('appointment_goal').value;
-      
-      // Validate Full Name
-      if (!fullName || fullName.length < 2) {
-        showError('full_name', 'Please enter a valid name (at least 2 characters)');
-        isValid = false;
-      }
-      
-      // Validate Email
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!email) {
-        showError('email', 'Email is required');
-        isValid = false;
-      } else if (!emailRegex.test(email)) {
-        showError('email', 'Please enter a valid email address');
-        isValid = false;
-      }
 
-      // Validate Phone (strip symbols/spaces and check for exactly 10 digits)
-      const phoneDigits = phone.replace(/\D/g, '');
-      if (!phone) {
-        showError('phone', 'Phone number is required');
-        isValid = false;
-      } else if (phoneDigits.length !== 10) {
-        showError('phone', 'Please enter a valid 10-digit phone number');
-        isValid = false;
-      }
-
-      // Validate Service Area
-      if (!serviceArea || serviceArea.length < 3) {
-        showError('service_area', 'Please enter your service area ZIP codes');
-        isValid = false;
-      }
-
-      // If validation failed, stop submission
-      if (!isValid) {
-        return;
-      }
+      const submitButton = e.target.querySelector('button[type="submit"]');
+      const originalButtonText = submitButton.textContent;
       
-      // Sanitize inputs (limit length to prevent abuse)
-      const sanitizedData = {
-        full_name: fullName.substring(0, 100),
-        email: email.toLowerCase().substring(0, 100),
-        phone: phoneDigits.substring(0, 10), // Store cleaned phone number
-        service_area: serviceArea.substring(0, 200),
-        monthly_closings: monthlyClosings || null,
-        appointment_goal: appointmentGoal || null
+      // Disable button and show loading state
+      submitButton.disabled = true;
+      submitButton.textContent = 'Processing...';
+
+      const leadData = {
+        name: document.querySelector('[name="name"]').value,
+        email: document.querySelector('[name="email"]').value,
+        phone: document.querySelector('[name="phone"]').value,
+        service_area: document.querySelector('[name="service_area"]').value,
+        monthly_closings: document.querySelector('[name="monthly_closings"]').value,
+        appointment_goal: document.querySelector('[name="appointment_goal"]').value,
+        source: 'landing_page',
+        status: 'new',  // CRITICAL: This triggers n8n workflow
+        created_at: new Date().toISOString()
       };
-      
+
       try {
+        // Save directly to Supabase - n8n will detect and trigger Retell call
         const { data, error } = await supabaseClient
-          .from('agent_leads')
-          .insert([sanitizedData])
+          .from('leads')
+          .insert([leadData])
           .select();
-    
-        if (error) throw error;
-    
-        // Redirect to thank you page
-        window.location.href = 'thank-you.html';
+
+        if (error) {
+          throw error;
+        }
+
+        // Success - lead saved, n8n will trigger call automatically
+        document.getElementById('successMessage').style.display = 'block';
+        document.getElementById('leadForm').reset();
         
+        alert('Success! Our Qualify Expert will call you within 60 seconds to verify your listing.');
+        
+        // Hide success message after 5 seconds
+        setTimeout(() => {
+          document.getElementById('successMessage').style.display = 'none';
+        }, 5000);
+
       } catch (error) {
-        console.error('Error details (not shown to user):', error);
-        alert('Unable to save signup. Please try again or contact support.');
+        console.error('Form submission error:', error);
+        alert('Sorry, there was an error submitting your information. Please try again or call us directly.');
+      } finally {
+        // Re-enable button
+        submitButton.disabled = false;
+        submitButton.textContent = originalButtonText;
       }
     });
 

@@ -5,7 +5,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Agent Signup - QualiFy</title>
   <meta name="description" content="Join QualiFy and start capturing qualified real estate leads in San Diego.">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/dist/umd/supabase.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"></script>
+  <script src="js/config.js"></script>
+  <script>
+    // Error handling for library loading
+    window.addEventListener('error', function(e) {
+      if (e.message && e.message.toLowerCase().includes('supabase')) {
+        console.error('Supabase library failed to load:', e);
+        alert('Failed to load required libraries. Please refresh the page.');
+      }
+    }, true);
+  </script>
+  <link rel="stylesheet" href="css/nav.css">
+  <script src="js/nav.js"></script>
   <style>
     /* Improve hero gradient + form contrast (WCAG AA) */
     :root {
@@ -238,20 +251,6 @@
       border: 1px solid #f5c6cb;
     }
 
-    .api-key-display {
-      background: #f8f9fa;
-      border: 1px solid #e5e5e5;
-      border-radius: 6px;
-      padding: 1rem;
-      margin-top: 1rem;
-      font-family: monospace;
-      word-break: break-all;
-    }
-
-    .api-key-display strong {
-      color: #0066cc;
-    }
-
     /* Footer */
     footer {
       background: #333;
@@ -280,11 +279,8 @@
     <div class="nav-container">
       <a href="index.html" class="logo">QualiFy</a>
       <ul class="nav-links" id="navLinks">
-        <li><a href="index.html#benefits">Benefits</a></li>
-        <li><a href="index.html#how">How It Works</a></li>
-        <li><a href="index.html#proof">Social Proof</a></li>
-        <li><a href="index.html#faq">FAQ</a></li>
-        <li><a href="dashboard.html">Agent Login</a></li>
+        <li><a href="fsbo-register.html">For Sale By Owner</a></li>
+        <li><a href="agent-login.html">Agent Login</a></li>
       </ul>
       <button class="mobile-menu" id="mobileMenu">☰</button>
     </div>
@@ -337,7 +333,7 @@
           
           <div class="message success" id="successMessage">
             <strong>Account created successfully!</strong><br>
-            Your API key has been generated. Please save it securely.
+            Redirecting to your dashboard...
           </div>
           
           <div class="message error" id="errorMessage">
@@ -345,19 +341,7 @@
           </div>
         </form>
         
-        <div id="apiKeyDisplay" style="display: none;">
-          <h3>Your API Key</h3>
-          <div class="api-key-display">
-            <strong>API Key:</strong> <span id="apiKeyValue" style="filter: blur(5px);">••••••••••••••••••••••••</span>
-            <button type="button" class="btn btn-secondary" id="copyApiKey" style="margin-top: 0.5rem;">Copy to Clipboard</button>
-          </div>
-          <p style="margin-top: 1rem; font-size: 0.9rem; color: #666;">
-            Save this API key securely. You'll need it to access your dashboard and manage leads.
-          </p>
-          <div style="margin-top: 1rem;">
-            <a href="dashboard.html" class="btn btn-primary">Go to Dashboard</a>
-          </div>
-        </div>
+
       </div>
     </div>
   </section>
@@ -370,13 +354,12 @@
   </footer>
 
   <script>
-    // Supabase configuration - USE ENVIRONMENT VARIABLES IN PRODUCTION
-    const SUPABASE_URL = 'https://tyrwkeqavitwkffjcznj.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR5cndrZXFhdml0d2tmZmpjem5qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg5OTA5MzcsImV4cCI6MjA3NDU2NjkzN30.XlP3j-5SQjje7nfv2jvtccQMJtlbSI22vqQtfEj7Nc4';
-    
-    // Supabase client
+    // Supabase client using centralized config
     const { createClient } = supabase;
-    const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const supabaseClient = createClient(
+      window.QualifyConfig.supabase.url,
+      window.QualifyConfig.supabase.anonKey
+    );
     
     // Mobile menu toggle
     document.getElementById('mobileMenu').addEventListener('click', function() {
@@ -391,21 +374,23 @@
       const submitBtn = document.getElementById('submitBtn');
       const successMessage = document.getElementById('successMessage');
       const errorMessage = document.getElementById('errorMessage');
-      const apiKeyDisplay = document.getElementById('apiKeyDisplay');
-      const apiKeyValue = document.getElementById('apiKeyValue');
       const errorText = document.getElementById('errorText');
       
       // Hide previous messages
       successMessage.classList.remove('show');
       errorMessage.classList.remove('show');
-      apiKeyDisplay.style.display = 'none';
       
-      // Get form data
-      const name = document.getElementById('name').value.trim();
-      const email = document.getElementById('email').value.trim().toLowerCase();
-      const agency = document.getElementById('agency').value.trim();
-      const phone = document.getElementById('phone').value.trim();
-      const password = document.getElementById('password').value;
+      // Get and sanitize form data
+      const rawName = document.getElementById('name').value.trim();
+      const rawEmail = document.getElementById('email').value.trim().toLowerCase();
+      const rawAgency = document.getElementById('agency').value.trim();
+      const rawPhone = document.getElementById('phone').value.trim();
+      const password = document.getElementById('password').value; // Don't sanitize password
+
+      const name = DOMPurify.sanitize(rawName, { ALLOWED_TAGS: [] });
+      const email = DOMPurify.sanitize(rawEmail, { ALLOWED_TAGS: [] });
+      const agency = DOMPurify.sanitize(rawAgency, { ALLOWED_TAGS: [] });
+      const phone = DOMPurify.sanitize(rawPhone, { ALLOWED_TAGS: [] });
 
       // Validate inputs
       if (!name || name.length < 2) {
@@ -437,41 +422,21 @@
       // Disable submit button
       submitBtn.disabled = true;
       submitBtn.textContent = 'Creating Account...';
-
+      
       try {
-        // First, check if email already exists in agents table
-        const { data: existingAgent, error: checkError } = await supabaseClient
-          .from('agents')
-          .select('email')
-          .eq('email', email)
-          .maybeSingle();
-
-        if (checkError && checkError.code !== 'PGRST116') {
-          // PGRST116 is "no rows returned" which is fine
-          throw checkError;
-        }
-
-        if (existingAgent) {
-          showError('An account with this email already exists. Please log in instead.');
-          return;
-        }
-
-        // Generate API key
-        const apiKey = generateApiKey();
-        
-        // Create user in Supabase Auth first
+        // Create user in Supabase Auth
         const { data: authData, error: authError } = await supabaseClient.auth.signUp({
           email: email,
-          password: generatePassword(), // Generate a secure password
+          password: password,
           options: {
             data: {
               name: name,
               agency: agency,
-              phone: phoneDigits.substring(0, 15) // Store cleaned phone number
+              phone: phone
             }
           }
         });
-        
+
         if (authError) {
           // Handle duplicate user error
           if (authError.message.includes('already registered')) {
@@ -480,8 +445,15 @@
           }
           throw authError;
         }
-        
-        // Store agent profile in database using the auth user ID
+
+
+        // Generate secure API key for the agent
+        // Format: qfy_[timestamp]_[random-uuid]
+        const timestamp = Date.now().toString(36);
+        const randomPart = crypto.randomUUID().replace(/-/g, '');
+        const apiKey = `qfy_${timestamp}_${randomPart}`;
+
+        // Store agent profile in database
         const { data: profileData, error: profileError } = await supabaseClient
           .from('agents')
           .insert([{
@@ -489,9 +461,10 @@
             name: name,
             email: email,
             agency: agency,
-            phone: phoneDigits.substring(0, 15), // Store cleaned phone number
+            phone: phone,
             api_key: apiKey,
-            status: 'active'
+            status: 'active',
+            created_at: new Date().toISOString()
           }])
           .select();
         
@@ -504,30 +477,13 @@
           throw profileError;
         }
 
-        // Send welcome email (non-blocking - don't wait for it)
-        sendWelcomeEmail(name, email, agency, phone, apiKey).catch(err => {
-          console.warn('Welcome email failed:', err);
-          // Don't fail the registration if email fails
-        });
-
-        // Show success message and API key
+        // Show success message
         successMessage.classList.add('show');
-        apiKeyValue.textContent = apiKey;
-        apiKeyValue.dataset.key = apiKey; // Store for copy functionality
-        apiKeyDisplay.style.display = 'block';
-
-        // Setup copy to clipboard functionality
-        document.getElementById('copyApiKey').onclick = function() {
-          navigator.clipboard.writeText(apiKey).then(() => {
-            this.textContent = 'Copied!';
-            setTimeout(() => {
-              this.textContent = 'Copy to Clipboard';
-            }, 2000);
-          }).catch(err => {
-            console.error('Failed to copy:', err);
-            alert('Failed to copy. Please select and copy manually.');
-          });
-        };
+        
+        // Redirect to dashboard after 2 seconds
+        setTimeout(() => {
+          window.location.href = 'agent-login.html';
+        }, 2000);
 
         // Reset form
         this.reset();
@@ -551,81 +507,7 @@
       // Scroll to error message
       errorMessage.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
-    
-    function generateApiKey() {
-      // Generate a secure API key using crypto.getRandomValues
-      const arr = new Uint8Array(32);
-      crypto.getRandomValues(arr);
-      return Array.from(arr, x => x.toString(16).padStart(2, '0')).join('');
-    }
 
-    function generatePassword() {
-      // Generate a secure password with letters, numbers, and symbols
-      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*';
-      const arr = new Uint8Array(16);
-      crypto.getRandomValues(arr);
-      return Array.from(arr, x => chars[x % chars.length]).join('');
-    }
-
-    // Send welcome email via API
-    async function sendWelcomeEmail(name, email, agency, phone, apiKey) {
-      const API_URL = window.location.hostname === 'localhost'
-        ? 'http://localhost:5057'
-        : 'https://your-api-domain.com'; // Update with your production API URL
-
-      try {
-        const response = await fetch(`${API_URL}/api/email/welcome`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ name, email, agency, phone, apiKey })
-        });
-
-        const data = await response.json();
-
-        if (data.ok) {
-          console.log('✅ Welcome email sent successfully');
-        } else {
-          console.warn('⚠️ Welcome email failed:', data.error);
-        }
-
-        return data;
-      } catch (error) {
-        console.error('❌ Failed to send welcome email:', error);
-        throw error;
-      }
-    }
-
-    // Send request for more information email via API
-    async function sendRequestMoreInfoEmail(name, email, missingInfo) {
-      const API_URL = window.location.hostname === 'localhost'
-        ? 'http://localhost:5057'
-        : 'https://your-api-domain.com'; // Update with your production API URL
-
-      try {
-        const response = await fetch(`${API_URL}/api/email/request-info`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ name, email, missingInfo })
-        });
-
-        const data = await response.json();
-
-        if (data.ok) {
-          console.log('✅ Request info email sent successfully');
-        } else {
-          console.warn('⚠️ Request info email failed:', data.error);
-        }
-
-        return data;
-      } catch (error) {
-        console.error('❌ Failed to send request info email:', error);
-        throw error;
-      }
-    }
 
     // Close mobile menu when clicking on links
     document.querySelectorAll('.nav-links a').forEach(link => {
