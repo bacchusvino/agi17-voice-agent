@@ -602,6 +602,7 @@
     // Global variables
     let currentUser = null;
     let leads = [];
+    let totalLeadsCount = null; // Store total count from query
     
     // Mobile menu toggle
     document.getElementById('mobileMenu').addEventListener('click', function() {
@@ -611,12 +612,40 @@
 
     // Check if user is already logged in
     async function checkAuth() {
-      const { data: { user } } = await supabaseClient.auth.getUser();
-      if (user) {
+      // Item 16 Fix: Check for a cached session
+      const cachedAuth = sessionStorage.getItem('qualify_auth_check');
+      if (cachedAuth && parseInt(cachedAuth) > Date.now()) {
+        const user = JSON.parse(sessionStorage.getItem('qualify_user'));
         currentUser = user;
-        showDashboard();
-        loadDashboardData();
+        return true; // Use cached session
       }
+
+      const { data: { user } } = await supabaseClient.auth.getUser();
+      if (!user) {
+        window.location.href = 'agent-login.html';
+        return false;
+      }
+
+      // Item 15 Fix: Verify agent profile exists and is active
+      const { data: agent, error } = await supabaseClient
+        .from('agents')
+        .select('status')
+        .eq('id', user.id)
+        .single();
+
+      if (error || !agent || agent.status !== 'active') {
+        await supabaseClient.auth.signOut();
+        sessionStorage.removeItem('qualify_auth_check');
+        sessionStorage.removeItem('qualify_user');
+        window.location.href = 'agent-login.html';
+        return false;
+      }
+
+      currentUser = user;
+      // Cache auth for 5 minutes
+      sessionStorage.setItem('qualify_auth_check', (Date.now() + 300000).toString());
+      sessionStorage.setItem('qualify_user', JSON.stringify(user));
+      return true;
     }
 
     // Login form submission
@@ -702,7 +731,7 @@
         // Start building the query
         let query = supabaseClient
           .from('leads')
-          .select('*')
+          .select('*', { count: 'exact' })
           .eq('agent_id', currentUser.id)
           .order('created_at', { ascending: false })
           .limit(50);
@@ -718,11 +747,12 @@
         }
         
         // Execute the final query
-        const { data: leadsData, error } = await query;
+        const { data: leadsData, error, count } = await query;
         
         if (error) throw error;
         
         leads = leadsData || [];
+        totalLeadsCount = count; // Store count for use in updateStats
         updateStats();
         updateLeadsTable();
         
@@ -734,20 +764,28 @@
 
     // Update statistics
     function updateStats() {
-      const totalLeads = leads.length;
-      const qualifiedLeads = leads.filter(lead => lead.status === 'qualified').length;
-      const newLeads = leads.filter(lead => {
-        const weekAgo = new Date();
-        weekAgo.setDate(weekAgo.getDate() - 7);
-        return new Date(lead.created_at) > weekAgo;
-      }).length;
-      
-      const scores = leads.filter(lead => lead.qualification_score).map(lead => lead.qualification_score);
-      const avgScore = scores.length > 0 ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : 0;
-      
-      document.getElementById('totalLeads').textContent = totalLeads;
-      document.getElementById('qualifiedLeads').textContent = qualifiedLeads;
-      document.getElementById('newLeads').textContent = newLeads;
+      const today = new Date().toISOString().split('T')[0];
+      const stats = { total: 0, new: 0, qualified: 0, contacted: 0, scores: [] };
+
+      // Single-pass calculation (Fix for Item 13)
+      for (const lead of leads) {
+        stats.total++;
+        if (lead.status === 'qualified') stats.qualified++;
+        if (lead.status === 'contacted') stats.contacted++;
+        if (lead.created_at && lead.created_at.split('T')[0] === today) stats.new++;
+        if (lead.qualification_score) stats.scores.push(lead.qualification_score);
+      }
+
+      const avgScore = stats.scores.length > 0 
+        ? Math.round(stats.scores.reduce((a, b) => a + b, 0) / stats.scores.length) 
+        : 0;
+
+      // Note: This relies on the "count" variable from the query.
+      // We must also update `loadDashboardData` to get the true total count.
+
+      document.getElementById('totalLeads').textContent = totalLeadsCount !== null ? totalLeadsCount : stats.total;
+      document.getElementById('qualifiedLeads').textContent = stats.qualified;
+      document.getElementById('newLeads').textContent = stats.new;
       document.getElementById('avgScore').textContent = avgScore;
     }
 
@@ -766,7 +804,7 @@
           <td>${lead.phone || 'N/A'}</td>
           <td><span class="status-badge status-${lead.status}">${lead.status}</span></td>
           <td><span class="qualification-score">${lead.qualification_score || 'N/A'}</span></td>
-          <td>${new Date(lead.created_at).toLocaleDateString()}</td>
+          <td>${lead.created_at ? new Date(lead.created_at).toLocaleDateString() : 'Unknown'}</td>
           <td>
             <button class="btn btn-primary" onclick="qualifyLead('${lead.id}', '${lead.phone || ''}')" style="padding: 0.5rem 1rem; font-size: 0.875rem;">
               Qualify
@@ -856,7 +894,12 @@
     });
 
     // Initialize
-    checkAuth();
+    checkAuth().then(authenticated => {
+      if (authenticated) {
+        showDashboard();
+        loadDashboardData();
+      }
+    });
   </script>
 </body>
 </html>
