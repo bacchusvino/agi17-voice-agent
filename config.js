@@ -4,8 +4,8 @@
 const CONFIG = {
   supabase: {
     // Use environment variables in production
-    url: process?.env?.SUPABASE_URL || 'https://YOUR_PROJECT_REF.supabase.co',
-    anonKey: process?.env?.SUPABASE_ANON_KEY || 'YOUR_ANON_KEY_HERE'
+    url: process?.env?.SUPABASE_URL || 'https://tyrwkeqavitwkffjcznj.supabase.co',
+    anonKey: process?.env?.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR5cndrZXFhdml0d2tmZmpjem5qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg5OTA5MzcsImV4cCI6MjA3NDU2NjkzN30.XlP3j-5SQjje7nfv2jvtccQMJtlbSI22vqQtfEj7Nc4'
   },
   
   // Security settings
