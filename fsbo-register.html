@@ -752,9 +752,9 @@
 
           <div class="form-group">
             <label for="phone">Phone Number * (International format)</label>
-            <input type="tel" id="phone" name="phone" placeholder="+1 (619) 555-1234" required>
-            <small style="color: #666; margin-top: 0.25rem; display: block;">Format: +1XXXXXXXXXX (country code required)</small>
-            <div class="phone-error" id="phoneError" style="color: #d32f2f; font-size: 0.85rem; margin-top: 0.5rem; display: none;"></div>
+            <input type="tel" id="phone" name="phone" placeholder="+1 (619) 555-1234" value="+1 " required>
+            <small style="color: #666; margin-top: 0.25rem; display: block;">Must be: +1XXXXXXXXXX (e.g., +1 619 555 1234)</small>
+            <div class="phone-error" id="phoneError" style="color: #d32f2f; font-weight: bold; font-size: 0.9rem; margin-top: 0.5rem; display: none;"></div>
           </div>
 
           <div class="form-group">
@@ -800,26 +800,37 @@
       window.QualifyConfig.supabase.anonKey
     );
 
-    // International phone format validation and formatting
+    // STRICT international phone format validation per MAG requirements
     const phoneInput = document.getElementById('phone');
     const phoneError = document.getElementById('phoneError');
+    
+    // Prefill with +1 to guide user
+    if (!phoneInput.value.startsWith('+1')) {
+      phoneInput.value = '+1 ';
+    }
     
     phoneInput.addEventListener('input', function(e) {
       let value = e.target.value;
       
-      // If user hasn't started typing +, help them
-      if (value && !value.startsWith('+')) {
-        // If it's just digits, format with +1
-        if (/^\d+$/.test(value)) {
-          // Remove leading 1 if they typed it (in case of +1 already there)
-          let digits = value.replace(/^\+?1?/, '');
-          if (digits.length > 0) {
-            e.target.value = '+1' + digits;
-          }
-        } else if (value.startsWith('1')) {
-          e.target.value = '+' + value;
-        } else if (!value.startsWith('+')) {
-          e.target.value = '+1' + value.replace(/\D/g, '');
+      // Ensure it always starts with +1
+      if (!value.startsWith('+1')) {
+        // Keep only digits after stripping
+        let digits = value.replace(/\D/g, '');
+        e.target.value = '+1' + (digits.startsWith('1') ? digits.slice(1) : digits);
+        value = e.target.value;
+      }
+      
+      // Format as user types: +1 (XXX) XXX-XXXX
+      let cleaned = value.replace(/\D/g, '');
+      if (cleaned.length >= 1) {
+        if (cleaned.length <= 3) {
+          e.target.value = '+1' + (cleaned.length > 0 ? ' (' + cleaned : '');
+        } else if (cleaned.length <= 6) {
+          e.target.value = '+1 (' + cleaned.slice(1, 4) + ') ' + cleaned.slice(4);
+        } else if (cleaned.length <= 10) {
+          e.target.value = '+1 (' + cleaned.slice(1, 4) + ') ' + cleaned.slice(4, 7) + '-' + cleaned.slice(7);
+        } else {
+          e.target.value = '+1 (' + cleaned.slice(1, 4) + ') ' + cleaned.slice(4, 7) + '-' + cleaned.slice(7, 11);
         }
       }
       
@@ -828,22 +839,18 @@
       phoneError.textContent = '';
     });
 
-    phoneInput.addEventListener('blur', function(e) {
-      validatePhoneFormat(e.target.value);
-    });
-
     function validatePhoneFormat(phone) {
       const cleaned = phone.replace(/\D/g, ''); // Remove all non-digits
-      const phoneError = document.getElementById('phoneError');
       
-      // Check if it's a valid international format
-      if (!phone.startsWith('+1') || cleaned.length !== 11 || cleaned[0] !== '1') {
-        phoneError.textContent = '❌ Please use international format: +1 (619) 555-1234';
+      // STRICT validation: Must be +1 followed by exactly 10 digits (11 total with country code)
+      if (cleaned.length !== 11 || !cleaned.startsWith('1')) {
+        phoneError.innerHTML = '❌ REQUIRED: International format +1 (619) 555-1234 with country code';
         phoneError.style.display = 'block';
         return false;
       }
       
       phoneError.style.display = 'none';
+      phoneError.textContent = '';
       return true;
     }
 
@@ -879,18 +886,19 @@
       const price = parseInt(document.getElementById('price').value);
       const timeline = document.getElementById('timeline').value;
 
-      // Validate phone format BEFORE submitting
-      if (!validatePhoneFormat(phone)) {
-        return; // Error message already shown by validatePhoneFormat
-      }
-
       if (!name || !email || !phone || !address || !price || !timeline) {
         alert('Please fill in all required fields');
         return;
       }
 
+      // STRICT: Validate phone format BEFORE submitting - NO EXCEPTIONS
+      if (!validatePhoneFormat(phone)) {
+        phoneError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return; // Error message already shown by validatePhoneFormat
+      }
+
       submitBtn.disabled = true;
-      submitBtn.textContent = 'Submitting...';
+      submitBtn.textContent = 'Submitting...'
 
       try {
         const cleanedPhone = cleanPhoneNumber(phone);
