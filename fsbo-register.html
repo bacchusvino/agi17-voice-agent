@@ -751,8 +751,10 @@
           </div>
 
           <div class="form-group">
-            <label for="phone">Phone Number *</label>
-            <input type="tel" id="phone" name="phone" placeholder="(619) 555-1234" required>
+            <label for="phone">Phone Number * (International format)</label>
+            <input type="tel" id="phone" name="phone" placeholder="+1 (619) 555-1234" required>
+            <small style="color: #666; margin-top: 0.25rem; display: block;">Format: +1XXXXXXXXXX (country code required)</small>
+            <div class="phone-error" id="phoneError" style="color: #d32f2f; font-size: 0.85rem; margin-top: 0.5rem; display: none;"></div>
           </div>
 
           <div class="form-group">
@@ -798,34 +800,62 @@
       window.QualifyConfig.supabase.anonKey
     );
 
-    // Auto-format phone number as user types
+    // International phone format validation and formatting
     const phoneInput = document.getElementById('phone');
+    const phoneError = document.getElementById('phoneError');
+    
     phoneInput.addEventListener('input', function(e) {
-      let value = e.target.value.replace(/\D/g, ''); // Remove non-digits
+      let value = e.target.value;
       
-      if (value.length > 0) {
-        if (value.length <= 3) {
-          e.target.value = value;
-        } else if (value.length <= 6) {
-          e.target.value = `(${value.slice(0,3)}) ${value.slice(3)}`;
-        } else {
-          e.target.value = `(${value.slice(0,3)}) ${value.slice(3,6)}-${value.slice(6,10)}`;
+      // If user hasn't started typing +, help them
+      if (value && !value.startsWith('+')) {
+        // If it's just digits, format with +1
+        if (/^\d+$/.test(value)) {
+          // Remove leading 1 if they typed it (in case of +1 already there)
+          let digits = value.replace(/^\+?1?/, '');
+          if (digits.length > 0) {
+            e.target.value = '+1' + digits;
+          }
+        } else if (value.startsWith('1')) {
+          e.target.value = '+' + value;
+        } else if (!value.startsWith('+')) {
+          e.target.value = '+1' + value.replace(/\D/g, '');
         }
       }
+      
+      // Clear error on input
+      phoneError.style.display = 'none';
+      phoneError.textContent = '';
     });
 
-    // Clean phone number to digits only for storage
+    phoneInput.addEventListener('blur', function(e) {
+      validatePhoneFormat(e.target.value);
+    });
+
+    function validatePhoneFormat(phone) {
+      const cleaned = phone.replace(/\D/g, ''); // Remove all non-digits
+      const phoneError = document.getElementById('phoneError');
+      
+      // Check if it's a valid international format
+      if (!phone.startsWith('+1') || cleaned.length !== 11 || cleaned[0] !== '1') {
+        phoneError.textContent = '❌ Please use international format: +1 (619) 555-1234';
+        phoneError.style.display = 'block';
+        return false;
+      }
+      
+      phoneError.style.display = 'none';
+      return true;
+    }
+
     function cleanPhoneNumber(phone) {
       const cleaned = phone.replace(/\D/g, '');
-      // Add +1 if it's a 10-digit US number
+      // Ensure +1 country code
+      if (cleaned.length === 11 && cleaned.startsWith('1')) {
+        return '+' + cleaned;
+      }
       if (cleaned.length === 10) {
         return '+1' + cleaned;
       }
-      // If already has country code, keep it
-      if (cleaned.length === 11 && cleaned[0] === '1') {
-        return '+' + cleaned;
-      }
-      // Otherwise return as-is
       return '+' + cleaned;
     }
 
@@ -841,23 +871,32 @@
       e.preventDefault();
       const submitBtn = document.getElementById('submitBtn');
       const successMessage = document.getElementById('successMessage');
+      
+      const name = document.getElementById('name').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const phone = document.getElementById('phone').value.trim();
+      const address = document.getElementById('address').value.trim();
+      const price = parseInt(document.getElementById('price').value);
+      const timeline = document.getElementById('timeline').value;
+
+      // Validate phone format BEFORE submitting
+      if (!validatePhoneFormat(phone)) {
+        return; // Error message already shown by validatePhoneFormat
+      }
+
+      if (!name || !email || !phone || !address || !price || !timeline) {
+        alert('Please fill in all required fields');
+        return;
+      }
+
       submitBtn.disabled = true;
       submitBtn.textContent = 'Submitting...';
 
       try {
-        const name = document.getElementById('name').value.trim();
-        const email = document.getElementById('email').value.trim();
-        const phone = cleanPhoneNumber(document.getElementById('phone').value.trim());
-        const address = document.getElementById('address').value.trim();
-        const price = parseInt(document.getElementById('price').value);
-        const timeline = document.getElementById('timeline').value;
-
-        if (!name || !email || !phone || !address || !price || !timeline) {
-          throw new Error('Please fill in all required fields');
-        }
+        const cleanedPhone = cleanPhoneNumber(phone);
 
         const { data, error } = await supabase.from('leads').insert([{
-          name, email, phone, address, price, timeline,
+          name, email, phone: cleanedPhone, address, price, timeline,
           source: 'fsbo_landing_page',
           status: 'new',
           notes: `FSBO Lead - Timeline: ${timeline}, Price: ${price}`
