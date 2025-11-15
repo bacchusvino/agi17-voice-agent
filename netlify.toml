@@ -2,6 +2,12 @@
   publish = "."
   functions = "netlify/functions"
 
+# Cache busting headers for HTML files
+[[headers]]
+  for = "/*.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
 # Explicit routes for HTML pages
 [[redirects]]
   from = "/fsbo-register"
