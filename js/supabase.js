@@ -1,16 +1,11 @@
 // Supabase configuration and utilities
-import { createClient } from 'https://cdn.skypack.dev/@supabase/supabase-js@2'
+import { createClient } from '@supabase/supabase-js'
 
-// Initialize Supabase client from window config
-// These should be set in index.html from environment variables
-const supabaseUrl = window.SUPABASE_URL || ''
-const supabaseKey = window.SUPABASE_ANON_KEY || ''
-
-if (!supabaseUrl || !supabaseKey) {
-  console.error('CRITICAL: Supabase credentials not configured. Set window.SUPABASE_URL and window.SUPABASE_ANON_KEY')
-}
-
-const supabase = createClient(supabaseUrl, supabaseKey)
+// Initialize Supabase client
+const supabase = createClient(
+  window.QualifyConfig.supabase.url,
+  window.QualifyConfig.supabase.anonKey
+)
 
 // Lead management functions
 export const leadService = {
@@ -24,7 +19,7 @@ export const leadService = {
           email: leadData.email,
           phone: leadData.phone || null,
           source: leadData.source || 'landing_page',
-          status: 'new',
+          // status: 'new' - removed, let database handle default via schema
           notes: leadData.notes || null
         }])
         .select()

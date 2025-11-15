@@ -6,6 +6,8 @@
   <title>Agent Dashboard - QualiFy</title>
   <meta name="description" content="Manage your real estate leads with QualiFy dashboard.">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"></script>
+  <script src="js/config.js"></script>
   <style>
     /* Improve hero gradient + form contrast (WCAG AA) */
     :root {
@@ -186,6 +188,38 @@
       font-weight: 500;
     }
 
+    .filters {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      margin-bottom: 2rem;
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .filter-group label {
+      font-size: 0.85rem;
+      color: #666;
+      font-weight: 500;
+    }
+
+    .filter-group select,
+    .filter-group input {
+      padding: 0.5rem;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 0.9rem;
+    }
+
     .leads-section {
       background: #f8f9fa;
       padding: 2rem;
@@ -223,9 +257,14 @@
       color: white;
     }
 
-    .btn-primary:hover {
+    .btn-primary:hover:not(:disabled) {
       background: #0052a3;
       transform: translateY(-2px);
+    }
+
+    .btn-primary:disabled {
+      background: #ccc;
+      cursor: not-allowed;
     }
 
     .btn-secondary {
@@ -401,6 +440,15 @@
       .leads-table td {
         padding: 0.5rem;
       }
+
+      .filters {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .filter-group {
+        width: 100%;
+      }
     }
   </style>
 </head>
@@ -410,6 +458,7 @@
     <div class="nav-container">
       <a href="index.html" class="logo">QualiFy</a>
       <ul class="nav-links" id="navLinks">
+        <li><a href="index.html">Home</a></li>
         <li><a href="index.html#benefits">Benefits</a></li>
         <li><a href="index.html#how">How It Works</a></li>
         <li><a href="index.html#proof">Social Proof</a></li>
@@ -482,6 +531,24 @@
         </div>
       </div>
 
+      <!-- Filters (FIX #3) -->
+      <div class="filters">
+        <div class="filter-group">
+          <label for="statusFilter">Status</label>
+          <select id="statusFilter" onchange="loadDashboardData()">
+            <option value="">All Statuses</option>
+            <option value="new">New</option>
+            <option value="contacted">Contacted</option>
+            <option value="qualified">Qualified</option>
+            <option value="not_interested">Not Interested</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label for="searchInput">Search</label>
+          <input type="text" id="searchInput" placeholder="Name, phone..." onkeyup="loadDashboardData()">
+        </div>
+      </div>
+
       <!-- Leads Section -->
       <div class="leads-section">
         <div class="leads-header">
@@ -525,16 +592,17 @@
 
   <script>
     // Supabase configuration - USE ENVIRONMENT VARIABLES IN PRODUCTION
-    const SUPABASE_URL = 'https://tyrwkeqavitwkffjcznj.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR5cndrZXFhdml0d2tmZmpjem5qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg5OTA5MzcsImV4cCI6MjA3NDU2NjkzN30.XlP3j-5SQjje7nfv2jvtccQMJtlbSI22vqQtfEj7Nc4';
-    
-    // Supabase client
+    // Supabase client using centralized config
     const { createClient } = supabase;
-    const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const supabaseClient = createClient(
+      window.QualifyConfig.supabase.url,
+      window.QualifyConfig.supabase.anonKey
+    );
     
     // Global variables
     let currentUser = null;
     let leads = [];
+    let totalLeadsCount = null; // Store total count from query
     
     // Mobile menu toggle
     document.getElementById('mobileMenu').addEventListener('click', function() {
@@ -544,12 +612,40 @@
 
     // Check if user is already logged in
     async function checkAuth() {
-      const { data: { user } } = await supabaseClient.auth.getUser();
-      if (user) {
+      // Item 16 Fix: Check for a cached session
+      const cachedAuth = sessionStorage.getItem('qualify_auth_check');
+      if (cachedAuth && parseInt(cachedAuth) > Date.now()) {
+        const user = JSON.parse(sessionStorage.getItem('qualify_user'));
         currentUser = user;
-        showDashboard();
-        loadDashboardData();
+        return true; // Use cached session
       }
+
+      const { data: { user } } = await supabaseClient.auth.getUser();
+      if (!user) {
+        window.location.href = 'agent-login.html';
+        return false;
+      }
+
+      // Item 15 Fix: Verify agent profile exists and is active
+      const { data: agent, error } = await supabaseClient
+        .from('agents')
+        .select('status')
+        .eq('id', user.id)
+        .single();
+
+      if (error || !agent || agent.status !== 'active') {
+        await supabaseClient.auth.signOut();
+        sessionStorage.removeItem('qualify_auth_check');
+        sessionStorage.removeItem('qualify_user');
+        window.location.href = 'agent-login.html';
+        return false;
+      }
+
+      currentUser = user;
+      // Cache auth for 5 minutes
+      sessionStorage.setItem('qualify_auth_check', (Date.now() + 300000).toString());
+      sessionStorage.setItem('qualify_user', JSON.stringify(user));
+      return true;
     }
 
     // Login form submission
@@ -614,7 +710,7 @@
       document.getElementById('logoutBtn').style.display = 'block';
     }
 
-    // Load dashboard data
+    // Load dashboard data (FIX #3 - MODIFIED with filters)
     async function loadDashboardData() {
       try {
         // Load agent profile
@@ -627,17 +723,36 @@
         if (agentData) {
           document.getElementById('agentName').textContent = agentData.name;
         }
-        
-        // Load leads
-        const { data: leadsData, error } = await supabaseClient
+
+        // Get filter values
+        const statusFilter = document.getElementById('statusFilter').value;
+        const searchQuery = document.getElementById('searchInput').value.trim();
+
+        // Start building the query
+        let query = supabaseClient
           .from('leads')
-          .select('*')
+          .select('*', { count: 'exact' })
+          .eq('agent_id', currentUser.id)
           .order('created_at', { ascending: false })
           .limit(50);
+        
+        // Add filters if they are set
+        if (statusFilter) {
+          query = query.eq('status', statusFilter);
+        }
+
+        if (searchQuery) {
+          // Use 'or' with ilike for case-insensitive "contains" search
+          query = query.or(`name.ilike.%${searchQuery}%,phone.ilike.%${searchQuery}%`);
+        }
+        
+        // Execute the final query
+        const { data: leadsData, error, count } = await query;
         
         if (error) throw error;
         
         leads = leadsData || [];
+        totalLeadsCount = count; // Store count for use in updateStats
         updateStats();
         updateLeadsTable();
         
@@ -649,24 +764,32 @@
 
     // Update statistics
     function updateStats() {
-      const totalLeads = leads.length;
-      const qualifiedLeads = leads.filter(lead => lead.status === 'qualified').length;
-      const newLeads = leads.filter(lead => {
-        const weekAgo = new Date();
-        weekAgo.setDate(weekAgo.getDate() - 7);
-        return new Date(lead.created_at) > weekAgo;
-      }).length;
-      
-      const scores = leads.filter(lead => lead.qualification_score).map(lead => lead.qualification_score);
-      const avgScore = scores.length > 0 ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : 0;
-      
-      document.getElementById('totalLeads').textContent = totalLeads;
-      document.getElementById('qualifiedLeads').textContent = qualifiedLeads;
-      document.getElementById('newLeads').textContent = newLeads;
+      const today = new Date().toISOString().split('T')[0];
+      const stats = { total: 0, new: 0, qualified: 0, contacted: 0, scores: [] };
+
+      // Single-pass calculation (Fix for Item 13)
+      for (const lead of leads) {
+        stats.total++;
+        if (lead.status === 'qualified') stats.qualified++;
+        if (lead.status === 'contacted') stats.contacted++;
+        if (lead.created_at && lead.created_at.split('T')[0] === today) stats.new++;
+        if (lead.qualification_score) stats.scores.push(lead.qualification_score);
+      }
+
+      const avgScore = stats.scores.length > 0 
+        ? Math.round(stats.scores.reduce((a, b) => a + b, 0) / stats.scores.length) 
+        : 0;
+
+      // Note: This relies on the "count" variable from the query.
+      // We must also update `loadDashboardData` to get the true total count.
+
+      document.getElementById('totalLeads').textContent = totalLeadsCount !== null ? totalLeadsCount : stats.total;
+      document.getElementById('qualifiedLeads').textContent = stats.qualified;
+      document.getElementById('newLeads').textContent = stats.new;
       document.getElementById('avgScore').textContent = avgScore;
     }
 
-    // Update leads table
+    // Update leads table (FIX #4 - pass phone number to qualifyLead)
     function updateLeadsTable() {
       const tbody = document.getElementById('leadsTableBody');
       
@@ -681,9 +804,9 @@
           <td>${lead.phone || 'N/A'}</td>
           <td><span class="status-badge status-${lead.status}">${lead.status}</span></td>
           <td><span class="qualification-score">${lead.qualification_score || 'N/A'}</span></td>
-          <td>${new Date(lead.created_at).toLocaleDateString()}</td>
+          <td>${lead.created_at ? new Date(lead.created_at).toLocaleDateString() : 'Unknown'}</td>
           <td>
-            <button class="btn btn-primary" onclick="qualifyLead('${lead.id}')" style="padding: 0.5rem 1rem; font-size: 0.875rem;">
+            <button class="btn btn-primary" onclick="qualifyLead('${lead.id}', '${lead.phone || ''}')" style="padding: 0.5rem 1rem; font-size: 0.875rem;">
               Qualify
             </button>
           </td>
@@ -691,28 +814,62 @@
       `).join('');
     }
 
-    // Qualify lead function
-    window.qualifyLead = async function(leadId) {
+    // Qualify lead function (FIX #4 - MODIFIED to trigger n8n webhook)
+    window.qualifyLead = async function(leadId, phone) {
+      
+      // THIS IS THE URL YOU NEED FROM MANDAR
+      const MANDARS_N8N_TRIGGER_URL = "https://n8n.example.com/webhook/qualify-lead";
+
+      if (MANDARS_N8N_TRIGGER_URL.includes("example.com")) {
+        alert("Configuration Error: Mandar's n8n webhook URL is not set. Please add it to agent-dashboard.html line ~520.");
+        return;
+      }
+
+      if (!phone) {
+        alert("This lead has no phone number and cannot be called.");
+        return;
+      }
+
+      const button = event.target;
+      button.disabled = true;
+      button.textContent = 'Calling...';
+
       try {
-        // Update lead status to qualified
+        // 1. Trigger the n8n workflow to START the call
+        const response = await fetch(MANDARS_N8N_TRIGGER_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            lead_id: leadId,
+            phone_number: phone
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error('Webhook trigger failed: ' + response.statusText);
+        }
+
+        // 2. Update the lead status to 'contacted' in Supabase
         const { error } = await supabaseClient
           .from('leads')
           .update({ 
-            status: 'qualified',
-            qualified_at: new Date().toISOString()
+            status: 'contacted',
+            notes: 'AI call initiated...'
           })
           .eq('id', leadId);
         
         if (error) throw error;
         
-        // Reload dashboard data
+        // 3. Reload dashboard data to show the new 'contacted' status
         loadDashboardData();
         
-        alert('Lead qualified successfully!');
+        alert('✓ AI call initiated! Check your phone. Dashboard will update when complete.');
         
       } catch (error) {
         console.error('Error qualifying lead:', error);
-        alert('Unable to qualify lead. Please try again.');
+        alert('Error: ' + error.message);
+        button.disabled = false;
+        button.textContent = 'Qualify';
       }
     };
 
@@ -737,7 +894,12 @@
     });
 
     // Initialize
-    checkAuth();
+    checkAuth().then(authenticated => {
+      if (authenticated) {
+        showDashboard();
+        loadDashboardData();
+      }
+    });
   </script>
 </body>
 </html>

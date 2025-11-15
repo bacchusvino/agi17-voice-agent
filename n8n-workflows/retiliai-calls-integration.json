@@ -1,0 +1,144 @@
+{
+  "name": "ReTiliai Call → Supabase → HeyGen",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "8bfa9f5f-8f8f-8f8f-8f8f-8f8f8f8f8f8f",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 400],
+      "webhookId": "retiliai-call-webhook"
+    },
+    {
+      "parameters": {
+        "functionCode": "const data = $input.first();\n\ntry {\n  // Validate required fields\n  if (!data.json.call_id) {\n    throw new Error('Missing required field: call_id');\n  }\n  if (!data.json.phone_number) {\n    throw new Error('Missing required field: phone_number');\n  }\n\n  // Build transcript from messages if not provided\n  let transcript = data.json.transcript;\n  if (!transcript && data.json.messages) {\n    transcript = data.json.messages.map(m => {\n      const role = m.role || 'unknown';\n      const content = m.content || '';\n      return `${role}: ${content}`;\n    }).join('\\n');\n  }\n\n  return {\n    call_id: data.json.call_id,\n    phone_number: data.json.phone_number,\n    call_status: data.json.call_status || 'unknown',\n    transcript: transcript || null,\n    duration_seconds: data.json.duration_seconds || null,\n    sentiment_analysis: {\n      overall: data.json.sentiment?.overall || 'neutral',\n      confidence: data.json.sentiment?.confidence || 0.5\n    },\n    qualification_score: data.json.qualification_score || calculateScore(data.json),\n    qualified: data.json.qualified_lead || false,\n    hot_lead_indicators: data.json.hot_indicators || extractHotIndicators(data.json),\n    summary: data.json.call_summary || generateSummary(transcript),\n    retiliai_webhook_data: data.json,\n    started_at: data.json.started_at || null,\n    ended_at: data.json.ended_at || null,\n    source: 'retiliai'\n  };\n} catch (error) {\n  throw new Error(`Webhook parsing failed: ${error.message}`);\n}\n\nfunction calculateScore(data) {\n  let score = 50;\n  if (data.qualified_lead) score += 30;\n  if (data.sentiment?.overall === 'positive') score += 15;\n  if (data.ready_to_sell) score += 10;\n  return Math.min(100, score);\n}\n\nfunction extractHotIndicators(data) {\n  return {\n    ready_to_sell: data.ready_to_sell || false,\n    timeline: data.timeline || 'unknown',\n    flexible_price: data.flexible_price || false,\n    interested_in_agent: data.interested_in_agent || false\n  };\n}\n\nfunction generateSummary(transcript) {\n  if (!transcript) return 'Call completed - no transcript available';\n  return transcript.substring(0, 200) + '...';\n}"
+      },
+      "id": "c3f9e4e4-f4e4-f4e4-f4e4-f4e4f4e4f4e4",
+      "name": "Parse ReTiliai Webhook",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [450, 400]
+    },
+    {
+      "parameters": {
+        "operation": "insert",
+        "table": "calls",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "={{ $json.call_id }}",
+              "fieldValue": "call_id"
+            },
+            {
+              "fieldId": "={{ $json.phone_number }}",
+              "fieldValue": "phone_number"
+            },
+            {
+              "fieldId": "={{ $json.call_status }}",
+              "fieldValue": "call_status"
+            },
+            {
+              "fieldId": "={{ $json.transcript }}",
+              "fieldValue": "transcript"
+            },
+            {
+              "fieldId": "={{ $json.duration_seconds }}",
+              "fieldValue": "duration_seconds"
+            },
+            {
+              "fieldId": "={{ $json.sentiment_analysis }}",
+              "fieldValue": "sentiment_analysis"
+            },
+            {
+              "fieldId": "={{ $json.qualification_score }}",
+              "fieldValue": "qualification_score"
+            },
+            {
+              "fieldId": "={{ $json.qualified }}",
+              "fieldValue": "qualified"
+            },
+            {
+              "fieldId": "={{ $json.hot_lead_indicators }}",
+              "fieldValue": "hot_lead_indicators"
+            },
+            {
+              "fieldId": "={{ $json.summary }}",
+              "fieldValue": "summary"
+            },
+            {
+              "fieldId": "={{ $json.retiliai_webhook_data }}",
+              "fieldValue": "retiliai_webhook_data"
+            },
+            {
+              "fieldId": "={{ $json.started_at }}",
+              "fieldValue": "started_at"
+            },
+            {
+              "fieldId": "={{ $json.ended_at }}",
+              "fieldValue": "ended_at"
+            },
+            {
+              "fieldId": "={{ $json.source }}",
+              "fieldValue": "source"
+            }
+          ]
+        }
+      },
+      "id": "supabase_insert",
+      "name": "Insert Call to Supabase",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [650, 400],
+      "credentials": {
+        "supabaseApi": {
+          "id": "1",
+          "name": "Supabase Account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "id": "success_node",
+      "name": "Success Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [850, 400]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Parse ReTiliai Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse ReTiliai Webhook": {
+      "main": [
+        [
+          {
+            "node": "Insert Call to Supabase",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert Call to Supabase": {
+      "main": [
+        [
+          {
+            "node": "Success Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

@@ -6,6 +6,10 @@
   <title>QualiFy - San Diego Real Estate Lead Automation</title>
   <meta name="description" content="Stop giving 40% to Zillow. QualiFy captures, qualifies, and books local buyers/sellers for San Diego real estate agents.">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"></script>
+  <script src="js/config.js"></script>
+  <link rel="stylesheet" href="css/nav.css">
+  <script src="js/nav.js"></script>
   <style>
     /* Improve hero gradient + form contrast (WCAG AA) */
     :root {
@@ -13,6 +17,7 @@
       --hero-end:   #7a3ce6;   /* richer violet */
       --panel-bg:   #ffffff;
       --text-on-hero: #ffffff;
+      --brand-purple: #7C3AED; /* Primary brand purple */
     }
 
     * {
@@ -43,13 +48,13 @@
       backdrop-filter: blur(10px);
       border-bottom: 1px solid #e5e5e5;
       z-index: 100;
+      padding: 16px 32px;
     }
 
     .nav-container {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 1rem 20px;
       max-width: 1200px;
       margin: 0 auto;
     }
@@ -57,8 +62,13 @@
     .logo {
       font-size: 1.5rem;
       font-weight: bold;
-      color: #0066cc;
+      color: var(--brand-purple);
       text-decoration: none;
+      transition: opacity 0.3s;
+    }
+
+    .logo:hover {
+      opacity: 0.8;
     }
 
     .nav-links {
@@ -72,16 +82,27 @@
       color: #333;
       font-weight: 500;
       transition: color 0.3s;
+      margin: 0 12px;
+      font-size: 0.94rem;
+      position: relative;
     }
 
     .nav-links a:hover {
-      color: #0066cc;
+      color: var(--brand-purple);
     }
 
     .nav-links a.active {
-      color: #0066cc;
-      border-bottom: 2px solid #0066cc;
-      padding-bottom: 0.25rem;
+      color: var(--brand-purple);
+    }
+
+    .nav-links a.active::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: var(--brand-purple);
     }
 
     /* Mobile nav */
@@ -91,64 +112,8 @@
       border: none;
       font-size: 1.5rem;
       cursor: pointer;
-    }
-
-    /* Dropdown menu */
-    .nav-dropdown {
-      position: relative;
-    }
-
-    .nav-dropdown-toggle {
-      background: none;
-      border: none;
       color: #333;
-      font-weight: 500;
-      cursor: pointer;
-      font-size: 1rem;
-      padding: 0;
-    }
-
-    .dropdown-menu {
-      display: none;
-      position: absolute;
-      top: 100%;
-      left: 0;
-      background: white;
-      border: 1px solid #e5e5e5;
-      border-radius: 6px;
-      list-style: none;
-      margin-top: 0.5rem;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      z-index: 200;
-    }
-
-    .nav-dropdown:hover .dropdown-menu {
-      display: block;
-    }
-
-    .dropdown-menu li {
-      padding: 0;
-    }
-
-    .dropdown-menu a {
-      display: block;
-      padding: 0.75rem 1.5rem;
-      color: #333;
-      text-decoration: none;
-      font-weight: 500;
-      transition: background 0.2s;
-    }
-
-    .dropdown-menu a:hover {
-      background: #f0f0f0;
-      color: #0066cc;
-    }
-
-    /* Sign Up button in nav */
-    .nav-cta {
-      margin-left: 1rem;
-      padding: 0.6rem 1.2rem;
-      font-size: 0.9rem;
+      transition: color 0.3s;
     }
 
     @media (max-width: 768px) {
@@ -162,26 +127,30 @@
         flex-direction: column;
         padding: 1rem;
         box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        gap: 0;
       }
 
       .nav-links.active {
         display: flex;
       }
 
+      .nav-links li {
+        width: 100%;
+      }
+
+      .nav-links a {
+        display: block;
+        padding: 0.75rem 1rem;
+        margin: 0;
+        border-bottom: 1px solid #f0f0f0;
+      }
+
+      .nav-links a:last-child {
+        border-bottom: none;
+      }
+
       .mobile-menu {
         display: block;
-      }
-      
-      .nav-cta {
-        display: none;
-      }
-      
-      .dropdown-menu {
-        position: static;
-        background: #f9f9f9;
-        box-shadow: none;
-        border: none;
-        margin-top: 0;
       }
     }
 
@@ -245,30 +214,6 @@
       transform: translateY(-2px);
     }
 
-    .btn-secondary {
-      background: transparent;
-      color: #ffffff;
-      border: 2px solid #ffffff;
-      font-weight: 600;
-    }
-
-    .btn-secondary:hover {
-      background: #ffffff;
-      color: #5b3cc4;
-    }
-
-    .btn-outline-primary {
-      background: transparent;
-      color: #ffffff;
-      border: 2px solid #ffffff;
-      font-weight: 600;
-    }
-
-    .btn-outline-primary:hover {
-      background: #ffffff;
-      color: #5b3cc4;
-    }
-
     /* Hero */
     #hero {
       background: linear-gradient(135deg, var(--hero-start), var(--hero-end));
@@ -289,18 +234,6 @@
       margin-top: 2rem;
       flex-wrap: wrap;
     }
-
-    /* Video container - REMOVED */
-
-    /* Benefits - REMOVED */
-
-    /* How It Works - REMOVED */
-
-    /* Social Proof - REMOVED */
-
-    /* FAQ - REMOVED */
-
-    /* CTA - REMOVED */
 
     /* Footer */
     footer {
@@ -325,16 +258,16 @@
         flex-direction: column;
         align-items: center;
       }
-
-      .metrics {
-        flex-direction: column;
-        gap: 1rem;
-      }
     }
 
     /* Smooth scrolling */
     html {
       scroll-behavior: smooth;
+    }
+
+    /* Offset for anchor links to account for sticky nav */
+    section[id] {
+      scroll-margin-top: 80px;
     }
   </style>
 </head>
@@ -344,10 +277,9 @@
     <div class="nav-container">
       <a href="index.html" class="logo">QualiFy</a>
       <ul class="nav-links">
-        <li><a href="agent-page.html">For Agents</a></li>
-        <li><a href="fsbo-page.html">For Sellers</a></li>
-        <li><a href="agent-signup.html" class="nav-primary">Sign Up</a></li>
-        <li><a href="agent-login.html">Login</a></li>
+        <li><a href="/fsbo-register">🏠 For Sellers</a></li>
+        <li><a href="/agent-signup">🎯 For Agents</a></li>
+        <li><a href="/agent-login">Login</a></li>
       </ul>
     </div>
   </nav>
@@ -356,25 +288,30 @@
   <section id="hero">
     <div class="container">
       <div class="hero-content">
-        <h1>San Diego Agents: Stop giving 40% to Zillow.</h1>
-        <p>QualiFy captures, qualifies, and books local buyers/sellers for you.</p>
-        <div class="hero-buttons">
-          <a href="fsbo-page.html" class="btn btn-primary">Get Started as Seller</a>
-          <a href="agent-signup.html" class="btn btn-secondary">Start Free Trial</a>
+        <h1>San Diego Real Estate Made Simple</h1>
+        <p>Whether you're selling your home or finding new listings, QualiFy connects the right people at the right time.</p>
+
+        <!-- Dual Hero CTAs -->
+        <div class="hero-buttons" style="display: flex; gap: 1.5rem; justify-content: center; flex-wrap: wrap; margin-top: 2rem;">
+          <div style="flex: 1; min-width: 280px; max-width: 400px;">
+            <div style="background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); text-align: center;">
+              <h3 style="color: #333; margin-bottom: 0.5rem; font-size: 1.3rem;">🏠 Selling Your Home?</h3>
+              <p style="color: #666; margin-bottom: 1.5rem; font-size: 0.95rem;">For Sale By Owner? Connect with pre-screened agents. Keep your commission.</p>
+              <a href="/fsbo-register" class="btn btn-primary" style="width: 100%; background: var(--brand-purple); display: block;">Get Started as Seller</a>
+            </div>
+          </div>
+
+          <div style="flex: 1; min-width: 280px; max-width: 400px;">
+            <div style="background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); text-align: center;">
+              <h3 style="color: #333; margin-bottom: 0.5rem; font-size: 1.3rem;">🎯 Real Estate Agent?</h3>
+              <p style="color: #666; margin-bottom: 1.5rem; font-size: 0.95rem;">Convert For Sale By Owner (FSBO) leads into listings automatically. Qualified leads on your calendar.</p>
+              <a href="/agent-signup" class="btn btn-primary" style="width: 100%; display: block;">Start Free Trial</a>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   </section>
-
-
-
-
-
-
-
-
-
-
 
   <!-- Footer -->
   <footer>
@@ -385,34 +322,26 @@
 
   <script>
     // Supabase configuration - USE ENVIRONMENT VARIABLES IN PRODUCTION
-    const SUPABASE_URL = 'https://tyrwkeqavitwkffjcznj.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR5cndrZXFhdml0d2tmZmpjem5qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg5OTA5MzcsImV4cCI6MjA3NDU2NjkzN30.XlP3j-5SQjje7nfv2jvtccQMJtlbSI22vqQtfEj7Nc4';
-    
-    // Supabase client
+    // Supabase client using centralized config
     const { createClient } = supabase;
-    const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    
+    const supabaseClient = createClient(
+      window.QualifyConfig.supabase.url,
+      window.QualifyConfig.supabase.anonKey
+    );
+
     // Make supabaseClient available globally for other scripts
     window.supabaseClient = supabaseClient;
-    
-    // Mobile menu toggle
-    document.getElementById('mobileMenu').addEventListener('click', function() {
-      const navLinks = document.getElementById('navLinks');
-      navLinks.classList.toggle('active');
-    });
-
-    // FAQ toggle - REMOVED (section deleted)
-
-    // Form submission - REMOVED (section deleted)
 
     // Close mobile menu when clicking on links
     document.querySelectorAll('.nav-links a').forEach(link => {
       link.addEventListener('click', () => {
-        document.getElementById('navLinks').classList.remove('active');
+        const navLinks = document.getElementById('navLinks');
+        if (navLinks) {
+          navLinks.classList.remove('active');
+        }
       });
     });
 
-    // Voice Capture - REMOVED (section deleted)
   </script>
 </body>
 </html>
