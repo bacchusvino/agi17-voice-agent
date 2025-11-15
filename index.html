@@ -290,263 +290,17 @@
       flex-wrap: wrap;
     }
 
-    .video-container {
-      position: relative;
-      width: 100%;
-      max-width: 800px;
-      margin: 2rem auto;
-      border-radius: 10px;
-      overflow: hidden;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-    }
+    /* Video container - REMOVED */
 
-    .video-container::before {
-      content: '';
-      display: block;
-      padding-top: 56.25%; /* 16:9 aspect ratio */
-    }
+    /* Benefits - REMOVED */
 
-    .video-container iframe {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      border: none;
-    }
+    /* How It Works - REMOVED */
 
-    /* YouTube Video Embed */
-    .video-container {
-      position: relative;
-      width: 100%;
-      max-width: 100%;
-      margin: 2rem 0;
-      border-radius: 10px;
-      overflow: hidden;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-    }
+    /* Social Proof - REMOVED */
 
-    .video-container iframe {
-      width: 100%;
-      height: auto;
-      aspect-ratio: 16 / 9;
-      border: none;
-    }
+    /* FAQ - REMOVED */
 
-    /* Benefits */
-    #benefits {
-      background: white;
-    }
-
-    .benefits-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 2rem;
-      margin-top: 3rem;
-    }
-
-    .benefit-card {
-      background: #f8f9fa;
-      padding: 2rem;
-      border-radius: 10px;
-      text-align: center;
-      transition: transform 0.3s;
-    }
-
-    .benefit-card:hover {
-      transform: translateY(-5px);
-    }
-
-    .benefit-icon {
-      font-size: 3rem;
-      margin-bottom: 1rem;
-    }
-
-    /* How It Works */
-    #how {
-      background: #f8f9fa;
-    }
-
-    .steps {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 2rem;
-      margin-top: 3rem;
-    }
-
-    .step {
-      background: white;
-      padding: 2rem;
-      border-radius: 10px;
-      text-align: center;
-      position: relative;
-    }
-
-    .step-number {
-      background: #0066cc;
-      color: white;
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: bold;
-      margin: 0 auto 1rem;
-    }
-
-    /* Social Proof */
-    #proof {
-      background: white;
-      text-align: center;
-    }
-
-    .testimonial {
-      background: #0066cc;
-      color: white;
-      padding: 3rem;
-      border-radius: 10px;
-      margin: 2rem 0;
-      max-width: 600px;
-      margin-left: auto;
-      margin-right: auto;
-    }
-
-    .testimonial blockquote {
-      font-size: 1.25rem;
-      font-style: italic;
-      margin-bottom: 1rem;
-    }
-
-    .metrics {
-      display: flex;
-      justify-content: center;
-      gap: 2rem;
-      margin-top: 2rem;
-      flex-wrap: wrap;
-    }
-
-    .metric {
-      text-align: center;
-    }
-
-    .metric-value {
-      font-size: 2rem;
-      font-weight: bold;
-      color: #0066cc;
-    }
-
-    /* FAQ */
-    #faq {
-      background: #f8f9fa;
-    }
-
-    .faq-list {
-      max-width: 800px;
-      margin: 3rem auto 0;
-    }
-
-    .faq-item {
-      background: white;
-      margin-bottom: 1rem;
-      border-radius: 10px;
-      overflow: hidden;
-    }
-
-    .faq-question {
-      background: none;
-      border: none;
-      width: 100%;
-      padding: 1.5rem;
-      text-align: left;
-      font-size: 1.1rem;
-      font-weight: 600;
-      cursor: pointer;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .faq-answer {
-      padding: 0 1.5rem 1.5rem;
-      color: #666;
-      display: none;
-    }
-
-    .faq-answer.active {
-      display: block;
-    }
-
-    /* CTA */
-    #cta {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      text-align: center;
-    }
-
-    #cta h2 {
-      color: #ffffff !important;
-      text-shadow: 0 2px 4px rgba(0,0,0,0.3);
-      font-weight: 700;
-    }
-
-    #cta p {
-      color: #ffffff !important;
-      text-shadow: 0 1px 3px rgba(0,0,0,0.4);
-      font-size: 1.25rem;
-      font-weight: 600;
-      margin-top: 1rem;
-    }
-
-    .cta-form {
-      max-width: 400px;
-      margin: 2rem auto 0;
-    }
-
-    .form-group {
-      margin-bottom: 1rem;
-    }
-
-    .form-group input,
-    .form-group textarea {
-      width: 100%;
-      padding: 0.75rem;
-      border: none;
-      border-radius: 6px;
-      font-size: 1rem;
-    }
-
-    .form-group input:focus,
-    .form-group textarea:focus {
-      outline: none;
-      box-shadow: 0 0 0 3px rgba(255,255,255,0.3);
-    }
-
-    /* Hero form styling for better contrast */
-    #hero input, 
-    #hero textarea {
-      background: rgba(255,255,255,0.98);
-      color: #1f2937;
-      border-color: rgba(31,41,55,0.25);
-    }
-
-    #hero ::placeholder { 
-      color: #6b7280; 
-    }
-
-    /* Success message */
-    .success-message {
-      background: #28a745;
-      color: white;
-      padding: 1rem;
-      border-radius: 6px;
-      margin-top: 1rem;
-      display: none;
-    }
-
-    .success-message.show {
-      display: block;
-    }
+    /* CTA - REMOVED */
 
     /* Footer */
     footer {
@@ -604,164 +358,23 @@
       <div class="hero-content">
         <h1>San Diego Agents: Stop giving 40% to Zillow.</h1>
         <p>QualiFy captures, qualifies, and books local buyers/sellers for you.</p>
-        <div class="video-container">
-          <iframe 
-            src="https://www.youtube.com/embed/D67bCjHTGG0" 
-            title="QualiFy Demo Video" 
-            frameborder="0" 
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-            allowfullscreen>
-          </iframe>
-        </div>
         <div class="hero-buttons">
-          <a href="agent-signup.html" class="btn btn-primary">Start Free Trial</a>
+          <a href="fsbo-page.html" class="btn btn-primary">Get Started as Seller</a>
+          <a href="agent-signup.html" class="btn btn-secondary">Start Free Trial</a>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Benefits Section -->
-  <section id="benefits">
-    <div class="container">
-      <h2>Benefits</h2>
-      <div class="benefits-grid">
-        <div class="benefit-card">
-          <div class="benefit-icon">⚡</div>
-          <h3>Instant response</h3>
-          <p>Never lose a hot lead to slow follow-up.</p>
-        </div>
-        <div class="benefit-card">
-          <div class="benefit-icon">🏠</div>
-          <h3>Own your pipeline</h3>
-          <p>Stop paying 40% to lead marketplaces.</p>
-        </div>
-        <div class="benefit-card">
-          <div class="benefit-icon">🎥</div>
-          <h3>Stand out</h3>
-          <p>Personalized video follow-ups build trust fast.</p>
-        </div>
-      </div>
-    </div>
-  </section>
 
-  <!-- How It Works Section -->
-  <section id="how">
-    <div class="container">
-      <h2>How It Works</h2>
-      <div class="steps">
-        <div class="step">
-          <div class="step-number">1</div>
-          <h3>Capture</h3>
-          <p>FSBO/Instagram/Facebook lead forms flow into your Google Sheet.</p>
-        </div>
-        <div class="step">
-          <div class="step-number">2</div>
-          <h3>Qualify</h3>
-          <p>Our AI calls immediately and scores intent, budget, and timeline.</p>
-        </div>
-        <div class="step">
-          <div class="step-number">3</div>
-          <h3>Book</h3>
-          <p>We send a personalized video and place qualified meetings on your calendar.</p>
-        </div>
-      </div>
-    </div>
-  </section>
 
-  <!-- Social Proof Section -->
-  <section id="proof">
-    <div class="container">
-      <h2>Social Proof</h2>
-      <div class="testimonial">
-        <blockquote>"Booked 3 qualified seller calls in week one."</blockquote>
-        <cite>— SD Agent</cite>
-      </div>
-      <div class="metrics">
-        <div class="metric">
-          <div class="metric-value">+300%</div>
-          <div>reply lift</div>
-        </div>
-        <div class="metric">
-          <div class="metric-value">&lt;7 days</div>
-          <div>to first meeting</div>
-        </div>
-        <div class="metric">
-          <div class="metric-value">0%</div>
-          <div>commission taken</div>
-        </div>
-      </div>
-    </div>
-  </section>
 
-  <!-- FAQ Section -->
-  <section id="faq">
-    <div class="container">
-      <h2>FAQ</h2>
-      <div class="faq-list">
-        <div class="faq-item">
-          <button class="faq-question" onclick="toggleFaq(0)">
-            Do I need a new CRM?
-            <span>+</span>
-          </button>
-          <div class="faq-answer" id="faq-0">
-            No—start with Google Sheets; sync later.
-          </div>
-        </div>
-        <div class="faq-item">
-          <button class="faq-question" onclick="toggleFaq(1)">
-            Is calling compliant?
-            <span>+</span>
-          </button>
-          <div class="faq-answer" id="faq-1">
-            We call consented leads and honor DNC/opt-out.
-          </div>
-        </div>
-        <div class="faq-item">
-          <button class="faq-question" onclick="toggleFaq(2)">
-            Can I customize the script?
-            <span>+</span>
-          </button>
-          <div class="faq-answer" id="faq-2">
-            Yes—voice, script, and criteria are editable.
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
 
-  <!-- CTA Section -->
-  <section id="cta">
-    <div class="container">
-      <h2>Ready to keep your commission?</h2>
-      <p>Get qualified appointments in under 7 days.</p>
-      <form class="cta-form" id="leadForm">
-        <div class="form-group">
-          <input type="text" id="name" name="name" placeholder="Your Name" required>
-        </div>
-        <div class="form-group">
-          <input type="email" id="email" name="email" placeholder="Your Email" required>
-        </div>
-        <div class="form-group">
-          <input type="tel" id="phone" name="phone" placeholder="Your Phone Number" required>
-        </div>
-        <div class="form-group">
-          <input type="text" id="address" name="address" placeholder="Property Address (optional)">
-        </div>
-        <div class="form-group">
-          <textarea id="notes" name="notes" placeholder="Additional notes (optional)" rows="3"></textarea>
-        </div>
-        <div class="form-group">
-          <button id="voiceCaptureBtn" type="button" class="btn btn-outline-primary" aria-pressed="false" style="width: 100%; margin-bottom: 1rem;">
-            🎤 Start Voice Capture
-          </button>
-        </div>
-        <button type="submit" class="btn btn-primary" style="width: 100%;">Join the Pilot</button>
-        <div class="success-message" id="successMessage">
-          Thanks! We'll reach out shortly.
-        </div>
-      </form>
-    </div>
-  </section>
+
+
+
+
+
 
   <!-- Footer -->
   <footer>
@@ -788,40 +401,9 @@
       navLinks.classList.toggle('active');
     });
 
-    // FAQ toggle - make it globally accessible
-    window.toggleFaq = function(index) {
-      const answer = document.getElementById(`faq-${index}`);
-      const question = answer.previousElementSibling;
-      const icon = question.querySelector('span');
-      
-      answer.classList.toggle('active');
-      icon.textContent = answer.classList.contains('active') ? '−' : '+';
-    }
+    // FAQ toggle - REMOVED (section deleted)
 
-    // Form submission - replaced with working version
-    document.getElementById('leadForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-
-      const formData = {
-        name: document.querySelector('[name="name"]').value,
-        email: document.querySelector('[name="email"]').value,
-        phone: document.querySelector('[name="phone"]').value,
-        address: document.querySelector('[name="address"]').value,
-        source: 'landing_page',
-        trigger_voice: true
-      };
-
-      // Submit to your Netlify function
-      const response = await fetch('/.netlify/functions/submit-lead', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(formData)
-      });
-
-      if (response.ok) {
-        alert('Success! Voice agent will call you in 30 seconds.');
-      }
-    });
+    // Form submission - REMOVED (section deleted)
 
     // Close mobile menu when clicking on links
     document.querySelectorAll('.nav-links a').forEach(link => {
@@ -830,79 +412,7 @@
       });
     });
 
-    // Voice Capture functionality
-    (() => {
-      const btn = document.getElementById('voiceCaptureBtn');
-      const notes = document.querySelector('textarea');
-      if (!btn || !notes) return;
-
-      let recognition, listening = false;
-
-      function supported() {
-        return 'webkitSpeechRecognition' in window || 'SpeechRecognition' in window;
-      }
-
-      function init() {
-        const Ctor = window.SpeechRecognition || window.webkitSpeechRecognition;
-        recognition = new Ctor();
-        recognition.lang = 'en-US';
-        recognition.interimResults = false; // Only use final results to prevent duplication
-        recognition.continuous = true;
-
-        recognition.onresult = (e) => {
-          // Only process final results (isFinal = true)
-          for (let i = e.resultIndex; i < e.results.length; i++) {
-            if (e.results[i].isFinal) {
-              const transcript = e.results[i][0].transcript.trim();
-              if (transcript) {
-                // Append to textarea with proper spacing
-                notes.value = notes.value
-                  ? notes.value + ' ' + transcript
-                  : transcript;
-
-                // Extract email and phone from transcript
-                const emailRegex = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/;
-                const phoneRegex = /(\+?1[-.\s]?)?\(?([0-9]{3})\)?[-.\s]?([0-9]{3})[-.\s]?([0-9]{4})/;
-
-                const emailMatch = transcript.match(emailRegex);
-                const phoneMatch = transcript.match(phoneRegex);
-
-                if (emailMatch && !document.getElementById('email').value) {
-                  document.getElementById('email').value = emailMatch[0];
-                }
-
-                if (phoneMatch && !document.getElementById('phone').value) {
-                  document.getElementById('phone').value = phoneMatch[0];
-                }
-              }
-            }
-          }
-        };
-        recognition.onerror = (e) => {
-          console.error('Voice recognition error:', e.error);
-          stop();
-        };
-        recognition.onend = () => { if (listening) recognition.start(); }; // auto-restart while "on"
-      }
-
-      function start() {
-        if (!supported()) { alert('Voice capture not supported in this browser.'); return; }
-        if (!recognition) init();
-        listening = true;
-        recognition.start();
-        btn.setAttribute('aria-pressed', 'true');
-        btn.textContent = '⏹ Stop Voice Capture';
-      }
-
-      function stop() {
-        listening = false;
-        try { recognition && recognition.stop(); } catch {}
-        btn.setAttribute('aria-pressed', 'false');
-        btn.textContent = '🎤 Start Voice Capture';
-      }
-
-      btn.addEventListener('click', () => (listening ? stop() : start()));
-    })();
+    // Voice Capture - REMOVED (section deleted)
   </script>
 </body>
 </html>
