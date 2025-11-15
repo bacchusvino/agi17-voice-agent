@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calls Dashboard - QualiFy</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f5f5f5;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      color: #333;
+      margin-bottom: 30px;
+      font-size: 2rem;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .stat-card {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .stat-label {
+      color: #666;
+      font-size: 0.875rem;
+      margin-bottom: 8px;
+    }
+
+    .stat-value {
+      color: #0066cc;
+      font-size: 2rem;
+      font-weight: bold;
+    }
+
+    .calls-container {
+      display: grid;
+      gap: 20px;
+    }
+
+    .call-card {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      padding: 24px;
+      transition: box-shadow 0.3s;
+    }
+
+    .call-card:hover {
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    .call-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      margin-bottom: 20px;
+      padding-bottom: 16px;
+      border-bottom: 2px solid #f0f0f0;
+    }
+
+    .call-info {
+      flex: 1;
+    }
+
+    .call-phone {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 8px;
+    }
+
+    .call-id {
+      font-size: 0.875rem;
+      color: #666;
+      font-family: monospace;
+    }
+
+    .call-score {
+      text-align: right;
+    }
+
+    .score-value {
+      font-size: 2.5rem;
+      font-weight: bold;
+      line-height: 1;
+    }
+
+    .score-value.high {
+      color: #10b981;
+    }
+
+    .score-value.medium {
+      color: #f59e0b;
+    }
+
+    .score-value.low {
+      color: #ef4444;
+    }
+
+    .score-label {
+      font-size: 0.75rem;
+      color: #666;
+      margin-top: 4px;
+    }
+
+    .call-badges {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+
+    .badge {
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .badge.qualified {
+      background: #d1fae5;
+      color: #065f46;
+    }
+
+    .badge.not-qualified {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .badge.completed {
+      background: #dbeafe;
+      color: #1e40af;
+    }
+
+    .badge.duration {
+      background: #f3e8ff;
+      color: #6b21a8;
+    }
+
+    .call-meta {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 12px;
+      margin-bottom: 16px;
+      padding: 16px;
+      background: #f9fafb;
+      border-radius: 6px;
+    }
+
+    .meta-item {
+      font-size: 0.875rem;
+    }
+
+    .meta-label {
+      color: #666;
+      font-weight: 500;
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .meta-value {
+      color: #333;
+      font-weight: 600;
+    }
+
+    .call-summary {
+      background: #fffbeb;
+      border-left: 4px solid #f59e0b;
+      padding: 16px;
+      border-radius: 4px;
+      margin-bottom: 16px;
+    }
+
+    .summary-label {
+      color: #92400e;
+      font-weight: 600;
+      font-size: 0.875rem;
+      margin-bottom: 8px;
+    }
+
+    .summary-text {
+      color: #78350f;
+      line-height: 1.6;
+    }
+
+    .call-transcript {
+      background: #f9fafb;
+      border-radius: 6px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+
+    .transcript-label {
+      color: #374151;
+      font-weight: 600;
+      font-size: 0.875rem;
+      margin-bottom: 12px;
+    }
+
+    .transcript-text {
+      color: #4b5563;
+      line-height: 1.8;
+      white-space: pre-wrap;
+      font-family: 'Georgia', serif;
+      font-size: 0.9375rem;
+    }
+
+    .indicators {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .indicator {
+      padding: 6px 12px;
+      background: #e0e7ff;
+      color: #3730a3;
+      border-radius: 4px;
+      font-size: 0.8125rem;
+      font-weight: 500;
+    }
+
+    .indicator.urgent {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .indicator.motivated {
+      background: #d1fae5;
+      color: #065f46;
+    }
+
+    .sentiment {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-size: 0.8125rem;
+      font-weight: 600;
+    }
+
+    .sentiment.positive {
+      background: #d1fae5;
+      color: #065f46;
+    }
+
+    .sentiment.neutral {
+      background: #e5e7eb;
+      color: #374151;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 60px 20px;
+      color: #666;
+    }
+
+    .error {
+      background: #fee2e2;
+      color: #991b1b;
+      padding: 20px;
+      border-radius: 8px;
+      margin: 20px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>📞 Calls Dashboard</h1>
+
+    <div class="stats" id="stats">
+      <div class="stat-card">
+        <div class="stat-label">Total Calls</div>
+        <div class="stat-value" id="totalCalls">-</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Qualified</div>
+        <div class="stat-value" id="qualifiedCalls">-</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Avg Score</div>
+        <div class="stat-value" id="avgScore">-</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Total Duration</div>
+        <div class="stat-value" id="totalDuration">-</div>
+      </div>
+    </div>
+
+    <div id="loading" class="loading">
+      Loading calls...
+    </div>
+
+    <div id="error" class="error" style="display: none;"></div>
+
+    <div class="calls-container" id="callsContainer"></div>
+  </div>
+
+  <script>
+    // Initialize Supabase
+    const SUPABASE_URL = 'https://tyrwkeqavitwkffjcznj.supabase.co'
+    const SUPABASE_KEY = 'sb_publishable_AVrztDecuuKBPmLmYg2nrQ_w58YX9rK'
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
+
+    async function loadCalls() {
+      try {
+        const { data, error } = await supabase
+          .from('calls')
+          .select('*')
+          .order('created_at', { ascending: false })
+
+        if (error) throw error
+
+        document.getElementById('loading').style.display = 'none'
+
+        if (!data || data.length === 0) {
+          document.getElementById('callsContainer').innerHTML = '<p style="text-align: center; padding: 40px; color: #666;">No calls found</p>'
+          return
+        }
+
+        // Update stats
+        const totalCalls = data.length
+        const qualifiedCalls = data.filter(c => c.qualified).length
+        const avgScore = totalCalls > 0
+          ? Math.round(data.reduce((sum, c) => sum + (c.qualification_score || 0), 0) / totalCalls)
+          : 0
+        const totalDuration = data.reduce((sum, c) => sum + (c.duration_seconds || 0), 0)
+
+        document.getElementById('totalCalls').textContent = totalCalls
+        document.getElementById('qualifiedCalls').textContent = qualifiedCalls
+        document.getElementById('avgScore').textContent = avgScore
+        document.getElementById('totalDuration').textContent = Math.round(totalDuration / 60) + 'm'
+
+        // Render calls
+        const container = document.getElementById('callsContainer')
+        container.innerHTML = data.map(call => renderCall(call)).join('')
+
+      } catch (error) {
+        console.error('Error loading calls:', error)
+        document.getElementById('loading').style.display = 'none'
+        document.getElementById('error').textContent = 'Error loading calls: ' + error.message
+        document.getElementById('error').style.display = 'block'
+      }
+    }
+
+    function renderCall(call) {
+      const scoreClass = call.qualification_score >= 80 ? 'high' : call.qualification_score >= 65 ? 'medium' : 'low'
+      const duration = Math.floor((call.duration_seconds || 0) / 60) + 'm ' + ((call.duration_seconds || 0) % 60) + 's'
+      const startTime = call.started_at ? new Date(call.started_at).toLocaleString() : 'N/A'
+      const sentiment = call.sentiment_analysis?.overall || 'neutral'
+
+      let indicators = ''
+      if (call.hot_lead_indicators) {
+        const ind = call.hot_lead_indicators
+        indicators = Object.entries(ind)
+          .filter(([key, value]) => value === true || (typeof value === 'string' && value.length > 0))
+          .map(([key, value]) => {
+            const label = typeof value === 'string' ? `${key.replace(/_/g, ' ')}: ${value}` : key.replace(/_/g, ' ')
+            const className = ind.urgent ? 'urgent' : ind.motivated ? 'motivated' : ''
+            return `<span class="indicator ${className}">${label}</span>`
+          })
+          .join('')
+      }
+
+      return `
+        <div class="call-card">
+          <div class="call-header">
+            <div class="call-info">
+              <div class="call-phone">${call.phone || call.phone_number || 'Unknown'}</div>
+              <div class="call-id">${call.call_id}</div>
+            </div>
+            <div class="call-score">
+              <div class="score-value ${scoreClass}">${call.qualification_score || 0}</div>
+              <div class="score-label">Score</div>
+            </div>
+          </div>
+
+          <div class="call-badges">
+            <span class="badge ${call.qualified ? 'qualified' : 'not-qualified'}">
+              ${call.qualified ? '✓ Qualified' : '✗ Not Qualified'}
+            </span>
+            <span class="badge completed">${call.callstatus || call.call_status || 'unknown'}</span>
+            <span class="badge duration">⏱ ${duration}</span>
+            ${call.sentiment_analysis ? `<span class="sentiment ${sentiment}">${sentiment}</span>` : ''}
+          </div>
+
+          <div class="call-meta">
+            <div class="meta-item">
+              <span class="meta-label">Started</span>
+              <span class="meta-value">${startTime}</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Lead ID</span>
+              <span class="meta-value">${call.lead_id ? call.lead_id.substring(0, 8) + '...' : 'N/A'}</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Source</span>
+              <span class="meta-value">${call.source || 'N/A'}</span>
+            </div>
+          </div>
+
+          ${call.summary ? `
+            <div class="call-summary">
+              <div class="summary-label">Summary</div>
+              <div class="summary-text">${call.summary}</div>
+            </div>
+          ` : ''}
+
+          ${indicators ? `
+            <div style="margin-bottom: 16px;">
+              <div style="color: #374151; font-weight: 600; font-size: 0.875rem; margin-bottom: 8px;">Hot Lead Indicators</div>
+              <div class="indicators">${indicators}</div>
+            </div>
+          ` : ''}
+
+          ${call.transcript ? `
+            <div class="call-transcript">
+              <div class="transcript-label">Transcript</div>
+              <div class="transcript-text">${call.transcript}</div>
+            </div>
+          ` : ''}
+        </div>
+      `
+    }
+
+    // Load calls on page load
+    loadCalls()
+  </script>
+</body>
+</html>

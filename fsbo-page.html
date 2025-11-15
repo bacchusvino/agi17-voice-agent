@@ -32,7 +32,7 @@
                 Selling Your Home Yourself? Make Sure You Protect Your Profit.
             </h1>
             <p class="text-xl md:text-2xl text-indigo-100 font-light">
-                FSBO gives you control — but in 2025, new commission rules and legal paperwork can leave sellers exposed.
+                For Sale By Owner (FSBO) gives you control — but in 2025, new commission rules and legal paperwork can leave sellers exposed.
             </p>
         </div>
     </section>
@@ -273,6 +273,33 @@
         </div>
     </section>
 
+    <!-- FSBO Registration Form Section -->
+    <section id="fsbo-register" class="py-16 px-6 bg-white">
+        <div class="max-w-2xl mx-auto">
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-6 text-center">
+                Register for Free Consultation
+            </h2>
+            <form id="fsboRegisterForm" class="space-y-4">
+                <div class="form-group">
+                    <label for="fsbo_name" class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                    <input type="text" id="fsbo_name" name="name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" required>
+                </div>
+                <div class="form-group">
+                    <label for="fsbo_email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                    <input type="email" id="fsbo_email" name="email" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" required>
+                </div>
+                <div class="form-group">
+                    <label for="fsbo_phone" class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+                    <input type="tel" id="fsbo_phone" name="phone" placeholder="+1XXXXXXXXXX" value="+1" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" required>
+                    <div id="fsbo_phone_error" class="error-message mt-1 text-sm text-red-600" style="display: none;"></div>
+                </div>
+                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg transform transition hover:scale-105">
+                    Submit
+                </button>
+            </form>
+        </div>
+    </section>
+
     <!-- Footer Note -->
     <footer class="py-8 px-6 bg-gray-100 text-center">
         <p class="text-sm text-gray-600">
@@ -281,5 +308,88 @@
             (Oceanside → Chula Vista → East County → Coastal Zone)
         </p>
     </footer>
+
+    <script>
+        // E.164 Phone Validation for FSBO Registration Form
+        (function() {
+            const phoneInput = document.getElementById('fsbo_phone');
+            const phoneError = document.getElementById('fsbo_phone_error');
+            const form = document.getElementById('fsboRegisterForm');
+            
+            // E.164 regex: +1 followed by exactly 10 digits
+            const e164Regex = /^\+1\d{10}$/;
+            
+            // Function to show error
+            function showPhoneError(message) {
+                phoneError.textContent = message;
+                phoneError.style.display = 'block';
+                phoneInput.classList.add('border-red-500');
+            }
+            
+            // Function to clear error
+            function clearPhoneError() {
+                phoneError.style.display = 'none';
+                phoneInput.classList.remove('border-red-500');
+            }
+            
+            // Function to validate phone number
+            function validatePhone() {
+                const phoneValue = phoneInput.value.trim();
+                
+                if (!e164Regex.test(phoneValue)) {
+                    showPhoneError('Please enter your phone number in +1XXXXXXXXXX format.');
+                    return false;
+                } else {
+                    clearPhoneError();
+                    return true;
+                }
+            }
+            
+            // Auto-format: If user types 10 digits (without +1), add +1 prefix
+            phoneInput.addEventListener('input', function(e) {
+                let value = e.target.value;
+                
+                // Remove all non-digits except the leading +
+                let cleaned = value.replace(/[^\d+]/g, '');
+                
+                // If user starts typing digits without +1, auto-add +1
+                if (cleaned.length > 0 && !cleaned.startsWith('+')) {
+                    // If it's all digits and length is 10 or less, prepend +1
+                    if (/^\d+$/.test(cleaned) && cleaned.length <= 10) {
+                        cleaned = '+1' + cleaned;
+                    }
+                }
+                
+                // If it starts with +1, ensure only digits follow
+                if (cleaned.startsWith('+1')) {
+                    let digits = cleaned.substring(2).replace(/\D/g, '');
+                    // Limit to 10 digits after +1
+                    if (digits.length > 10) {
+                        digits = digits.substring(0, 10);
+                    }
+                    cleaned = '+1' + digits;
+                }
+                
+                // Update the input value
+                if (e.target.value !== cleaned) {
+                    e.target.value = cleaned;
+                }
+            });
+            
+            // Validate on blur (when user leaves the field)
+            phoneInput.addEventListener('blur', function() {
+                validatePhone();
+            });
+            
+            // Validate on form submit
+            form.addEventListener('submit', function(e) {
+                if (!validatePhone()) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return false;
+                }
+            });
+        })();
+    </script>
 </body>
 </html>

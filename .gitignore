@@ -1,40 +1,36 @@
-# Python virtual environment 
-venv/ 
-env/ 
-
-# Python cache files
- __pycache__/
- *.pyc 
-
-# Editor/IDE specific files
-.vscode/ 
-.idea/
-
-# OS specific files 
-.DS_Store 
-
-# File for secret API keys (if you use one) 
+# Environment variables
 .env
-env-template
-google-credentials.json
-config.js
-
-# Security-sensitive files
-*.key
-*.pem
-credentials.json
-secrets.json
 .env.local
-.env.production
+.env.*.local
 
-# Node.js dependencies
+# Dependencies
 node_modules/
-npm-debug.log
-*.log
+package-lock.json
 
-# Package manager lock files (keep package-lock.json but ignore node_modules)
-# Uncomment below if you want to ignore lock files:
-# package-lock.json
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+.AppleDouble
+.LSOverride
+Thumbs.db
+
+# Build
+dist/
+build/
+.cache/
+
+# Logs
+*.log
+logs/
+
+# Test coverage
+coverage/
+
 
 # Local Netlify folder
 .netlify
