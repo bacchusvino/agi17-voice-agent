@@ -265,10 +265,7 @@
         </p>
     </footer>
 
-    <script src="js/config.js"></script>
-    <script type="module">
-        import { leadService } from './js/supabase.js';
-
+    <script>
         // E.164 Phone Validation for FSBO Registration Form
         (function() {
             const phoneInput = document.getElementById('fsbo_phone');
@@ -340,47 +337,12 @@
                 validatePhone();
             });
             
-            // Form submission handler
-            form.addEventListener('submit', async function(e) {
-                e.preventDefault();
-                
-                // Validate phone first
+            // Validate on form submit
+            form.addEventListener('submit', function(e) {
                 if (!validatePhone()) {
+                    e.preventDefault();
+                    e.stopPropagation();
                     return false;
-                }
-                
-                // Collect form data
-                const formData = {
-                    name: document.getElementById('fsbo_name').value.trim(),
-                    email: document.getElementById('fsbo_email').value.trim(),
-                    phone: phoneInput.value.trim(),
-                    source: 'fsbo_landing_page'
-                };
-                
-                console.log('[FORM] Submitting FSBO lead:', formData);
-                
-                // Save to Supabase
-                try {
-                    const result = await leadService.createLead(formData);
-                    
-                    if (result.success) {
-                        console.log('[SUCCESS] Lead saved to Supabase:', result.data);
-                        // Clear form
-                        form.reset();
-                        phoneInput.value = '+1';
-                        // Show success message
-                        alert('Thank you! A local expert will call you shortly.');
-                        // Redirect or refresh dashboard
-                        setTimeout(() => {
-                            window.location.href = '/';
-                        }, 2000);
-                    } else {
-                        console.error('[ERROR] Failed to save lead:', result.error);
-                        alert('Error submitting form. Please try again.');
-                    }
-                } catch (error) {
-                    console.error('[ERROR] Unexpected error:', error);
-                    alert('Error submitting form. Please try again.');
                 }
             });
         })();
