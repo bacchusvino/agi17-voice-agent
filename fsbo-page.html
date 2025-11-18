@@ -100,6 +100,7 @@
         </p>
     </footer>
 
+<<<<<<< HEAD
     <script src="js/config.js"></script>
     <script type="module">
         import { leadService } from './js/supabase.js';
@@ -118,6 +119,14 @@
         function validatePhone() {
             const phoneValue = phoneInput.value.trim();
             const phoneRegex = /^\+1\s\d{3}\s\d{3}\s\d{4}$/;
+=======
+    <script>
+        // E.164 Phone Validation for FSBO Registration Form
+        (function() {
+            const phoneInput = document.getElementById('fsbo_phone');
+            const phoneError = document.getElementById('fsbo_phone_error');
+            const form = document.getElementById('fsboRegisterForm');
+>>>>>>> a61aafa0da4a1c80cbdadf6ed09c96949b4f56f1
             
             if (!phoneRegex.test(phoneValue)) {
                 phoneError.textContent = 'Phone must be in format: +1 XXX XXX XXXX';
@@ -214,7 +223,56 @@
                 console.error('[ERROR]', error);
                 alert('Error submitting. Please try again.');
             }
+<<<<<<< HEAD
         });
+=======
+            
+            // Auto-format: If user types 10 digits (without +1), add +1 prefix
+            phoneInput.addEventListener('input', function(e) {
+                let value = e.target.value;
+                
+                // Remove all non-digits except the leading +
+                let cleaned = value.replace(/[^\d+]/g, '');
+                
+                // If user starts typing digits without +1, auto-add +1
+                if (cleaned.length > 0 && !cleaned.startsWith('+')) {
+                    // If it's all digits and length is 10 or less, prepend +1
+                    if (/^\d+$/.test(cleaned) && cleaned.length <= 10) {
+                        cleaned = '+1' + cleaned;
+                    }
+                }
+                
+                // If it starts with +1, ensure only digits follow
+                if (cleaned.startsWith('+1')) {
+                    let digits = cleaned.substring(2).replace(/\D/g, '');
+                    // Limit to 10 digits after +1
+                    if (digits.length > 10) {
+                        digits = digits.substring(0, 10);
+                    }
+                    cleaned = '+1' + digits;
+                }
+                
+                // Update the input value
+                if (e.target.value !== cleaned) {
+                    e.target.value = cleaned;
+                }
+            });
+            
+            // Validate on blur (when user leaves the field)
+            phoneInput.addEventListener('blur', function() {
+                validatePhone();
+            });
+            
+            // Validate on form submit
+            form.addEventListener('submit', function(e) {
+                if (!validatePhone()) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return false;
+                }
+            });
+        })();
+>>>>>>> a61aafa0da4a1c80cbdadf6ed09c96949b4f56f1
     </script>
 </body>
 </html>
