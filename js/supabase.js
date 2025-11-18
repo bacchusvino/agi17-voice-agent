@@ -1,37 +1,75 @@
 // Supabase configuration and utilities
-import { createClient } from '@supabase/supabase-js'
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
-// Initialize Supabase client
-const supabase = createClient(
-  window.QualifyConfig.supabase.url,
-  window.QualifyConfig.supabase.anonKey
-)
+// Initialize Supabase client with defensive checks
+let supabase = null;
+
+// Check if config is available
+if (!window.QualifyConfig) {
+  console.error('[SUPABASE] CRITICAL: window.QualifyConfig is not defined. Make sure js/config.js is loaded before supabase.js');
+} else if (!window.QualifyConfig.supabase) {
+  console.error('[SUPABASE] CRITICAL: window.QualifyConfig.supabase is not defined');
+} else if (!window.QualifyConfig.supabase.url || !window.QualifyConfig.supabase.anonKey) {
+  console.error('[SUPABASE] CRITICAL: Supabase URL or anon key is missing');
+  console.error('[SUPABASE] URL:', window.QualifyConfig.supabase.url);
+  console.error('[SUPABASE] Key exists:', !!window.QualifyConfig.supabase.anonKey);
+} else {
+  // Initialize Supabase client
+  console.log('[SUPABASE] Initializing client with URL:', window.QualifyConfig.supabase.url);
+  supabase = createClient(
+    window.QualifyConfig.supabase.url,
+    window.QualifyConfig.supabase.anonKey
+  );
+  console.log('[SUPABASE] Client initialized successfully');
+}
 
 // Lead management functions
 export const leadService = {
   // Create a new lead
   async createLead(leadData) {
+    console.log('[LEAD SERVICE] createLead called with:', leadData);
+
+    // Check if Supabase client is initialized
+    if (!supabase) {
+      const errorMsg = 'Supabase client is not initialized. Check console for initialization errors.';
+      console.error('[LEAD SERVICE] ' + errorMsg);
+      return { success: false, error: errorMsg };
+    }
+
     try {
+      // Prepare the insert data
+      const insertData = {
+        name: leadData.name,
+        email: leadData.email,
+        phone: leadData.phone || null,
+        source: leadData.source || 'landing_page',
+        notes: leadData.notes || null
+      };
+
+      console.log('[LEAD SERVICE] Inserting data into leads table:', insertData);
+
       const { data, error } = await supabase
         .from('leads')
-        .insert([{
-          name: leadData.name,
-          email: leadData.email,
-          phone: leadData.phone || null,
-          source: leadData.source || 'landing_page',
-          // status: 'new' - removed, let database handle default via schema
-          notes: leadData.notes || null
-        }])
+        .insert([insertData])
         .select()
 
       if (error) {
-        console.error('Error creating lead:', error)
+        console.error('[LEAD SERVICE] Supabase insert error:');
+        console.error('[LEAD SERVICE] Error message:', error.message);
+        console.error('[LEAD SERVICE] Error code:', error.code);
+        console.error('[LEAD SERVICE] Error details:', error.details);
+        console.error('[LEAD SERVICE] Error hint:', error.hint);
+        console.error('[LEAD SERVICE] Full error object:', JSON.stringify(error, null, 2));
         throw error
       }
 
+      console.log('[LEAD SERVICE] Insert successful! Returned data:', data);
       return { success: true, data: data[0] }
     } catch (error) {
-      console.error('Lead creation failed:', error)
+      console.error('[LEAD SERVICE] Lead creation failed:');
+      console.error('[LEAD SERVICE] Error name:', error.name);
+      console.error('[LEAD SERVICE] Error message:', error.message);
+      console.error('[LEAD SERVICE] Full error:', error);
       return { success: false, error: error.message }
     }
   },

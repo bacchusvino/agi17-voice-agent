@@ -267,7 +267,11 @@
 
     <script src="js/config.js"></script>
     <script type="module">
+        console.log('[FSBO PAGE] Module script starting...');
+        console.log('[FSBO PAGE] window.QualifyConfig:', window.QualifyConfig);
+
         import { leadService } from './js/supabase.js';
+        console.log('[FSBO PAGE] leadService imported successfully:', !!leadService);
 
         // E.164 Phone Validation for FSBO Registration Form
         (function() {
@@ -343,9 +347,11 @@
             // Form submission handler
             form.addEventListener('submit', async function(e) {
                 e.preventDefault();
+                console.log('[FORM] Form submit event triggered');
 
                 // Validate phone first
                 if (!validatePhone()) {
+                    console.log('[FORM] Phone validation failed');
                     return false;
                 }
 
@@ -357,14 +363,17 @@
                     source: 'fsbo_landing_page'
                 };
 
-                console.log('[FORM] Submitting FSBO lead:', formData);
+                console.log('[FORM] Collected form data:', JSON.stringify(formData, null, 2));
+                console.log('[FORM] Calling leadService.createLead...');
 
                 // Save to Supabase
                 try {
                     const result = await leadService.createLead(formData);
+                    console.log('[FORM] createLead returned:', JSON.stringify(result, null, 2));
 
                     if (result.success) {
-                        console.log('[SUCCESS] Lead saved to Supabase:', result.data);
+                        console.log('[FORM SUCCESS] Lead saved to Supabase!');
+                        console.log('[FORM SUCCESS] Lead ID:', result.data?.id);
                         // Clear form
                         form.reset();
                         phoneInput.value = '+1';
@@ -375,12 +384,16 @@
                             window.location.href = '/';
                         }, 2000);
                     } else {
-                        console.error('[ERROR] Failed to save lead:', result.error);
-                        alert('Error submitting form. Please try again.');
+                        console.error('[FORM ERROR] Failed to save lead');
+                        console.error('[FORM ERROR] Error message:', result.error);
+                        alert('Error submitting form: ' + (result.error || 'Unknown error') + '. Please check console for details.');
                     }
                 } catch (error) {
-                    console.error('[ERROR] Unexpected error:', error);
-                    alert('Error submitting form. Please try again.');
+                    console.error('[FORM ERROR] Unexpected exception:');
+                    console.error('[FORM ERROR] Error name:', error.name);
+                    console.error('[FORM ERROR] Error message:', error.message);
+                    console.error('[FORM ERROR] Error stack:', error.stack);
+                    alert('Error submitting form: ' + error.message + '. Please check console for details.');
                 }
             });
         })();
