@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Sell Your Home Smart | QualiFy</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body class="bg-white">
     <!-- Navigation -->
@@ -265,36 +266,40 @@
         </p>
     </footer>
 
-    <script src="js/config.js"></script>
-    <script type="module">
-        import { leadService } from './js/supabase.js';
+    <script>
+        // Initialize Supabase client
+        const SUPABASE_URL = 'https://tyrwkeqavitwkffjcznj.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR5cndrZXFhdml0d2tmZmpjem5qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg5OTA5MzcsImV4cCI6MjA3NDU2NjkzN30.XlP3j-5SQjje7nfv2jvtccQMJtlbSI22vqQtfEj7Nc4';
+
+        const { createClient } = supabase;
+        const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         // E.164 Phone Validation for FSBO Registration Form
         (function() {
             const phoneInput = document.getElementById('fsbo_phone');
             const phoneError = document.getElementById('fsbo_phone_error');
             const form = document.getElementById('fsboRegisterForm');
-            
+
             // E.164 regex: +1 followed by exactly 10 digits
             const e164Regex = /^\+1\d{10}$/;
-            
+
             // Function to show error
             function showPhoneError(message) {
                 phoneError.textContent = message;
                 phoneError.style.display = 'block';
                 phoneInput.classList.add('border-red-500');
             }
-            
+
             // Function to clear error
             function clearPhoneError() {
                 phoneError.style.display = 'none';
                 phoneInput.classList.remove('border-red-500');
             }
-            
+
             // Function to validate phone number
             function validatePhone() {
                 const phoneValue = phoneInput.value.trim();
-                
+
                 if (!e164Regex.test(phoneValue)) {
                     showPhoneError('Please enter your phone number in +1XXXXXXXXXX format.');
                     return false;
@@ -303,14 +308,14 @@
                     return true;
                 }
             }
-            
+
             // Auto-format: If user types 10 digits (without +1), add +1 prefix
             phoneInput.addEventListener('input', function(e) {
                 let value = e.target.value;
-                
+
                 // Remove all non-digits except the leading +
                 let cleaned = value.replace(/[^\d+]/g, '');
-                
+
                 // If user starts typing digits without +1, auto-add +1
                 if (cleaned.length > 0 && !cleaned.startsWith('+')) {
                     // If it's all digits and length is 10 or less, prepend +1
@@ -318,7 +323,7 @@
                         cleaned = '+1' + cleaned;
                     }
                 }
-                
+
                 // If it starts with +1, ensure only digits follow
                 if (cleaned.startsWith('+1')) {
                     let digits = cleaned.substring(2).replace(/\D/g, '');
@@ -328,18 +333,18 @@
                     }
                     cleaned = '+1' + digits;
                 }
-                
+
                 // Update the input value
                 if (e.target.value !== cleaned) {
                     e.target.value = cleaned;
                 }
             });
-            
+
             // Validate on blur (when user leaves the field)
             phoneInput.addEventListener('blur', function() {
                 validatePhone();
             });
-            
+
             // Form submission handler
             form.addEventListener('submit', async function(e) {
                 e.preventDefault();
@@ -350,36 +355,42 @@
                 }
 
                 // Collect form data
-                const formData = {
+                const leadData = {
                     name: document.getElementById('fsbo_name').value.trim(),
                     email: document.getElementById('fsbo_email').value.trim(),
                     phone: phoneInput.value.trim(),
                     source: 'fsbo_landing_page'
                 };
 
-                console.log('[FORM] Submitting FSBO lead:', formData);
+                console.log('[FSBO] Submitting lead to Supabase:', leadData);
 
                 // Save to Supabase
                 try {
-                    const result = await leadService.createLead(formData);
+                    const { data, error } = await supabaseClient
+                        .from('leads')
+                        .insert([leadData])
+                        .select();
 
-                    if (result.success) {
-                        console.log('[SUCCESS] Lead saved to Supabase:', result.data);
-                        // Clear form
-                        form.reset();
-                        phoneInput.value = '+1';
-                        // Show success message
-                        alert('Thank you! A local expert will call you shortly.');
-                        // Redirect or refresh dashboard
-                        setTimeout(() => {
-                            window.location.href = '/';
-                        }, 2000);
-                    } else {
-                        console.error('[ERROR] Failed to save lead:', result.error);
-                        alert('Error submitting form. Please try again.');
+                    if (error) {
+                        console.error('[FSBO] Supabase error:', error);
+                        console.error('[FSBO] Error details:', JSON.stringify(error, null, 2));
+                        alert('Error submitting form: ' + error.message);
+                        return;
                     }
+
+                    console.log('[FSBO] Lead saved successfully:', data);
+                    // Clear form
+                    form.reset();
+                    phoneInput.value = '+1';
+                    // Show success message
+                    alert('Thank you! A local expert will call you shortly.');
+                    // Redirect to home page
+                    setTimeout(() => {
+                        window.location.href = '/';
+                    }, 2000);
                 } catch (error) {
-                    console.error('[ERROR] Unexpected error:', error);
+                    console.error('[FSBO] Unexpected error:', error);
+                    console.error('[FSBO] Error stack:', error.stack);
                     alert('Error submitting form. Please try again.');
                 }
             });
